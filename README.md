@@ -1,41 +1,73 @@
-# AI SDK PDF Support Example
+# AI-Enhanced PDF Quiz Generator
 
-This example demonstrates how to use the [AI SDK](https://sdk.vercel.ai/docs) with [Next.js](https://nextjs.org/) with the `useObject` hook to submit PDF messages to the AI provider of your choice (Google or Anthropic).
+This application uses AI to generate interactive quizzes from PDF documents, with enhanced features and improved interactivity.
 
-## Deploy your own
+## Features
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fai-sdk-preview-pdf-support&env=GOOGLE_API_KEY&envDescription=API%20keys%20needed%20for%20application&envLink=google.com)
+- **OpenRouter Integration**: Utilizes OpenRouter's API to access multiple high-quality language models including Claude 3.5 Sonnet, GPT-4, and Llama models
+- **PDF Preview**: Shows a preview of the document content after upload
+- **Model Selection**: Choose from different AI models for quiz generation
+- **Customizable Questions**: Generate between 2-10 questions (default is 4)
+- **Interactive Quiz Experience**:
+  - Timed questions with countdown (2 minutes per question)
+  - Keyboard navigation (number keys 1-4 to select answers)
+  - Question bookmarking
+  - Performance analytics
+  - Share quiz results
+- **Enhanced Review**: Detailed review with time tracking and bookmark indicators
 
-## How to use
+## Technology
 
-Run [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI, Shadcn/UI
+- **Animations**: Framer Motion
+- **AI Provider**: OpenRouter API
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies:
 
 ```bash
-npx create-next-app --example https://github.com/vercel-labs/ai-sdk-preview-pdf-support ai-sdk-preview-pdf-support-example
+npm install
 ```
+
+3. Set up environment variables:
+
+The application requires an OpenRouter API key to function. This key should be added to a `.env.local` file in the project root:
+
+```
+OPENROUTER_API_KEY=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
+```
+
+Alternatively, you can create your own API key at [OpenRouter](https://openrouter.ai) and use that instead.
+
+4. Run the development server:
 
 ```bash
-yarn create next-app --example https://github.com/vercel-labs/ai-sdk-preview-pdf-support ai-sdk-preview-pdf-support-example
+npm run dev
 ```
 
-```bash
-pnpm create next-app --example https://github.com/vercel-labs/ai-sdk-preview-pdf-support ai-sdk-preview-pdf-support-example
-```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-To run the example locally you need to:
+## How It Works
 
-1. Sign up for accounts with the AI providers you want to use (e.g., Google).
-2. Obtain API keys for Google provider.
-3. Set the required environment variables as shown in the `.env.example` file, but in a new file called `.env`.
-4. `npm install` to install the required dependencies.
-5. `npm run dev` to launch the development server.
+1. **Upload PDF**: Drag and drop or select a PDF file (up to 5MB)
+2. **Preview Content**: View basic information about the document
+3. **Customize**: Select the number of questions and AI model (free OpenRouter models only)
+4. **Generate Quiz**: The AI analyzes the document and creates a quiz
+5. **Take Quiz**: Answer questions with keyboard or mouse
+6. **Review Results**: See detailed results with performance analytics
 
+## Implementation Details
 
-## Learn More
+- The application uses a custom OpenRouter client (`lib/openrouter.ts`) to handle API calls
+- The quiz component (`components/quiz.tsx`) provides an interactive experience with timers and navigation
+- The PDF preview component (`components/pdf-preview.tsx`) shows basic file information
+- The enhanced quiz overview shows time tracking and bookmarking information
+- The application uses only free OpenRouter models to ensure accessibility
 
-To learn more about Vercel AI SDK or Next.js take a look at the following resources:
+## License
 
-- [AI SDK docs](https://sdk.vercel.ai/docs)
-- [Vercel AI Playground](https://play.vercel.ai)
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-
+This project is licensed under the MIT License.

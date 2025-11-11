@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { experimental_useObject } from "ai/react";
 import { questionsSchema } from "@/lib/schemas";
 import { z } from "zod";
 import { toast } from "sonner";
-import { FileUp, Plus, Loader2 } from "lucide-react";
+import { FileUp, Plus, Loader2, Sliders, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,12 +15,16 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Quiz from "@/components/quiz";
 import { Link } from "@/components/ui/link";
 import NextLink from "next/link";
-import { generateQuizTitle } from "./actions";
+import { generateQuizTitleAction } from "./actions";
 import { AnimatePresence, motion } from "framer-motion";
 import { VercelIcon, GitIcon } from "@/components/icons";
+import PdfPreview from "@/components/pdf-preview";
+import Notice from "@/components/notice";
 
 export default function ChatWithFiles() {
   const [files, setFiles] = useState<File[]>([]);
@@ -30,23 +33,13 @@ export default function ChatWithFiles() {
   );
   const [isDragging, setIsDragging] = useState(false);
   const [title, setTitle] = useState<string>();
-
-  const {
-    submit,
-    object: partialQuestions,
-    isLoading,
-  } = experimental_useObject({
-    api: "/api/generate-quiz",
-    schema: questionsSchema,
-    initialValue: undefined,
-    onError: (error) => {
-      toast.error("Failed to generate quiz. Please try again.");
-      setFiles([]);
-    },
-    onFinish: ({ object }) => {
-      setQuestions(object ?? []);
-    },
-  });
+  const [showCustomization, setShowCustomization] = useState(false);
+  const [numQuestions, setNumQuestions] = useState(4);
+  const [model, setModel] = useState("minimax/minimax-m2:free");
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [partialQuestions, setPartialQuestions] = useState<z.infer<typeof questionsSchema>>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -69,6 +62,11 @@ export default function ChatWithFiles() {
     }
 
     setFiles(validFiles);
+    
+    // Auto-show PDF preview when a file is selected
+    if (validFiles.length > 0) {
+      setShowPdfPreview(true);
+    }
   };
 
   const encodeFileAsBase64 = (file: File): Promise<string> => {
@@ -82,16 +80,71 @@ export default function ChatWithFiles() {
 
   const handleSubmitWithFiles = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const encodedFiles = await Promise.all(
-      files.map(async (file) => ({
-        name: file.name,
-        type: file.type,
-        data: await encodeFileAsBase64(file),
-      })),
-    );
-    submit({ files: encodedFiles });
-    const generatedTitle = await generateQuizTitle(encodedFiles[0].name);
-    setTitle(generatedTitle);
+    setIsLoading(true);
+    setProgress(0);
+    setPartialQuestions([]);
+    
+    try {
+      const encodedFiles = await Promise.all(
+        files.map(async (file) => ({
+          name: file.name,
+          type: file.type,
+          data: await encodeFileAsBase64(file),
+        })),
+      );
+      
+      // Generate title from the server action
+      const generatedTitle = await generateQuizTitleAction(encodedFiles[0].name);
+      setTitle(generatedTitle);
+      
+      // Simulate progress by updating partial questions
+      const interval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(interval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 500);
+      
+      // Submit with fetch API
+      const response = await fetch("/api/generate-quiz", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          files: encodedFiles,
+          customization: {
+            numQuestions,
+            model,
+          }
+        }),
+      });
+      
+      clearInterval(interval);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate quiz");
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.questions) {
+        setProgress(100);
+        setQuestions(data.questions);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (error) {
+      console.error("Error generating quiz:", error);
+      toast.error("Failed to generate quiz. Please try again.");
+      setFiles([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const clearPDF = () => {
@@ -99,9 +152,7 @@ export default function ChatWithFiles() {
     setQuestions([]);
   };
 
-  const progress = partialQuestions ? (partialQuestions.length / 4) * 100 : 0;
-
-  if (questions.length === 4) {
+  if (questions.length > 0) {
     return (
       <Quiz title={title ?? "Quiz"} questions={questions} clearPDF={clearPDF} />
     );
@@ -141,7 +192,7 @@ export default function ChatWithFiles() {
           </motion.div>
         )}
       </AnimatePresence>
-      <Card className="w-full max-w-md h-full border-0 sm:border sm:h-fit mt-12">
+      <Card className="w-full max-w-2xl h-full border-0 sm:border sm:h-fit mt-12">
         <CardHeader className="text-center space-y-6">
           <div className="mx-auto flex items-center justify-center space-x-2 text-muted-foreground">
             <div className="rounded-full bg-primary/10 p-2">
@@ -154,40 +205,116 @@ export default function ChatWithFiles() {
           </div>
           <div className="space-y-2">
             <CardTitle className="text-2xl font-bold">
-              PDF Quiz Generator
+              AI-Enhanced PDF Quiz Generator
             </CardTitle>
             <CardDescription className="text-base">
               Upload a PDF to generate an interactive quiz based on its content
-              using the <Link href="https://sdk.vercel.ai">AI SDK</Link> and{" "}
-              <Link href="https://sdk.vercel.ai/providers/ai-sdk-providers/google-generative-ai">
-                Google&apos;s Gemini Pro
-              </Link>
-              .
+              using <Link href="https://openrouter.ai">OpenRouter's</Link>{" "}
+              high-quality language models.
             </CardDescription>
           </div>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmitWithFiles} className="space-y-4">
-            <div
-              className={`relative flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 transition-colors hover:border-muted-foreground/50`}
+        <CardContent className="space-y-4">
+          <Notice />
+          
+          <div
+            className={`relative flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 transition-colors hover:border-muted-foreground/50`}
+          >
+            <input
+              type="file"
+              onChange={handleFileChange}
+              accept="application/pdf"
+              className="absolute inset-0 opacity-0 cursor-pointer"
+            />
+            <FileUp className="h-8 w-8 mb-2 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground text-center">
+              {files.length > 0 ? (
+                <span className="font-medium text-foreground">
+                  {files[0].name}
+                </span>
+              ) : (
+                <span>Drop your PDF here or click to browse.</span>
+              )}
+            </p>
+          </div>
+          
+          {showPdfPreview && files.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
             >
-              <input
-                type="file"
-                onChange={handleFileChange}
-                accept="application/pdf"
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-              <FileUp className="h-8 w-8 mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground text-center">
-                {files.length > 0 ? (
-                  <span className="font-medium text-foreground">
-                    {files[0].name}
-                  </span>
-                ) : (
-                  <span>Drop your PDF here or click to browse.</span>
-                )}
-              </p>
-            </div>
+              <PdfPreview file={files[0]} />
+            </motion.div>
+          )}
+          
+          <div className="flex items-center justify-between">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCustomization(!showCustomization)}
+              className="flex items-center gap-1"
+            >
+              <Sliders className="h-4 w-4" />
+              Customize Quiz
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowPdfPreview(!showPdfPreview)}
+              className="flex items-center gap-1"
+            >
+              <Settings className="h-4 w-4" />
+              {showPdfPreview ? "Hide Preview" : "Show Preview"}
+            </Button>
+          </div>
+          
+          {showCustomization && (
+            <motion.div
+              className="border rounded-lg p-4 space-y-4"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="space-y-2">
+                <Label htmlFor="num-questions">Number of Questions</Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    type="number"
+                    id="num-questions"
+                    min="2"
+                    max="10"
+                    value={numQuestions}
+                    onChange={(e) => setNumQuestions(parseInt(e.target.value))}
+                    className="w-20"
+                  />
+                  <span className="text-sm text-muted-foreground">questions</span>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="model">AI Model (Free OpenRouter Models)</Label>
+                <select
+                  id="model"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                >
+                  <option value="minimax/minimax-m2:free">Minimax M2 (Free)</option>
+                  <option value="tngtech/deepseek-r1t2-chimera:free">DeepSeek R1T2 Chimera (Free)</option>
+                  <option value="z-ai/glm-4.5-air:free">GLM 4.5 Air (Free)</option>
+                  <option value="deepseek/deepseek-chat-v3-0324:free">DeepSeek Chat V3 (Free)</option>
+                  <option value="qwen/qwen3-coder:free">Qwen3 Coder (Free)</option>
+                  <option value="google/gemma-3-27b-it:free">Gemma 3 27B (Free)</option>
+                  <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (Free)</option>
+                </select>
+              </div>
+            </motion.div>
+          )}
+          
+          <form onSubmit={handleSubmitWithFiles} className="space-y-4">
             <Button
               type="submit"
               className="w-full"
@@ -222,7 +349,7 @@ export default function ChatWithFiles() {
                 />
                 <span className="text-muted-foreground text-center col-span-4 sm:col-span-2">
                   {partialQuestions
-                    ? `Generating question ${partialQuestions.length + 1} of 4`
+                    ? `Generating question ${partialQuestions.length + 1} of ${numQuestions}`
                     : "Analyzing PDF content"}
                 </span>
               </div>
@@ -231,7 +358,7 @@ export default function ChatWithFiles() {
         )}
       </Card>
       <motion.div
-        className="flex flex-row gap-4 items-center justify-between fixed bottom-6 text-xs "
+        className="flex flex-row gap-4 items-center justify-between fixed bottom-6 text-xs"
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
       >

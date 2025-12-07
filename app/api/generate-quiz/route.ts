@@ -1,64 +1,45 @@
-import { questionSchema, questionsSchema } from "@/lib/schemas";
+import { questionsSchema } from "@/lib/schemas";
 import { createQuiz } from "@/lib/openrouter";
+import { QuizGenerationRequest, QuizGenerationResponse } from "@/lib/types";
 
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
-    const { files, customization } = await req.json();
+    const body: QuizGenerationRequest = await req.json();
+    const { files, customization } = body;
     
-    console.log("Received request for quiz generation");
-    console.log("Files:", files.length);
-    console.log("Customization:", customization);
-    
-    // Get API key from environment
-    // @ts-ignore
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    
-    console.log("API key present:", !!apiKey);
-    
-    if (!apiKey) {
-      console.error("OpenRouter API key not configured");
-      return new Response(JSON.stringify({ error: "OpenRouter API key not configured" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
+    if (!files || files.length === 0) {
+      return Response.json({
+        success: false,
+        error: "No files provided"
+      } as QuizGenerationResponse, { status: 400 });
     }
     
-    // Use the number of questions from customization, default to 4
-    const numQuestions = customization?.numQuestions || 4;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     
-    // Use the model from customization or default to a free model
+    if (!apiKey) {
+      return Response.json({
+        success: false,
+        error: "API key not configured"
+      } as QuizGenerationResponse, { status: 500 });
+    }
+    
+    const numQuestions = customization?.numQuestions || 4;
     const model = customization?.model || "minimax/minimax-m2:free";
     
-    console.log("Using model:", model);
-    console.log("Number of questions:", numQuestions);
-    
-    // Get the PDF data from the first file
-    const pdfData = files[0]?.data;
-    
-    // Generate quiz using our OpenRouter client
-    const questions = await createQuiz(apiKey, model, numQuestions, pdfData);
-    
-    console.log("Quiz generated successfully");
-    console.log("Questions:", questions);
-    
-    // Validate the questions against our schema
+    const questions = await createQuiz(apiKey, model, numQuestions, files[0].data);
     const validatedQuestions = questionsSchema.parse(questions);
     
-    console.log("Validation successful");
-    
-    // Return the questions in the expected format for the client
     return Response.json({
       success: true,
       questions: validatedQuestions
-    });
+    } as QuizGenerationResponse);
   } catch (error) {
-    console.error("Error generating quiz:", error);
+    console.error("Quiz generation error:", error);
     return Response.json({
-      error: "Error generating quiz: " + (error instanceof Error ? error.message : "Unknown error")
-    }, {
-      status: 500
-    });
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error"
+    } as QuizGenerationResponse, { status: 500 });
   }
 }

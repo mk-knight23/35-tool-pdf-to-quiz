@@ -1,36 +1,32 @@
 {
   "name": "pdf-to-quiz-generator",
-  "version": "1.0.0",
   "private": true,
+  "version": "2.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@radix-ui/react-label": "^2.1.0",
-    "@radix-ui/react-progress": "^1.1.0",
-    "@radix-ui/react-slot": "^1.1.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
+    "framer-motion": "^11.15.0",
     "lucide-react": "^0.468.0",
-    "next": "15.1.0",
-    "pdfjs-dist": "^4.7.76",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^5.0.2",
+    "pdfjs-dist": "^4.8.69",
+    "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.5",
-    "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.24.1"
+    "lucide-react": "^0.468.0"
   },
   "devDependencies": {
-    "@types/node": "^22.19.0",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
-    "eslint": "^9.16.0",
-    "eslint-config-next": "15.1.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.16",
-    "typescript": "^5.7.2"
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5"
   }
 }

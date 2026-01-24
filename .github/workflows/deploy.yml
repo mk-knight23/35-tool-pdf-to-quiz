@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ['main']
+    branches: ['main', 'upgrade/v1']
   workflow_dispatch:
 
 permissions:
@@ -40,6 +40,9 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
+
+      - name: Create .nojekyll
+        run: touch ./dist/.nojekyll
 
   deploy:
     environment:

@@ -1,23 +1,21 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useQuizStore } from '@/stores/quizStore'
-import { 
-  BrainCircuit, 
+import { motion } from 'framer-motion'
+import { useSettingsStore } from '@/stores/settings'
+import {
+  BrainCircuit,
   Settings as SettingsIcon,
   Sparkles,
-  Github
+  Github,
 } from 'lucide-react'
 import { QuizGenerator } from './components/QuizGenerator'
-import { Settings } from './components/Settings'
+import { SettingsPanel } from './components/SettingsPanel'
 
 export default function App() {
-  const { isDarkMode } = useQuizStore()
-  const [showSettings, setShowSettings] = useState(false)
+  const { isDarkMode, toggleHelp } = useSettingsStore()
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
+      <SettingsPanel onClose={() => toggleHelp()} />
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Navigation */}
         <nav className="flex justify-between items-center mb-16">
           <div className="flex items-center gap-3">
             <div className="bg-quiz-primary p-2.5 rounded-2xl shadow-lg shadow-quiz-primary/30 rotate-3">
@@ -35,14 +33,16 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setShowSettings(true)}
+            <button
+              onClick={() => toggleHelp()}
               className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-quiz-primary transition-all"
             >
               <SettingsIcon size={20} />
             </button>
-            <a 
+            <a
               href="https://github.com/mk-knight23/37-PDF-to-Quiz-Generator"
+              target="_blank"
+              rel="noopener noreferrer"
               className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-quiz-primary transition-all"
             >
               <Github size={20} />
@@ -50,7 +50,6 @@ export default function App() {
           </div>
         </nav>
 
-        {/* Hero */}
         <div className="text-center mb-16 space-y-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -68,12 +67,10 @@ export default function App() {
           </p>
         </div>
 
-        {/* Main Interface */}
         <main>
           <QuizGenerator />
         </main>
 
-        {/* Footer */}
         <footer className="mt-32 pb-12 border-t border-slate-200 dark:border-slate-800 pt-12">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-sm text-slate-400 font-bold uppercase tracking-widest">
             <div className="flex items-center gap-6">
@@ -84,12 +81,6 @@ export default function App() {
             <p>&copy; 2026 MK-QUILABS</p>
           </div>
         </footer>
-
-        <AnimatePresence>
-          {showSettings && (
-            <Settings onClose={() => setShowSettings(false)} />
-          )}
-        </AnimatePresence>
       </div>
     </div>
   )

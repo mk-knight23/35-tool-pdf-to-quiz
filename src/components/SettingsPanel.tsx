@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useSettingsStore } from '@/stores/settings'
 import { useStatsStore } from '@/stores/stats'
 import { useAudio } from '@/hooks/useAudio'
-import { KEYBOARD_SHORTCUTS } from '@/utils/constants'
 import {
   Settings,
   Volume2,
@@ -12,7 +11,6 @@ import {
   Monitor,
   RotateCcw,
   X,
-  Keyboard,
   Brain,
 } from 'lucide-react'
 
@@ -59,149 +57,126 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
           onClick={close}
           role="dialog"
           aria-modal="true"
           aria-labelledby="settings-title"
         >
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
+            initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="glass w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            exit={{ scale: 0.98, opacity: 0 }}
+            className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[var(--radius-lg)] shadow-[var(--shadow-elevated)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <header className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
-              <div className="flex items-center space-x-3">
-                <Settings className="text-quiz-primary" size={24} />
-                <h2 id="settings-title" className="text-xl font-bold">Settings</h2>
+            {/* Header */}
+            <header className="flex items-center justify-between p-6 border-b border-[var(--border-color)]">
+              <div className="flex items-center gap-3">
+                <Settings size={20} strokeWidth={1.5} className="text-[var(--text-primary)]" />
+                <h2 id="settings-title" className="font-display text-lg font-semibold">Settings</h2>
               </div>
               <button
                 onClick={close}
-                className="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-white/10"
+                className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] rounded-[var(--radius-sm)] transition-all focus-ring"
                 aria-label="Close settings"
               >
-                <X size={20} />
+                <X size={18} strokeWidth={1.5} />
               </button>
             </header>
 
-            <div className="p-6 space-y-8">
+            {/* Content */}
+            <div className="p-6 space-y-8 editorial-scrollbar">
+              {/* Audio Section */}
               <section aria-labelledby="audio-section">
-                <h3 className="flex items-center space-x-2 text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">
-                  <Volume2 size={16} />
-                  <span>Audio</span>
+                <h3 className="flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">
+                  <Volume2 size={14} strokeWidth={1.5} />
+                  <span id="audio-section">Audio</span>
                 </h3>
-                <div className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                  <span className="font-medium">Sound Effects</span>
+                <div className="flex items-center justify-between p-4 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-[var(--radius-md)]">
+                  <span className="font-medium text-[var(--text-primary)]">Sound Effects</span>
                   <button
                     onClick={() => { playClick(); settings.toggleSound() }}
-                    className={`relative w-14 h-7 rounded-full transition-colors ${
-                      settings.soundEnabled ? 'bg-quiz-primary' : 'bg-slate-600'
+                    className={`relative w-12 h-6 rounded-full transition-colors border ${
+                      settings.soundEnabled
+                        ? 'bg-[var(--color-ink)] border-[var(--color-ink)]'
+                        : 'bg-transparent border-[var(--border-color)]'
                     }`}
                     role="switch"
                     aria-checked={settings.soundEnabled}
                   >
                     <span
-                      className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                        settings.soundEnabled ? 'translate-x-7' : 'translate-x-0'
+                      className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                        settings.soundEnabled ? 'translate-x-6' : 'translate-x-0'
                       }`}
                     />
                   </button>
                 </div>
               </section>
 
+              {/* Theme Section */}
               <section aria-labelledby="theme-section">
-                <h3 className="flex items-center space-x-2 text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">
-                  <Sun size={16} />
-                  <span>Theme</span>
+                <h3 className="flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">
+                  <Sun size={14} strokeWidth={1.5} />
+                  <span id="theme-section">Theme</span>
                 </h3>
                 <div className="grid grid-cols-3 gap-3">
                   {themeOptions.map((option) => (
                     <button
                       key={option.value}
                       onClick={() => { playClick(); settings.setTheme(option.value) }}
-                      className={`flex flex-col items-center p-4 rounded-xl transition-all border-2 ${
+                      className={`flex flex-col items-center p-4 rounded-[var(--radius-md)] transition-all border-2 ${
                         settings.theme === option.value
-                          ? 'border-quiz-primary bg-quiz-primary/10'
-                          : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                          ? 'border-[var(--color-ink)] bg-[var(--color-ink)] text-[var(--color-paper)]'
+                          : 'border-[var(--border-color)] hover:border-[var(--color-ink)]'
                       }`}
                     >
-                      <option.icon
-                        size={20}
-                        className={`mb-2 ${
-                          settings.theme === option.value ? 'text-quiz-primary' : 'text-slate-400'
-                        }`}
-                      />
-                      <span
-                        className={`text-sm font-medium ${
-                          settings.theme === option.value ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'
-                        }`}
-                      >
-                        {option.label}
-                      </span>
+                      <option.icon size={18} strokeWidth={1.5} className="mb-2" />
+                      <span className="text-xs font-semibold uppercase">{option.label}</span>
                     </button>
                   ))}
                 </div>
               </section>
 
+              {/* Statistics Section */}
               <section aria-labelledby="stats-section">
-                <h3 className="flex items-center space-x-2 text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">
-                  <Brain size={16} />
-                  <span>Statistics</span>
+                <h3 className="flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">
+                  <Brain size={14} strokeWidth={1.5} />
+                  <span id="stats-section">Statistics</span>
                 </h3>
-                <div className="grid grid-cols-2 gap-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                <div className="grid grid-cols-2 gap-4 p-4 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-[var(--radius-md)]">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{stats.totalQuizzesCreated}</div>
-                    <div className="text-xs text-slate-500 uppercase tracking-wider">Quizzes Created</div>
+                    <div className="text-2xl font-mono font-semibold">{stats.totalQuizzesCreated}</div>
+                    <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wider mt-1">Quizzes</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-quiz-primary">{stats.totalQuestionsGenerated}</div>
-                    <div className="text-xs text-slate-500 uppercase tracking-wider">Questions</div>
+                    <div className="text-2xl font-mono font-semibold">{stats.totalQuestionsGenerated}</div>
+                    <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wider mt-1">Questions</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{formatTime(stats.totalTimeSpent)}</div>
-                    <div className="text-xs text-slate-500 uppercase tracking-wider">Time Spent</div>
+                    <div className="text-2xl font-mono font-semibold">{formatTime(stats.totalTimeSpent)}</div>
+                    <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wider mt-1">Time</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-quiz-secondary">
+                    <div className="text-2xl font-mono font-semibold">
                       {stats.lastSessionDate ? new Date(stats.lastSessionDate).toLocaleDateString() : 'Never'}
                     </div>
-                    <div className="text-xs text-slate-500 uppercase tracking-wider">Last Session</div>
+                    <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wider mt-1">Last</div>
                   </div>
                 </div>
                 <button
                   onClick={() => { playClick(); stats.resetStats() }}
-                  className="mt-4 w-full flex items-center justify-center space-x-2 p-3 text-red-500 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors"
+                  className="mt-4 w-full flex items-center justify-center gap-2 p-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-[var(--radius-md)] transition-colors focus-ring"
                 >
-                  <RotateCcw size={16} />
+                  <RotateCcw size={16} strokeWidth={1.5} />
                   <span className="text-sm font-medium">Reset Statistics</span>
                 </button>
               </section>
-
-              <section aria-labelledby="help-section">
-                <h3 className="flex items-center space-x-2 text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">
-                  <Keyboard size={16} />
-                  <span>Keyboard Shortcuts</span>
-                </h3>
-                <div className="space-y-2">
-                  {KEYBOARD_SHORTCUTS.map((shortcut) => (
-                    <div
-                      key={shortcut.action}
-                      className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg"
-                    >
-                      <span className="text-sm text-slate-600 dark:text-slate-400">{shortcut.action}</span>
-                      <kbd className="px-3 py-1 text-xs font-mono bg-slate-200 dark:bg-slate-700 rounded">
-                        {shortcut.key}
-                      </kbd>
-                    </div>
-                  ))}
-                </div>
-              </section>
             </div>
 
-            <footer className="p-6 border-t border-slate-200 dark:border-slate-800 text-center">
-              <p className="text-xs text-slate-500">QuizFlow v1.0.0 - Built with React + Vite</p>
+            {/* Footer */}
+            <footer className="p-4 border-t border-[var(--border-color)] text-center">
+              <p className="text-xs text-[var(--text-secondary)] font-mono">QuizFlow v1.0.0 — React + Vite</p>
             </footer>
           </motion.div>
         </motion.div>

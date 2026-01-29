@@ -1,10 +1,9 @@
 import { motion } from 'framer-motion'
 import { useSettingsStore } from '@/stores/settings'
 import {
-  BrainCircuit,
   Settings as SettingsIcon,
-  Sparkles,
   Github,
+  FileText,
 } from 'lucide-react'
 import { QuizGenerator } from './components/QuizGenerator'
 import { SettingsPanel } from './components/SettingsPanel'
@@ -15,70 +14,94 @@ export default function App() {
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
       <SettingsPanel onClose={() => toggleHelp()} />
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <nav className="flex justify-between items-center mb-16">
-          <div className="flex items-center gap-3">
-            <div className="bg-quiz-primary p-2.5 rounded-2xl shadow-lg shadow-quiz-primary/30 rotate-3">
-              <BrainCircuit className="text-white w-7 h-7" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-display font-black tracking-tighter">
-                Quiz<span className="text-quiz-primary">Flow</span>
-              </h1>
-              <div className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">AI Enabled</span>
-              </div>
-            </div>
+
+      <div className="max-w-3xl mx-auto px-6 py-12">
+        {/* Header */}
+        <header className="flex justify-between items-start mb-16 border-b border-[var(--border-color)] pb-8">
+          <div>
+            <h1 className="font-display text-4xl font-normal tracking-tight text-[var(--text-primary)]">
+              Quiz<span className="font-semibold">Flow</span>
+            </h1>
+            <p className="mt-2 text-sm text-[var(--text-secondary)] font-body tracking-wide uppercase">
+              PDF to Quiz Generator
+            </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <nav className="flex items-center gap-3">
             <button
               onClick={() => toggleHelp()}
-              className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-quiz-primary transition-all"
+              className="p-2.5 border border-[var(--border-color)] rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--color-ink)] transition-all focus-ring"
+              aria-label="Open settings"
             >
-              <SettingsIcon size={20} />
+              <SettingsIcon size={18} strokeWidth={1.5} />
             </button>
             <a
               href="https://github.com/mk-knight23/37-PDF-to-Quiz-Generator"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-quiz-primary transition-all"
+              className="p-2.5 border border-[var(--border-color)] rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--color-ink)] transition-all focus-ring"
+              aria-label="View on GitHub"
             >
-              <Github size={20} />
+              <Github size={18} strokeWidth={1.5} />
             </a>
-          </div>
-        </nav>
+          </nav>
+        </header>
 
-        <div className="text-center mb-16 space-y-4">
+        {/* Hero Section */}
+        <div className="text-center mb-16 space-y-6">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-quiz-secondary/10 text-quiz-secondary text-xs font-black uppercase tracking-widest"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 border border-[var(--border-color)] rounded-[var(--radius-md)] text-xs font-medium tracking-widest uppercase text-[var(--text-secondary)]"
           >
-            <Sparkles size={14} className="fill-current" /> Transform Documents Instantly
+            <FileText size={14} strokeWidth={1.5} />
+            AI-Powered Learning
           </motion.div>
-          <h2 className="text-5xl md:text-7xl font-display font-black tracking-tight leading-[0.9]">
-            Turn PDFs into <br />
-            <span className="gradient-text italic">Interactive Quizzes</span>
-          </h2>
-          <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto text-lg font-medium">
-            Upload any PDF and let our AI generate a comprehensive quiz for you. Perfect for students, teachers, and lifelong learners.
-          </p>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="font-display text-5xl md:text-6xl font-normal leading-[1.1] tracking-tight text-[var(--text-primary)]"
+          >
+            Transform PDFs into<br />
+            <span className="font-semibold italic">Interactive Quizzes</span>
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-lg text-[var(--text-secondary)] max-w-xl mx-auto font-body leading-relaxed"
+          >
+            Upload any PDF document and instantly generate a comprehensive quiz.
+            Perfect for students, educators, and lifelong learners.
+          </motion.p>
         </div>
 
+        {/* Main Content */}
         <main>
           <QuizGenerator />
         </main>
 
-        <footer className="mt-32 pb-12 border-t border-slate-200 dark:border-slate-800 pt-12">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-sm text-slate-400 font-bold uppercase tracking-widest">
+        {/* Footer */}
+        <footer className="mt-24 pt-8 border-t border-[var(--border-color)]">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-6 text-sm">
+            <p className="text-[var(--text-secondary)] font-mono">
+              © 2026 QuizFlow AI
+            </p>
             <div className="flex items-center gap-6">
-              <a href="#" className="hover:text-quiz-primary transition-colors">Privacy</a>
-              <a href="#" className="hover:text-quiz-primary transition-colors">API</a>
-              <a href="#" className="hover:text-quiz-primary transition-colors">Terms</a>
+              <a href="#" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm">
+                Privacy
+              </a>
+              <a href="#" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm">
+                Terms
+              </a>
+              <a href="#" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm">
+                Contact
+              </a>
             </div>
-            <p>&copy; 2026 MK-QUILABS</p>
           </div>
         </footer>
       </div>

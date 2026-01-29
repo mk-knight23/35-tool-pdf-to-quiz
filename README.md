@@ -1,44 +1,74 @@
-# QuizFlow AI - PDF to Quiz Generator
+# QuizFlow AI — PDF to Quiz Generator
 
-A professional web application that transforms PDF documents into interactive, AI-powered quizzes. Built with React 18, TypeScript, and Tailwind CSS.
+A professional web application that transforms PDF documents into interactive, AI-powered quizzes.
 
-## Features
+---
 
-- **PDF Text Extraction** - Automatically parses text from uploaded PDF files using PDF.js.
-- **AI-Powered Generation** - Leverages LLMs via OpenRouter to create relevant multiple-choice questions.
-- **Interactive Quiz UI** - Modern, clean interface for taking quizzes with real-time feedback.
-- **Instant Explanations** - Get detailed explanations for every answer to enhance learning.
-- **Local Persistence** - Saves your quiz history and settings directly in your browser.
-- **Privacy First** - All processing happens in the browser; API keys are never stored on a server.
-- **Customizable** - Adjust the number of questions, difficulty level, and AI model.
+## What It Does
 
-## Tech Stack
+QuizFlow AI extracts text content from PDF documents and uses large language models to generate comprehensive multiple-choice quizzes. Each question includes explanations, making it an effective learning tool for students, educators, and professionals.
 
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool
-- **Tailwind CSS** - Styling
-- **Zustand** - State management
-- **Framer Motion** - Animations
-- **PDF.js** - PDF processing
-- **OpenRouter API** - AI integration
-- **Lucide React** - Icons
+**When to use this tool:**
+- Converting lecture notes, articles, or study materials into practice quizzes
+- Creating assessments from documentation or technical papers
+- Testing comprehension of uploaded documents
+- Generating study materials from research papers
 
-## Getting Started
+---
 
-### Prerequisites
+## Inputs
 
-- Node.js 18+
-- npm 9+
-- An [OpenRouter API Key](https://openrouter.ai/keys)
+| Input | Type | Description |
+|-------|------|-------------|
+| PDF File | File | Any PDF document (max 10MB) |
+| API Key | String | OpenRouter API key for AI generation |
+| AI Model | Select | Choose from free/paid models |
+| Question Count | Number | 1-20 questions per quiz |
+| Difficulty | Select | Easy, Medium, or Hard |
 
-### Installation
+---
+
+## Outputs
+
+| Output | Type | Description |
+|--------|------|-------------|
+| Quiz Title | String | AI-generated title based on content |
+| Questions | Array | Multiple-choice questions with 4 options each |
+| Explanations | String | Detailed explanation for each answer |
+| Score | Number | Final score upon completion |
+
+---
+
+## Workflow Steps
+
+1. **Configure API Key** — Click settings and enter your OpenRouter API key
+2. **Upload PDF** — Select a PDF file from your device
+3. **Generate Quiz** — Click "Generate Quiz" to process the document
+4. **Take Quiz** — Answer each multiple-choice question
+5. **Review Results** — See your score with detailed explanations
+
+---
+
+## Stack Choice Rationale
+
+| Technology | Purpose |
+|------------|---------|
+| React 18 | Component-based UI with hooks for state management |
+| TypeScript | Type safety for quiz data structures |
+| Vite | Fast development server and optimized builds |
+| Tailwind CSS 4 | Utility-first styling with custom design system |
+| Zustand | Lightweight state management without boilerplate |
+| Framer Motion | Smooth, accessible transitions and animations |
+| PDF.js | Client-side PDF text extraction |
+| Lucide React | Clean, consistent SVG icons |
+
+---
+
+## Setup Steps
 
 ```bash
 # Clone the repository
 git clone https://github.com/mk-knight23/37-PDF-to-Quiz-Generator.git
-
-# Navigate to project
 cd 37-PDF-to-Quiz-Generator
 
 # Install dependencies
@@ -46,48 +76,109 @@ npm install
 
 # Start development server
 npm run dev
+
+# Build for production
+npm run build
 ```
 
-### Usage
+### API Key Configuration
 
-1. Open the application.
-2. Click the **Settings** icon.
-3. Enter your **OpenRouter API Key**.
-4. Upload a PDF and click **Generate Quiz**.
+1. Visit [OpenRouter](https://openrouter.ai/keys) to obtain an API key
+2. Click the settings icon in the app
+3. Enter your API key (stored locally in browser)
+
+### Environment Variables (Optional)
+
+Create a `.env.local` file for default configuration:
+
+```bash
+VITE_OPENROUTER_API_KEY=your_key_here
+VITE_DEFAULT_MODEL=google/gemini-flash-1.5-8b:free
+```
+
+---
+
+## Limitations
+
+- **PDF Size**: Maximum 10MB file size
+- **Text Extraction**: Scanned/image-based PDFs are not supported (text-based only)
+- **API Rate Limits**: Dependent on OpenRouter account tier
+- **Question Accuracy**: AI-generated questions require review for critical applications
+- **Browser Storage**: Quiz history stored in localStorage (cleared on browser data deletion)
+
+---
 
 ## Project Structure
 
 ```
-37-PDF-to-Quiz-Generator/
+35-tool-pdf-to-quiz/
+├── design-system/
+│   └── MASTER.md              # Black & White editorial theme specification
 ├── src/
 │   ├── components/
-│   │   ├── QuizGenerator.tsx # Core logic
-│   │   └── Settings.tsx      # Config modal
+│   │   ├── QuizGenerator.tsx  # Core quiz generation and display
+│   │   └── SettingsPanel.tsx  # API configuration and preferences
 │   ├── services/
-│   │   └── aiService.ts      # AI & PDF logic
+│   │   └── aiService.ts       # PDF parsing and AI integration
 │   ├── stores/
-│   │   └── quizStore.ts      # Zustand state
+│   │   ├── settings.ts        # User preferences
+│   │   └── quizStore.ts       # Quiz state management
 │   ├── types/
-│   │   └── quiz.ts           # TS interfaces
-│   ├── App.tsx               # Main layout
-│   └── index.css             # Global styles
+│   │   └── quiz.ts            # TypeScript interfaces
+│   ├── hooks/
+│   │   └── useAudio.ts        # Sound effects
+│   ├── App.tsx                # Main layout
+│   ├── main.tsx               # Entry point
+│   └── index.css              # Design system styles
+├── .github/workflows/
+│   └── deploy.yml             # GitHub Pages deployment
+├── vercel.json                # Vercel deployment config
+├── netlify.toml               # Netlify deployment config
 ├── package.json
 ├── tsconfig.json
-└── vite.config.ts
+├── vite.config.ts
+└── README.md
 ```
-
-## Deployment
-
-This project includes a GitHub Actions workflow for automatic deployment to GitHub Pages.
-
-1. Enable GitHub Pages in repository settings.
-2. Set source to "GitHub Actions".
-3. Push to the `main` branch to trigger deployment.
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**Live Demo:** [https://mk-knight23.github.io/37-PDF-to-Quiz-Generator/](https://mk-knight23.github.io/37-PDF-to-Quiz-Generator/)
+## Design System
+
+This application follows a **Black & White Editorial** design theme:
+- Typography-focused with serif headings (Georgia, Tiémpos)
+- Monochromatic color palette with high contrast
+- Minimal rounded corners (2-6px)
+- Clean borders and subtle shadows
+- Print-inspired aesthetic
+
+See `design-system/MASTER.md` for complete design specifications.
+
+---
+
+## Deployment
+
+This project includes deployment configurations for all three platforms:
+
+### GitHub Pages
+- Push to `main` branch triggers automatic deployment
+- Enable GitHub Pages in repository settings with source set to "GitHub Actions"
+
+### Vercel
+- Connected via `vercel.json` configuration
+- Auto-deploys on push to `main`
+
+### Netlify
+- Connected via `netlify.toml` configuration
+- Auto-deploys on push to `main`
+
+## Live Links
+
+- **GitHub Pages**: [https://mk-knight23.github.io/37-PDF-to-Quiz-Generator/](https://mk-knight23.github.io/37-PDF-to-Quiz-Generator/)
+- **Vercel**: [https://quizflow-ai.vercel.app](https://quizflow-ai.vercel.app)
+- **Netlify**: [https://quizflow-ai.netlify.app](https://quizflow-ai.netlify.app)
+
+---
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.

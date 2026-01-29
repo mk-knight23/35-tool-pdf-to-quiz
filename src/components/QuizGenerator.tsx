@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  FileUp, 
-  History, 
+import {
+  FileUp,
+  History,
   BrainCircuit,
   AlertCircle,
-  CheckCircle2,
+  Check,
   ChevronRight,
   Trash2,
-  ExternalLink
+  ExternalLink,
 } from 'lucide-react'
 import { useQuizStore } from '@/stores/quizStore'
 import { extractTextFromPDF, generateQuizFromAI } from '@/services/aiService'
@@ -81,93 +81,109 @@ export function QuizGenerator() {
   }, 0) : 0
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="space-y-8">
       {!activeQuiz ? (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-8"
         >
           {/* Upload Area */}
-          <div className="glass p-12 rounded-[2.5rem] border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center text-center space-y-6 transition-colors hover:border-quiz-primary/50">
-            <div className="p-6 bg-quiz-primary/10 rounded-full text-quiz-primary">
-              <FileUp size={48} />
-            </div>
-            <div>
-              <h3 className="text-2xl font-display font-bold">Upload PDF</h3>
-              <p className="text-slate-500 mt-2">Maximum file size: 10MB</p>
-            </div>
-            <input 
-              type="file" 
-              accept=".pdf" 
-              onChange={handleFileChange}
-              className="hidden" 
-              id="pdf-upload" 
-            />
-            <label 
-              htmlFor="pdf-upload"
-              className="bg-quiz-primary hover:bg-quiz-primary/90 text-white px-8 py-3 rounded-xl font-bold cursor-pointer transition-all active:scale-95 shadow-lg shadow-quiz-primary/20"
-            >
-              Select File
-            </label>
-            {file && (
-              <div className="flex items-center gap-2 text-quiz-accent font-medium">
-                <CheckCircle2 size={18} />
-                {file.name}
+          <div className="editorial-card">
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="p-4 border border-[var(--border-color)] rounded-[var(--radius-lg)]">
+                <FileUp size={32} strokeWidth={1.5} className="text-[var(--text-primary)]" />
               </div>
-            )}
+
+              <div className="space-y-2">
+                <h3 className="text-xl font-display font-semibold">Upload PDF Document</h3>
+                <p className="text-sm text-[var(--text-secondary)]">Maximum file size: 10MB</p>
+              </div>
+
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={handleFileChange}
+                className="hidden"
+                id="pdf-upload"
+              />
+              <label
+                htmlFor="pdf-upload"
+                className="editorial-button-primary cursor-pointer"
+              >
+                Select File
+              </label>
+
+              {file && (
+                <div className="flex items-center gap-2 text-sm text-[var(--text-primary)] font-medium">
+                  <Check size={16} strokeWidth={1.5} />
+                  {file.name}
+                </div>
+              )}
+            </div>
           </div>
 
-          <button 
+          {/* Generate Button */}
+          <button
             onClick={handleGenerate}
             disabled={!file || loading}
-            className="w-full bg-quiz-dark dark:bg-white dark:text-quiz-dark text-white p-5 rounded-2xl font-display font-bold text-xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full editorial-button-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <BrainCircuit className="animate-spin" />
+              <>
+                <BrainCircuit size={18} strokeWidth={1.5} className="animate-spin" />
+                Generating Quiz...
+              </>
             ) : (
-              <BrainCircuit />
+              <>
+                <BrainCircuit size={18} strokeWidth={1.5} />
+                Generate Quiz
+              </>
             )}
-            {loading ? 'GENERATING QUIZ...' : 'GENERATE QUIZ'}
           </button>
 
+          {/* Error Display */}
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-4 rounded-xl flex items-start gap-3">
-              <AlertCircle className="shrink-0" />
-              <p className="text-sm font-medium">{error}</p>
+            <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-[var(--radius-md)] text-red-700 dark:text-red-400">
+              <AlertCircle size={18} strokeWidth={1.5} className="shrink-0 mt-0.5" />
+              <p className="text-sm">{error}</p>
             </div>
           )}
 
           {/* History */}
           {quizzes.length > 0 && (
             <div className="space-y-4">
-              <h3 className="text-xl font-display font-bold flex items-center gap-2">
-                <History className="w-5 h-5" /> Recent Quizzes
+              <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-widest flex items-center gap-2">
+                <History size={16} strokeWidth={1.5} />
+                Recent Quizzes
               </h3>
-              <div className="grid gap-4">
+              <div className="space-y-3">
                 {quizzes.map(quiz => (
-                  <div key={quiz.id} className="glass p-4 rounded-2xl flex items-center justify-between group">
+                  <div
+                    key={quiz.id}
+                    className="editorial-card flex items-center justify-between group"
+                  >
                     <div className="flex items-center gap-4">
-                      <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                        <ChevronRight className="text-slate-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold">{quiz.title}</h4>
-                        <p className="text-xs text-slate-500 uppercase tracking-tighter">{quiz.pdfName}</p>
+                      <ChevronRight size={16} strokeWidth={1.5} className="text-[var(--text-secondary)]" />
+                      <div className="text-left">
+                        <h4 className="font-semibold text-[var(--text-primary)]">{quiz.title}</h4>
+                        <p className="text-xs text-[var(--text-secondary)] font-mono mt-0.5">{quiz.pdfName}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button 
+                    <div className="flex items-center gap-1">
+                      <button
                         onClick={() => setActiveQuiz(quiz)}
-                        className="p-2 hover:bg-quiz-primary/10 text-quiz-primary rounded-lg transition-colors"
+                        className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] rounded-[var(--radius-sm)] transition-all focus-ring"
+                        aria-label="Open quiz"
                       >
-                        <ExternalLink size={18} />
+                        <ExternalLink size={16} strokeWidth={1.5} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => removeQuiz(quiz.id)}
-                        className="p-2 hover:bg-red-500/10 text-red-500 rounded-lg transition-colors"
+                        className="p-2 text-[var(--text-secondary)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-[var(--radius-sm)] transition-all focus-ring"
+                        aria-label="Delete quiz"
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} strokeWidth={1.5} />
                       </button>
                     </div>
                   </div>
@@ -177,39 +193,41 @@ export function QuizGenerator() {
           )}
         </motion.div>
       ) : (
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="space-y-8 pb-20"
+          className="space-y-8 pb-32"
         >
-          <div className="flex items-center justify-between">
-            <button 
+          {/* Quiz Header */}
+          <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-6">
+            <button
               onClick={() => setActiveQuiz(null)}
-              className="text-slate-500 hover:text-quiz-primary transition-colors flex items-center gap-2"
+              className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors flex items-center gap-2 focus-ring rounded-[var(--radius-sm)] px-2 py-1"
             >
               ← Back to Generator
             </button>
-            <span className="text-xs font-bold text-slate-400 uppercase">{activeQuiz.pdfName}</span>
+            <span className="text-xs font-mono text-[var(--text-secondary)] uppercase">{activeQuiz.pdfName}</span>
           </div>
 
-          <header className="space-y-2">
-            <h2 className="text-3xl md:text-4xl font-display font-black leading-tight">
+          <header className="space-y-3">
+            <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-[var(--text-primary)]">
               {activeQuiz.title}
             </h2>
-            <p className="text-slate-500">Based on your uploaded document</p>
+            <p className="text-[var(--text-secondary)]">Based on your uploaded document</p>
           </header>
 
+          {/* Questions */}
           <div className="space-y-6">
             {activeQuiz.questions.map((q, idx) => (
-              <div key={q.id} className="glass p-8 rounded-[2rem] space-y-6">
+              <div key={q.id} className="editorial-card space-y-5">
                 <div className="flex items-start gap-4">
-                  <span className="bg-quiz-primary text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold shrink-0">
+                  <span className="flex items-center justify-center w-8 h-8 bg-[var(--color-ink)] text-[var(--color-paper)] rounded-[var(--radius-sm)] font-semibold text-sm shrink-0 font-mono">
                     {idx + 1}
                   </span>
-                  <h4 className="text-xl font-bold leading-snug">{q.question}</h4>
+                  <h4 className="text-lg font-medium leading-relaxed text-[var(--text-primary)]">{q.question}</h4>
                 </div>
-                
-                <div className="grid gap-3 pl-12">
+
+                <div className="space-y-2 pl-12">
                   {q.options.map((option, oIdx) => {
                     const isSelected = userAnswers[q.id] === oIdx
                     const isCorrect = oIdx === q.correctAnswer
@@ -220,30 +238,34 @@ export function QuizGenerator() {
                       <button
                         key={oIdx}
                         onClick={() => handleAnswer(q.id, oIdx)}
-                        className={clsx(
-                          "w-full text-left p-4 rounded-xl border-2 transition-all flex items-center justify-between",
-                          !showResults && isSelected && "bg-quiz-primary/10 border-quiz-primary",
-                          !showResults && !isSelected && "border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50",
-                          showCorrect && "bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400",
-                          showWrong && "bg-red-500/10 border-red-500 text-red-600 dark:text-red-400"
-                        )}
+                        className={`w-full text-left p-4 rounded-[var(--radius-md)] border-2 transition-all flex items-center justify-between ${
+                          !showResults && isSelected
+                            ? 'bg-[var(--color-ink)] text-[var(--color-paper)] border-[var(--color-ink)]'
+                            : !showResults && !isSelected
+                            ? 'border-[var(--border-color)] hover:border-[var(--color-ink)] hover:bg-[var(--bg-primary)]'
+                            : showCorrect
+                            ? 'bg-green-50 dark:bg-green-900/20 border-green-600 dark:border-green-700 text-green-700 dark:text-green-400'
+                            : showWrong
+                            ? 'bg-red-50 dark:bg-red-900/20 border-red-600 dark:border-red-700 text-red-700 dark:text-red-400'
+                            : 'border-[var(--border-color)]'
+                        }`}
                       >
                         <span className="font-medium">{option}</span>
-                        {showCorrect && <CheckCircle2 size={18} />}
-                        {showWrong && <AlertCircle size={18} />}
+                        {showCorrect && <Check size={16} strokeWidth={1.5} />}
+                        {showWrong && <AlertCircle size={16} strokeWidth={1.5} />}
                       </button>
                     )
                   })}
                 </div>
 
-                {showResults && (
-                  <motion.div 
+                {showResults && q.explanation && (
+                  <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="pl-12 pt-4 border-t border-slate-100 dark:border-slate-800"
+                    className="pl-12 pt-4 border-t border-[var(--border-color)]"
                   >
-                    <p className="text-sm text-slate-500 italic">
-                      <span className="font-bold text-quiz-accent uppercase not-italic mr-2">Explanation:</span>
+                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                      <span className="font-semibold text-[var(--text-primary)] mr-2">Explanation:</span>
                       {q.explanation}
                     </p>
                   </motion.div>
@@ -252,30 +274,33 @@ export function QuizGenerator() {
             ))}
           </div>
 
-          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-lg px-4">
-            <div className="glass p-4 rounded-2xl shadow-2xl flex items-center justify-between">
+          {/* Fixed Bottom Bar */}
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-[var(--bg-surface)] border-t border-[var(--border-color)]">
+            <div className="max-w-3xl mx-auto flex items-center justify-between">
               {showResults ? (
                 <>
-                  <div className="flex items-center gap-4 pl-4">
-                    <span className="text-sm font-bold text-slate-500 uppercase">Score</span>
-                    <span className="text-2xl font-black text-quiz-primary">{score}/{activeQuiz.questions.length}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-[var(--text-secondary)] font-medium">Score</span>
+                    <span className="text-2xl font-mono font-semibold text-[var(--text-primary)]">
+                      {score}/{activeQuiz.questions.length}
+                    </span>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setActiveQuiz(null)}
-                    className="bg-quiz-dark dark:bg-white dark:text-quiz-dark text-white px-6 py-3 rounded-xl font-bold"
+                    className="editorial-button-primary"
                   >
                     Done
                   </button>
                 </>
               ) : (
                 <>
-                  <p className="text-sm text-slate-500 pl-4 font-medium">
+                  <p className="text-sm text-[var(--text-secondary)] font-medium">
                     {Object.keys(userAnswers).length} of {activeQuiz.questions.length} answered
                   </p>
-                  <button 
+                  <button
                     disabled={Object.keys(userAnswers).length < activeQuiz.questions.length}
                     onClick={() => setShowResults(true)}
-                    className="bg-quiz-primary hover:bg-quiz-primary/90 text-white px-8 py-3 rounded-xl font-bold disabled:opacity-50 transition-all"
+                    className="editorial-button-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Check Results
                   </button>
@@ -287,8 +312,4 @@ export function QuizGenerator() {
       )}
     </div>
   )
-}
-
-function clsx(...classes: any[]) {
-  return classes.filter(Boolean).join(' ')
 }

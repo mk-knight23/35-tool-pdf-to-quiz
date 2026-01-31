@@ -5,16 +5,19 @@ import type { Quiz, QuizSettings } from '@/types/quiz'
 interface QuizStore {
   quizzes: Quiz[]
   settings: QuizSettings
+  previewQuiz: Quiz | null
 
   // Actions
   addQuiz: (quiz: Quiz) => void
   removeQuiz: (id: string) => void
   updateSettings: (settings: Partial<QuizSettings>) => void
+  setPreviewQuiz: (quiz: Quiz | null) => void
+  confirmPreviewQuiz: () => void
 }
 
 export const useQuizStore = create<QuizStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       quizzes: [],
       settings: {
         apiKey: '',
@@ -22,10 +25,21 @@ export const useQuizStore = create<QuizStore>()(
         numQuestions: 5,
         difficulty: 'medium',
       },
+      previewQuiz: null,
 
       addQuiz: (quiz) => set((state) => ({ quizzes: [quiz, ...state.quizzes] })),
       removeQuiz: (id) => set((state) => ({ quizzes: state.quizzes.filter((q) => q.id !== id) })),
       updateSettings: (newSettings) => set((state) => ({ settings: { ...state.settings, ...newSettings } })),
+      setPreviewQuiz: (quiz) => set({ previewQuiz: quiz }),
+      confirmPreviewQuiz: () => {
+        const { previewQuiz } = get()
+        if (previewQuiz) {
+          set((state) => ({
+            quizzes: [previewQuiz, ...state.quizzes],
+            previewQuiz: null,
+          }))
+        }
+      },
     }),
     {
       name: 'quizflow-storage',

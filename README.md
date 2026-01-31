@@ -42,10 +42,11 @@ QuizFlow AI extracts text content from PDF documents and uses large language mod
 ## Workflow Steps
 
 1. **Configure API Key** — Click settings and enter your OpenRouter API key
-2. **Upload PDF** — Select a PDF file from your device
-3. **Generate Quiz** — Click "Generate Quiz" to process the document
-4. **Take Quiz** — Answer each multiple-choice question
-5. **Review Results** — See your score with detailed explanations
+2. **Upload PDF** — Drag & drop or select a PDF file (max 10MB, text-based only)
+3. **Generate Quiz** — Click "Generate Quiz" and watch the progress
+4. **Preview & Customize** — Review generated questions, remove any you don't want
+5. **Take Quiz** — Answer each multiple-choice question
+6. **Review Results** — See your score with detailed explanations
 
 ---
 
@@ -105,6 +106,7 @@ VITE_DEFAULT_MODEL=google/gemini-flash-1.5-8b:free
 - **API Rate Limits**: Dependent on OpenRouter account tier
 - **Question Accuracy**: AI-generated questions require review for critical applications
 - **Browser Storage**: Quiz history stored in localStorage (cleared on browser data deletion)
+- **No Question Editing**: You can remove unwanted questions, but cannot edit question text or answers (by design — keeps the tool simple)
 
 ---
 
@@ -122,7 +124,8 @@ VITE_DEFAULT_MODEL=google/gemini-flash-1.5-8b:free
 │   │   └── aiService.ts       # PDF parsing and AI integration
 │   ├── stores/
 │   │   ├── settings.ts        # User preferences
-│   │   └── quizStore.ts       # Quiz state management
+│   │   ├── quizStore.ts       # Quiz state management
+│   │   └── stats.ts           # Usage statistics
 │   ├── types/
 │   │   └── quiz.ts            # TypeScript interfaces
 │   ├── hooks/

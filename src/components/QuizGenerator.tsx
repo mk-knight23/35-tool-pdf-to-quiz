@@ -23,6 +23,8 @@ export function QuizGenerator() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isDragOver, setIsDragOver] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null)
   const [userAnswers, setUserAnswers] = useState<Record<string, number>>({})
   const [showResults, setShowResults] = useState(false)
@@ -30,9 +32,47 @@ export function QuizGenerator() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0])
+      const selectedFile = e.target.files[0]
+      if (selectedFile.type !== 'application/pdf') {
+        setError('Please select a PDF file')
+        return
+      }
+      if (selectedFile.size > 10 * 1024 * 1024) {
+        setError('File size must be less than 10MB')
+        return
+      }
+      setFile(selectedFile)
       setError(null)
     }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+
+    const droppedFile = e.dataTransfer.files[0]
+    if (!droppedFile) return
+
+    if (droppedFile.type !== 'application/pdf') {
+      setError('Please drop a PDF file')
+      return
+    }
+    if (droppedFile.size > 10 * 1024 * 1024) {
+      setError('File size must be less than 10MB')
+      return
+    }
+    setFile(droppedFile)
+    setError(null)
   }
 
   const handleGenerate = async () => {
@@ -43,7 +83,17 @@ export function QuizGenerator() {
     }
 
     setLoading(true)
+    setUploadProgress(0)
     setError(null)
+
+    // Simulate progress during generation
+    const progressInterval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 90) return prev
+        return prev + Math.random() * 15
+      })
+    }, 500)
+
     try {
       const text = await extractTextFromPDF(file)
       const quizData = await generateQuizFromAI(
@@ -53,6 +103,9 @@ export function QuizGenerator() {
         settings.numQuestions,
         settings.difficulty
       )
+
+      clearInterval(progressInterval)
+      setUploadProgress(100)
 
       const newQuiz: Quiz = {
         id: Math.random().toString(36).substr(2, 9),
@@ -69,9 +122,11 @@ export function QuizGenerator() {
       setEditingPreview(newQuiz)
       setFile(null)
     } catch (err: any) {
+      clearInterval(progressInterval)
       setError(err.message || 'Failed to generate quiz')
     } finally {
       setLoading(false)
+      setUploadProgress(0)
     }
   }
 
@@ -365,15 +420,30 @@ export function QuizGenerator() {
       className="space-y-8"
     >
       {/* Upload Area */}
-      <div className="editorial-card">
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`editorial-card transition-all duration-200 ${
+          isDragOver ? 'border-[var(--color-ink)] border-2 bg-[var(--bg-primary)]' : ''
+        }`}
+      >
         <div className="flex flex-col items-center text-center space-y-6">
-          <div className="p-4 border border-[var(--border-color)] rounded-[var(--radius-lg)]">
-            <FileUp size={32} strokeWidth={1.5} className="text-[var(--text-primary)]" />
+          <div className={`p-4 border border-[var(--border-color)] rounded-[var(--radius-lg)] transition-all duration-200 ${
+            isDragOver ? 'scale-110 border-[var(--color-ink)]' : ''
+          }`}>
+            <FileUp size={32} strokeWidth={1.5} className={`transition-colors ${
+              isDragOver ? 'text-[var(--color-ink)]' : 'text-[var(--text-primary)]'
+            }`} />
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-xl font-display font-semibold">Upload PDF Document</h3>
-            <p className="text-sm text-[var(--text-secondary)]">Maximum file size: 10MB. Text-based PDFs only.</p>
+            <h3 className="text-xl font-display font-semibold">
+              {isDragOver ? 'Drop your PDF here' : 'Upload PDF Document'}
+            </h3>
+            <p className="text-sm text-[var(--text-secondary)]">
+              {isDragOver ? 'Release to upload' : 'Drag & drop or click to select. Max 10MB, text-based PDFs only.'}
+            </p>
           </div>
 
           <input
@@ -385,15 +455,18 @@ export function QuizGenerator() {
           />
           <label
             htmlFor="pdf-upload"
-            className="editorial-button-primary cursor-pointer"
+            className={`editorial-button-primary cursor-pointer transition-all ${
+              isDragOver ? 'opacity-50' : ''
+            }`}
           >
             Select File
           </label>
 
-          {file && (
-            <div className="flex items-center gap-2 text-sm text-[var(--text-primary)] font-medium">
-              <Check size={16} strokeWidth={1.5} />
-              {file.name}
+          {file && !loading && (
+            <div className="flex items-center gap-2 text-sm text-[var(--text-primary)] font-medium px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/30 rounded-[var(--radius-md)]">
+              <Check size={16} strokeWidth={1.5} className="text-green-600 dark:text-green-400" />
+              <span className="truncate max-w-[250px]">{file.name}</span>
+              <span className="text-[var(--text-secondary)]">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
             </div>
           )}
         </div>
@@ -403,12 +476,19 @@ export function QuizGenerator() {
       <button
         onClick={handleGenerate}
         disabled={!file || loading}
-        className="w-full editorial-button-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full editorial-button-primary disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
       >
         {loading ? (
           <>
-            <BrainCircuit size={18} strokeWidth={1.5} className="animate-spin" />
-            Generating Quiz...
+            <div
+              className="absolute left-0 top-0 h-full bg-[var(--color-ink-light)] opacity-30 transition-all duration-300"
+              style={{ width: `${uploadProgress}%` }}
+            />
+            <span className="relative flex items-center gap-2">
+              <BrainCircuit size={18} strokeWidth={1.5} className="animate-spin" />
+              {uploadProgress < 30 ? 'Reading PDF...' : uploadProgress < 70 ? 'Generating questions...' : 'Finalizing...'}
+              <span className="font-mono">{Math.round(uploadProgress)}%</span>
+            </span>
           </>
         ) : (
           <>
@@ -427,7 +507,7 @@ export function QuizGenerator() {
       )}
 
       {/* History */}
-      {quizzes.length > 0 && (
+      {quizzes.length > 0 ? (
         <div className="space-y-4">
           <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-widest flex items-center gap-2">
             <History size={16} strokeWidth={1.5} />
@@ -465,6 +545,11 @@ export function QuizGenerator() {
               </div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="text-center py-12 border-2 border-dashed border-[var(--border-color)] rounded-[var(--radius-lg)]">
+          <History size={32} strokeWidth={1} className="mx-auto mb-3 text-[var(--color-muted)]" />
+          <p className="text-[var(--text-secondary)] text-sm">No quizzes yet. Upload a PDF to get started.</p>
         </div>
       )}
     </motion.div>

@@ -8,12 +8,14 @@ interface SettingsState {
   theme: ThemeMode
   showHelp: boolean
   isDarkMode: boolean
+  focusMode: boolean
 
   toggleSound: () => void
   setTheme: (theme: ThemeMode) => void
   applyTheme: () => void
   toggleHelp: () => void
   toggleDarkMode: () => void
+  toggleFocusMode: () => void
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -23,6 +25,7 @@ export const useSettingsStore = create<SettingsState>()(
       theme: 'dark',
       showHelp: false,
       isDarkMode: true,
+      focusMode: false,
 
       toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
       setTheme: (theme) => {
@@ -50,6 +53,16 @@ export const useSettingsStore = create<SettingsState>()(
         const newTheme = get().theme === 'dark' ? 'light' : 'dark'
         set({ theme: newTheme, isDarkMode: newTheme === 'dark' })
         get().applyTheme()
+      },
+      toggleFocusMode: () => {
+        const newFocusMode = !get().focusMode
+        set({ focusMode: newFocusMode })
+
+        if (newFocusMode) {
+          document.body.classList.add('focus-mode')
+        } else {
+          document.body.classList.remove('focus-mode')
+        }
       },
     }),
     {

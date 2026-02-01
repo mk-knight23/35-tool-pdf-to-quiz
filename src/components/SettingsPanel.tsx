@@ -21,6 +21,7 @@ import {
   Upload,
   Trash2,
   Database,
+  Focus,
 } from 'lucide-react'
 
 interface SettingsPanelProps {
@@ -266,6 +267,42 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                       <span className="text-xs font-semibold uppercase">{option.label}</span>
                     </button>
                   ))}
+                </div>
+              </section>
+
+              {/* Focus Mode Section */}
+              <section aria-labelledby="focus-section">
+                <h3 className="flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">
+                  <Focus size={14} strokeWidth={1.5} />
+                  <span id="focus-section">Experience</span>
+                </h3>
+                <div className="space-y-3">
+                  <div className="p-4 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-[var(--radius-md)]">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <span className="font-medium text-[var(--text-primary)]">Focus Mode</span>
+                        <p className="text-xs text-[var(--text-secondary)] mt-1">
+                          Monospace-only interface with 66ch line width. Reduces distractions for deep work.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => { playClick(); settings.toggleFocusMode() }}
+                        className={`relative w-12 h-6 rounded-full transition-colors border shrink-0 ml-4 ${
+                          settings.focusMode
+                            ? 'bg-[var(--color-ink)] border-[var(--color-ink)]'
+                            : 'bg-transparent border-[var(--border-color)]'
+                        }`}
+                        role="switch"
+                        aria-checked={settings.focusMode}
+                      >
+                        <span
+                          className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                            settings.focusMode ? 'translate-x-6' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </section>
 

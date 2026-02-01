@@ -169,3 +169,49 @@ body {
     display: none !important;
   }
 }
+
+/* Focus Mode - Intentional Constraint */
+.focus-mode {
+  /* Intentional quirk: 66 character line width (classic readability rule) */
+  --focus-max-width: 66ch;
+
+  /* Focus mode uses monospace for everything */
+  font-family: var(--font-mono) !important;
+  letter-spacing: -0.01em;
+
+  /* Remove all distractions */
+  --shadow-soft: none !important;
+  --shadow-card: none !important;
+  --shadow-elevated: none !important;
+  --shadow-border: none !important;
+}
+
+.focus-mode .max-w-3xl {
+  max-width: var(--focus-max-width) !important;
+}
+
+.focus-mode .font-display,
+.focus-mode .font-body {
+  font-family: var(--font-mono) !important;
+}
+
+/* Focus mode reduces motion */
+.focus-mode * {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.1s !important;
+}
+
+/* Focus mode indicator */
+.focus-mode-indicator {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  z-index: 1000;
+  pointer-events: none;
+}

@@ -9,10 +9,11 @@ import { QuizGenerator } from './components/QuizGenerator'
 import { SettingsPanel } from './components/SettingsPanel'
 
 export default function App() {
-  const { isDarkMode, toggleHelp } = useSettingsStore()
+  const { isDarkMode, focusMode, toggleHelp } = useSettingsStore()
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen ${isDarkMode ? 'dark' : ''} ${focusMode ? 'focus-mode' : ''}`}>
+      {focusMode && <div className="focus-mode-indicator">FOCUS MODE</div>}
       <SettingsPanel onClose={() => toggleHelp()} />
 
       <div className="max-w-3xl mx-auto px-6 py-12">

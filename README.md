@@ -107,6 +107,33 @@ VITE_DEFAULT_MODEL=google/gemini-flash-1.5-8b:free
 - **Question Accuracy**: AI-generated questions require review for critical applications
 - **Browser Storage**: Quiz history stored in localStorage (cleared on browser data deletion)
 - **No Question Editing**: You can remove unwanted questions, but cannot edit question text or answers (by design — keeps the tool simple)
+- **No Export**: Quizzes cannot be exported to PDF or other formats (intentional limitation — this is a learning tool, not a test authoring platform)
+
+---
+
+## Recent Upgrades (v2.1.0)
+
+### Iteration 1: Audit & Cleanup
+- Removed unused state properties and dead code
+- Added API key configuration UI to Settings panel
+- Cleaned up footer with proper branding ("Made by MK — Musharraf Kazi")
+- Simplified initialization code
+
+### Iteration 2: Core Logic Upgrade
+- Added automatic retry logic with exponential backoff for AI API calls
+- Retries on server errors (5xx), rate limits (429), and network failures
+- Improves reliability without changing core functionality
+
+### Iteration 3: UX / Feel / Humanization
+- Added rotating learning tips during quiz generation
+- Makes waiting feel shorter and adds personality
+- Tips based on evidence-based learning techniques
+
+### Iteration 4: Accessibility & Polish
+- Added keyboard navigation: Press 1-4 to select answers, Enter to submit
+- Visual keyboard hints on option buttons
+- Improved focus states for all interactive elements
+- Better support for power users and accessibility needs
 
 ---
 

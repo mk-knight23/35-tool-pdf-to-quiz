@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FileUp,
@@ -13,10 +13,23 @@ import {
   Play,
   X,
   RefreshCw,
+  Lightbulb,
 } from 'lucide-react'
 import { useQuizStore } from '@/stores/quizStore'
 import { extractTextFromPDF, generateQuizFromAI } from '@/services/aiService'
 import type { Quiz } from '@/types/quiz'
+
+// Random tips to show during generation - adds personality
+const GENERATION_TIPS = [
+  "Teaching someone else is the best way to learn. Try explaining these concepts!",
+  "Active recall beats re-reading. Test yourself periodically.",
+  "Connect new information to things you already know.",
+  "Take breaks! Your brain consolidates memories during rest.",
+  "Handwrite your notes - it improves retention.",
+  "The 'forgetting curve' is real. Review material tomorrow, then next week.",
+  "Focus on understanding, not memorization.",
+  "Teach concepts to an imaginary 5-year-old for clarity.",
+]
 
 export function QuizGenerator() {
   const { quizSettings, quizzes, removeQuiz, previewQuiz, setPreviewQuiz, confirmPreviewQuiz } = useQuizStore()
@@ -29,6 +42,19 @@ export function QuizGenerator() {
   const [userAnswers, setUserAnswers] = useState<Record<string, number>>({})
   const [showResults, setShowResults] = useState(false)
   const [editingPreview, setEditingPreview] = useState<Quiz | null>(null)
+  const [currentTip, setCurrentTip] = useState('')
+
+  // Rotate tips during generation
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>
+    if (loading) {
+      setCurrentTip(GENERATION_TIPS[Math.floor(Math.random() * GENERATION_TIPS.length)])
+      interval = setInterval(() => {
+        setCurrentTip(GENERATION_TIPS[Math.floor(Math.random() * GENERATION_TIPS.length)])
+      }, 4000)
+    }
+    return () => clearInterval(interval)
+  }, [loading])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -497,6 +523,19 @@ export function QuizGenerator() {
           </>
         )}
       </button>
+
+      {/* Learning Tip - shows during generation */}
+      {loading && currentTip && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          key={currentTip}
+          className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-[var(--radius-md)] text-amber-800 dark:text-amber-200"
+        >
+          <Lightbulb size={18} strokeWidth={1.5} className="shrink-0 mt-0.5" />
+          <p className="text-sm leading-relaxed">{currentTip}</p>
+        </motion.div>
+      )}
 
       {/* Error Display */}
       {error && (

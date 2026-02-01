@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSettingsStore } from '@/stores/settings'
 import { useQuizStore } from '@/stores/quizStore'
 import { useStatsStore } from '@/stores/stats'
 import { useAudio } from '@/hooks/useAudio'
+import { exportAllData, importQuizzesFromFile } from '@/services/backendService'
+import type { Quiz } from '@/types/quiz'
 import {
   Settings,
   Volume2,
@@ -15,6 +17,10 @@ import {
   Brain,
   Key,
   Sliders,
+  Download,
+  Upload,
+  Trash2,
+  Database,
 } from 'lucide-react'
 
 interface SettingsPanelProps {
@@ -23,11 +29,44 @@ interface SettingsPanelProps {
 
 export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const settings = useSettingsStore()
-  const { quizSettings, updateSettings } = useQuizStore()
+  const { quizSettings, updateSettings, quizzes, clearAllQuizzes, importQuizzes } = useQuizStore()
   const stats = useStatsStore()
   const { playClick } = useAudio()
   const [apiKey, setApiKey] = useState(quizSettings.apiKey)
   const [numQuestions, setNumQuestions] = useState(quizSettings.numQuestions)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleExportData = () => {
+    playClick()
+    exportAllData(quizzes, stats)
+  }
+
+  const handleImportData = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    playClick()
+    try {
+      const importedQuizzes = await importQuizzesFromFile(file) as Quiz[]
+      importQuizzes(importedQuizzes, false) // Merge with existing
+      alert(`Successfully imported ${importedQuizzes.length} quiz(es)`)
+    } catch {
+      alert('Failed to import quizzes. Please check the file format.')
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const handleClearAllData = () => {
+    playClick()
+    if (confirm('Are you sure you want to delete all quizzes? This cannot be undone.')) {
+      clearAllQuizzes()
+      stats.resetStats()
+    }
+  }
 
   const handleSaveApiKey = () => {
     playClick()
@@ -263,6 +302,52 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                   <RotateCcw size={16} strokeWidth={1.5} />
                   <span className="text-sm font-medium">Reset Statistics</span>
                 </button>
+              </section>
+
+              {/* Data Management Section */}
+              <section aria-labelledby="data-section">
+                <h3 className="flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">
+                  <Database size={14} strokeWidth={1.5} />
+                  <span id="data-section">Data Management</span>
+                </h3>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={handleExportData}
+                      className="flex flex-col items-center gap-2 p-4 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-[var(--radius-md)] hover:border-[var(--color-ink)] transition-colors focus-ring"
+                    >
+                      <Download size={20} strokeWidth={1.5} className="text-[var(--text-secondary)]" />
+                      <span className="text-xs font-medium text-[var(--text-primary)]">Export All</span>
+                    </button>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex flex-col items-center gap-2 p-4 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-[var(--radius-md)] hover:border-[var(--color-ink)] transition-colors focus-ring"
+                    >
+                      <Upload size={20} strokeWidth={1.5} className="text-[var(--text-secondary)]" />
+                      <span className="text-xs font-medium text-[var(--text-primary)]">Import</span>
+                    </button>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json"
+                    onChange={handleImportData}
+                    className="hidden"
+                  />
+                  <div className="flex items-center justify-between p-3 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-[var(--radius-md)]">
+                    <div>
+                      <span className="text-sm font-medium text-[var(--text-primary)]">Total Quizzes</span>
+                      <p className="text-xs text-[var(--text-secondary)] mt-0.5">{quizzes.length} quiz(quiz) stored locally</p>
+                    </div>
+                    <button
+                      onClick={handleClearAllData}
+                      className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-[var(--radius-sm)] transition-colors focus-ring"
+                      aria-label="Clear all data"
+                    >
+                      <Trash2 size={16} strokeWidth={1.5} />
+                    </button>
+                  </div>
+                </div>
               </section>
             </div>
 

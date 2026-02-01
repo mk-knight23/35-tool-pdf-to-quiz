@@ -13,6 +13,9 @@ interface QuizStore {
   updateSettings: (settings: Partial<QuizSettings>) => void
   setPreviewQuiz: (quiz: Quiz | null) => void
   confirmPreviewQuiz: () => void
+  importQuizzes: (quizzes: Quiz[], replace?: boolean) => void
+  clearAllQuizzes: () => void
+  replaceQuizzes: (quizzes: Quiz[]) => void
 }
 
 export const useQuizStore = create<QuizStore>()(
@@ -40,6 +43,17 @@ export const useQuizStore = create<QuizStore>()(
           }))
         }
       },
+      importQuizzes: (newQuizzes, replace = false) => set((state) => {
+        if (replace) {
+          return { quizzes: newQuizzes }
+        }
+        // Merge without duplicates
+        const existingIds = new Set(state.quizzes.map(q => q.id))
+        const filteredQuizzes = newQuizzes.filter(q => !existingIds.has(q.id))
+        return { quizzes: [...filteredQuizzes, ...state.quizzes] }
+      }),
+      clearAllQuizzes: () => set({ quizzes: [] }),
+      replaceQuizzes: (newQuizzes) => set({ quizzes: newQuizzes }),
     }),
     {
       name: 'quizflow-storage',

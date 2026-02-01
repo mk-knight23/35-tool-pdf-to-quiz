@@ -4,9 +4,9 @@ A professional web application that transforms PDF documents into interactive, A
 
 ---
 
-## What It Does
+## Overview
 
-QuizFlow AI extracts text content from PDF documents and uses large language models to generate comprehensive multiple-choice quizzes. Each question includes explanations, making it an effective learning tool for students, educators, and professionals.
+QuizFlow extracts text content from PDF documents and uses large language models to generate comprehensive multiple-choice quizzes. Each question includes explanations, making it an effective learning tool for students, educators, and professionals.
 
 **When to use this tool:**
 - Converting lecture notes, articles, or study materials into practice quizzes
@@ -16,61 +16,50 @@ QuizFlow AI extracts text content from PDF documents and uses large language mod
 
 ---
 
-## Inputs
+## Features
 
-| Input | Type | Description |
-|-------|------|-------------|
-| PDF File | File | Any PDF document (max 10MB) |
-| API Key | String | OpenRouter API key for AI generation |
-| AI Model | Select | Choose from free/paid models |
-| Question Count | Number | 1-20 questions per quiz |
-| Difficulty | Select | Easy, Medium, or Hard |
+### Core Functionality
+- **PDF Upload**: Drag & drop PDF files (max 10MB, text-based)
+- **AI Quiz Generation**: Configurable question count (1-20) and difficulty
+- **Preview & Customize**: Review questions and remove unwanted ones before saving
+- **Interactive Quiz**: Keyboard shortcuts (1-4 for answers, Enter to submit)
+- **Results with Explanations**: Detailed feedback for each question
 
----
+### Advanced Features
+- **Quiz Sharing**: Generate shareable URLs with encoded quiz data
+- **Export to JSON**: Backup individual quizzes or all data
+- **Search & Filter**: Find quizzes in your history
+- **Import/Export**: Full data backup and restore
+- **Focus Mode**: Intentional design constraint for deep work (66ch line width, monospace-only)
 
-## Outputs
-
-| Output | Type | Description |
-|--------|------|-------------|
-| Quiz Title | String | AI-generated title based on content |
-| Questions | Array | Multiple-choice questions with 4 options each |
-| Explanations | String | Detailed explanation for each answer |
-| Score | Number | Final score upon completion |
-
----
-
-## Workflow Steps
-
-1. **Configure API Key** — Click settings and enter your OpenRouter API key
-2. **Upload PDF** — Drag & drop or select a PDF file (max 10MB, text-based only)
-3. **Generate Quiz** — Click "Generate Quiz" and watch the progress
-4. **Preview & Customize** — Review generated questions, remove any you don't want
-5. **Take Quiz** — Answer each multiple-choice question
-6. **Review Results** — See your score with detailed explanations
+### Theming
+- **Light & Dark Themes**: Full theme support with system preference detection
+- **Focus Mode**: Monospace interface with reduced distractions
+- **Black & White Editorial**: Print-inspired design system
 
 ---
 
-## Stack Choice Rationale
+## Tech Stack
 
 | Technology | Purpose |
 |------------|---------|
-| React 18 | Component-based UI with hooks for state management |
+| React 18 | Component-based UI with hooks |
 | TypeScript | Type safety for quiz data structures |
 | Vite | Fast development server and optimized builds |
 | Tailwind CSS 4 | Utility-first styling with custom design system |
-| Zustand | Lightweight state management without boilerplate |
+| Zustand | Lightweight state management with localStorage persistence |
 | Framer Motion | Smooth, accessible transitions and animations |
 | PDF.js | Client-side PDF text extraction |
 | Lucide React | Clean, consistent SVG icons |
 
 ---
 
-## Setup Steps
+## Quick Start
 
 ```bash
 # Clone the repository
-git clone https://github.com/mk-knight23/37-PDF-to-Quiz-Generator.git
-cd 37-PDF-to-Quiz-Generator
+git clone https://github.com/mk-knight23/quizflow-pdf-quiz-generator.git
+cd quizflow-pdf-quiz-generator
 
 # Install dependencies
 npm install
@@ -88,14 +77,13 @@ npm run build
 2. Click the settings icon in the app
 3. Enter your API key (stored locally in browser)
 
-### Environment Variables (Optional)
+---
 
-Create a `.env.local` file for default configuration:
+## Documentation
 
-```bash
-VITE_OPENROUTER_API_KEY=your_key_here
-VITE_DEFAULT_MODEL=google/gemini-flash-1.5-8b:free
-```
+- **[Architecture](docs/ARCHITECTURE.md)** - System architecture, data flow, and design patterns
+- **[Backend Guide](docs/BACKEND.md)** - Optional backend server setup and API documentation
+- **[Development Guide](docs/DEVELOPMENT.md)** - Coding standards, testing, and contribution guidelines
 
 ---
 
@@ -106,34 +94,40 @@ VITE_DEFAULT_MODEL=google/gemini-flash-1.5-8b:free
 - **API Rate Limits**: Dependent on OpenRouter account tier
 - **Question Accuracy**: AI-generated questions require review for critical applications
 - **Browser Storage**: Quiz history stored in localStorage (cleared on browser data deletion)
-- **No Question Editing**: You can remove unwanted questions, but cannot edit question text or answers (by design — keeps the tool simple)
-- **No Export**: Quizzes cannot be exported to PDF or other formats (intentional limitation — this is a learning tool, not a test authoring platform)
 
 ---
 
-## Recent Upgrades (v2.1.0)
+## Recent Upgrades (v2.2.0)
 
 ### Iteration 1: Audit & Cleanup
+- Improved repository naming to semantic convention
 - Removed unused state properties and dead code
-- Added API key configuration UI to Settings panel
-- Cleaned up footer with proper branding ("Made by MK — Musharraf Kazi")
-- Simplified initialization code
+- Clean build with no errors
 
-### Iteration 2: Core Logic Upgrade
-- Added automatic retry logic with exponential backoff for AI API calls
-- Retries on server errors (5xx), rate limits (429), and network failures
-- Improves reliability without changing core functionality
+### Iteration 2: Feature Expansion
+- Quiz sharing via URL (encodes quiz data in hash)
+- Export quiz to JSON file
+- Search quizzes by title and PDF name
+- Filter by date (all, recent, oldest)
+- Auto-load shared quizzes from URL
 
-### Iteration 3: UX / Feel / Humanization
-- Added rotating learning tips during quiz generation
-- Makes waiting feel shorter and adds personality
-- Tips based on evidence-based learning techniques
+### Iteration 3: Backend Introduction
+- Optional Node.js/Express API server
+- Client-side export/import of all data
+- Data management UI in Settings panel
+- Graceful degradation when backend is unavailable
 
-### Iteration 4: Accessibility & Polish
-- Added keyboard navigation: Press 1-4 to select answers, Enter to submit
-- Visual keyboard hints on option buttons
-- Improved focus states for all interactive elements
-- Better support for power users and accessibility needs
+### Iteration 4: UI, Theming & Humanization
+- Focus Mode with 66 character line width constraint
+- Monospace-only interface option
+- Enhanced visual identity
+- Intentional design quirk for personality
+
+### Iteration 5: Structure & Documentation
+- Created comprehensive /docs folder
+- Architecture documentation
+- Backend API documentation
+- Development guide with coding standards
 
 ---
 
@@ -141,29 +135,31 @@ VITE_DEFAULT_MODEL=google/gemini-flash-1.5-8b:free
 
 ```
 35-tool-quizflow-pdf-quiz-generator/
+├── docs/                       # Documentation
+│   ├── ARCHITECTURE.md          # System architecture
+│   ├── BACKEND.md               # Backend server guide
+│   └── DEVELOPMENT.md           # Development guide
 ├── design-system/
-│   └── MASTER.md              # Black & White editorial theme specification
+│   └── MASTER.md                # Design system specification
 ├── src/
 │   ├── components/
-│   │   ├── QuizGenerator.tsx  # Core quiz generation and display
-│   │   └── SettingsPanel.tsx  # API configuration and preferences
+│   │   ├── QuizGenerator.tsx    # Main quiz UI
+│   │   └── SettingsPanel.tsx    # Settings & data management
 │   ├── services/
-│   │   └── aiService.ts       # PDF parsing and AI integration
+│   │   ├── aiService.ts         # PDF + AI integration
+│   │   └── backendService.ts    # Optional backend API
 │   ├── stores/
-│   │   ├── settings.ts        # User preferences
-│   │   ├── quizStore.ts       # Quiz state management
-│   │   └── stats.ts           # Usage statistics
+│   │   ├── settings.ts          # App preferences
+│   │   ├── quizStore.ts         # Quiz state
+│   │   └── stats.ts             # Usage statistics
 │   ├── types/
-│   │   └── quiz.ts            # TypeScript interfaces
+│   │   └── quiz.ts              # TypeScript interfaces
 │   ├── hooks/
-│   │   └── useAudio.ts        # Sound effects
-│   ├── App.tsx                # Main layout
-│   ├── main.tsx               # Entry point
-│   └── index.css              # Design system styles
-├── .github/workflows/
-│   └── deploy.yml             # GitHub Pages deployment
-├── vercel.json                # Vercel deployment config
-├── netlify.toml               # Netlify deployment config
+│   │   └── useAudio.ts          # Sound effects
+│   ├── App.tsx                  # Root component
+│   ├── main.tsx                 # Entry point
+│   └── index.css                # Design system styles
+├── server.js                    # Optional backend server
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
@@ -172,22 +168,7 @@ VITE_DEFAULT_MODEL=google/gemini-flash-1.5-8b:free
 
 ---
 
-## Design System
-
-This application follows a **Black & White Editorial** design theme:
-- Typography-focused with serif headings (Georgia, Tiémpos)
-- Monochromatic color palette with high contrast
-- Minimal rounded corners (2-6px)
-- Clean borders and subtle shadows
-- Print-inspired aesthetic
-
-See `design-system/MASTER.md` for complete design specifications.
-
----
-
 ## Deployment
-
-This project includes deployment configurations for all three platforms:
 
 ### GitHub Pages
 - Push to `main` branch triggers automatic deployment

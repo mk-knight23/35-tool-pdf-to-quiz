@@ -14,6 +14,9 @@ import {
   X,
   RefreshCw,
   Lightbulb,
+  Share2,
+  Download,
+  Search,
 } from 'lucide-react'
 import { useQuizStore } from '@/stores/quizStore'
 import { extractTextFromPDF, generateQuizFromAI } from '@/services/aiService'
@@ -43,6 +46,8 @@ export function QuizGenerator() {
   const [showResults, setShowResults] = useState(false)
   const [editingPreview, setEditingPreview] = useState<Quiz | null>(null)
   const [currentTip, setCurrentTip] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterBy, setFilterBy] = useState<'all' | 'recent' | 'oldest'>('all')
 
   // Rotate tips during generation
   useEffect(() => {
@@ -87,6 +92,24 @@ export function QuizGenerator() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [activeQuiz, showResults, userAnswers])
+
+  // Load shared quiz from URL hash on mount
+  useEffect(() => {
+    const hash = window.location.hash
+    if (hash && hash.startsWith('#quiz=')) {
+      try {
+        const quizData = decodeURIComponent(atob(hash.replace('#quiz=', '')))
+        const sharedQuiz: Quiz = JSON.parse(quizData)
+        setActiveQuiz(sharedQuiz)
+        setUserAnswers({})
+        setShowResults(false)
+        // Clear hash after loading
+        window.history.replaceState(null, '', ' ')
+      } catch {
+        setError('Failed to load shared quiz')
+      }
+    }
+  }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -220,6 +243,48 @@ export function QuizGenerator() {
   const score = activeQuiz ? activeQuiz.questions.reduce((acc, q) => {
     return acc + (userAnswers[q.id] === q.correctAnswer ? 1 : 0)
   }, 0) : 0
+
+  // Export quiz to JSON
+  const handleExportQuiz = (quiz: Quiz) => {
+    const dataStr = JSON.stringify(quiz, null, 2)
+    const dataBlob = new Blob([dataStr], { type: 'application/json' })
+    const url = URL.createObjectURL(dataBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${quiz.title.replace(/[^a-z0-9]/gi, '_')}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  // Share quiz via URL (encodes quiz data in URL hash)
+  const handleShareQuiz = (quiz: Quiz) => {
+    const quizData = btoa(encodeURIComponent(JSON.stringify(quiz)))
+    const shareUrl = `${window.location.origin}${window.location.pathname}#quiz=${quizData}`
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setError('Share link copied to clipboard!')
+      setTimeout(() => setError(null), 3000)
+    }).catch(() => {
+      setError('Failed to copy share link')
+    })
+  }
+
+  // Filter and search quizzes
+  const filteredQuizzes = quizzes
+    .filter(quiz => {
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase()
+        return quiz.title.toLowerCase().includes(query) ||
+               quiz.pdfName.toLowerCase().includes(query)
+      }
+      return true
+    })
+    .sort((a, b) => {
+      if (filterBy === 'recent') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      if (filterBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      return 0
+    })
 
   // Preview Mode
   if (editingPreview) {
@@ -590,40 +655,90 @@ export function QuizGenerator() {
         <div className="space-y-4">
           <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-widest flex items-center gap-2">
             <History size={16} strokeWidth={1.5} />
-            Recent Quizzes
+            Recent Quizzes ({filteredQuizzes.length})
           </h3>
-          <div className="space-y-3">
-            {quizzes.map(quiz => (
-              <div
-                key={quiz.id}
-                className="editorial-card flex items-center justify-between group"
-              >
-                <div className="flex items-center gap-4">
-                  <ChevronRight size={16} strokeWidth={1.5} className="text-[var(--text-secondary)]" />
-                  <div className="text-left">
-                    <h4 className="font-semibold text-[var(--text-primary)]">{quiz.title}</h4>
-                    <p className="text-xs text-[var(--text-secondary)] font-mono mt-0.5">{quiz.pdfName} · {quiz.questions.length} questions</p>
+
+          {/* Search and Filter Controls */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search size={16} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
+              <input
+                type="text"
+                placeholder="Search quizzes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="editorial-input pl-10"
+              />
+            </div>
+            <select
+              value={filterBy}
+              onChange={(e) => setFilterBy(e.target.value as any)}
+              className="editorial-input sm:w-40"
+            >
+              <option value="all">All Quizzes</option>
+              <option value="recent">Most Recent</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
+
+          {/* Quiz List */}
+          {filteredQuizzes.length > 0 ? (
+            <div className="space-y-3">
+              {filteredQuizzes.map(quiz => (
+                <div
+                  key={quiz.id}
+                  className="editorial-card flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <ChevronRight size={16} strokeWidth={1.5} className="text-[var(--text-secondary)] shrink-0" />
+                    <div className="text-left flex-1 min-w-0">
+                      <h4 className="font-semibold text-[var(--text-primary)] truncate">{quiz.title}</h4>
+                      <p className="text-xs text-[var(--text-secondary)] font-mono mt-0.5 truncate">{quiz.pdfName} · {quiz.questions.length} questions</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => handleShareQuiz(quiz)}
+                      className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] rounded-[var(--radius-sm)] transition-all focus-ring"
+                      aria-label="Share quiz"
+                      title="Copy share link"
+                    >
+                      <Share2 size={16} strokeWidth={1.5} />
+                    </button>
+                    <button
+                      onClick={() => handleExportQuiz(quiz)}
+                      className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] rounded-[var(--radius-sm)] transition-all focus-ring"
+                      aria-label="Export quiz"
+                      title="Export to JSON"
+                    >
+                      <Download size={16} strokeWidth={1.5} />
+                    </button>
+                    <button
+                      onClick={() => setActiveQuiz(quiz)}
+                      className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] rounded-[var(--radius-sm)] transition-all focus-ring"
+                      aria-label="Open quiz"
+                      title="Take quiz"
+                    >
+                      <ExternalLink size={16} strokeWidth={1.5} />
+                    </button>
+                    <button
+                      onClick={() => removeQuiz(quiz.id)}
+                      className="p-2 text-[var(--text-secondary)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-[var(--radius-sm)] transition-all focus-ring"
+                      aria-label="Delete quiz"
+                      title="Delete quiz"
+                    >
+                      <Trash2 size={16} strokeWidth={1.5} />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setActiveQuiz(quiz)}
-                    className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] rounded-[var(--radius-sm)] transition-all focus-ring"
-                    aria-label="Open quiz"
-                  >
-                    <ExternalLink size={16} strokeWidth={1.5} />
-                  </button>
-                  <button
-                    onClick={() => removeQuiz(quiz.id)}
-                    className="p-2 text-[var(--text-secondary)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-[var(--radius-sm)] transition-all focus-ring"
-                    aria-label="Delete quiz"
-                  >
-                    <Trash2 size={16} strokeWidth={1.5} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 border-2 border-dashed border-[var(--border-color)] rounded-[var(--radius-lg)]">
+              <Search size={32} strokeWidth={1} className="mx-auto mb-3 text-[var(--color-muted)]" />
+              <p className="text-[var(--text-secondary)] text-sm">No quizzes match your search.</p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="text-center py-12 border-2 border-dashed border-[var(--border-color)] rounded-[var(--radius-lg)]">

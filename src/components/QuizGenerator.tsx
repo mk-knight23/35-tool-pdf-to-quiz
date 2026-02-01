@@ -56,6 +56,38 @@ export function QuizGenerator() {
     return () => clearInterval(interval)
   }, [loading])
 
+  // Keyboard navigation for quiz
+  useEffect(() => {
+    if (!activeQuiz || showResults) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Number keys 1-4 to select answer
+      if (e.key >= '1' && e.key <= '4') {
+        const questionIndex = Object.keys(userAnswers).length
+        if (questionIndex < activeQuiz.questions.length) {
+          const question = activeQuiz.questions[questionIndex]
+          const optionIndex = parseInt(e.key) - 1
+          if (optionIndex < question.options.length) {
+            handleAnswer(question.id, optionIndex)
+          }
+        }
+      }
+
+      // Enter to submit (when all answered)
+      if (e.key === 'Enter' && Object.keys(userAnswers).length === activeQuiz.questions.length) {
+        setShowResults(true)
+      }
+
+      // Escape to exit quiz
+      if (e.key === 'Escape') {
+        setActiveQuiz(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [activeQuiz, showResults, userAnswers])
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0]
@@ -364,7 +396,7 @@ export function QuizGenerator() {
                     <button
                       key={oIdx}
                       onClick={() => handleAnswer(q.id, oIdx)}
-                      className={`w-full text-left p-4 rounded-[var(--radius-md)] border-2 transition-all flex items-center justify-between ${
+                      className={`w-full text-left p-4 rounded-[var(--radius-md)] border-2 transition-all flex items-center justify-between focus-ring ${
                         !showResults && isSelected
                           ? 'bg-[var(--color-ink)] text-[var(--color-paper)] border-[var(--color-ink)]'
                           : !showResults && !isSelected
@@ -376,7 +408,12 @@ export function QuizGenerator() {
                           : 'border-[var(--border-color)]'
                       }`}
                     >
-                      <span className="font-medium">{option}</span>
+                      <span className="font-medium flex items-center gap-3">
+                        <kbd className="hidden sm:inline-flex items-center justify-center w-6 h-6 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-color)] rounded">
+                          {oIdx + 1}
+                        </kbd>
+                        {option}
+                      </span>
                       {showCorrect && <Check size={16} strokeWidth={1.5} />}
                       {showWrong && <AlertCircle size={16} strokeWidth={1.5} />}
                     </button>
@@ -422,13 +459,16 @@ export function QuizGenerator() {
               <>
                 <p className="text-sm text-[var(--text-secondary)] font-medium">
                   {Object.keys(userAnswers).length} of {activeQuiz.questions.length} answered
+                  <span className="hidden sm:inline ml-3 text-[var(--color-muted)]">
+                    Press <kbd className="px-1.5 py-0.5 text-xs bg-[var(--bg-primary)] border border-[var(--border-color)] rounded font-mono">1-4</kbd> to answer
+                  </span>
                 </p>
                 <button
                   disabled={Object.keys(userAnswers).length < activeQuiz.questions.length}
                   onClick={() => setShowResults(true)}
                   className="editorial-button-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Check Results
+                  Check Results <kbd className="ml-2 px-1.5 py-0.5 text-xs bg-[var(--color-paper)] text-[var(--color-ink)] rounded font-mono hidden sm:inline">Enter</kbd>
                 </button>
               </>
             )}

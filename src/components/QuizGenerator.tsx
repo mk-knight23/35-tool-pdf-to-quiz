@@ -19,7 +19,7 @@ import { extractTextFromPDF, generateQuizFromAI } from '@/services/aiService'
 import type { Quiz } from '@/types/quiz'
 
 export function QuizGenerator() {
-  const { settings, quizzes, removeQuiz, previewQuiz, setPreviewQuiz, confirmPreviewQuiz } = useQuizStore()
+  const { quizSettings, quizzes, removeQuiz, previewQuiz, setPreviewQuiz, confirmPreviewQuiz } = useQuizStore()
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -77,7 +77,7 @@ export function QuizGenerator() {
 
   const handleGenerate = async () => {
     if (!file) return
-    if (!settings.apiKey) {
+    if (!quizSettings.apiKey) {
       setError('Please configure your API key in Settings first')
       return
     }
@@ -98,10 +98,10 @@ export function QuizGenerator() {
       const text = await extractTextFromPDF(file)
       const quizData = await generateQuizFromAI(
         text,
-        settings.apiKey,
-        settings.model,
-        settings.numQuestions,
-        settings.difficulty
+        quizSettings.apiKey,
+        quizSettings.model,
+        quizSettings.numQuestions,
+        quizSettings.difficulty
       )
 
       clearInterval(progressInterval)

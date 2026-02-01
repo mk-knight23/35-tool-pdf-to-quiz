@@ -4,7 +4,7 @@ import type { Quiz, QuizSettings } from '@/types/quiz'
 
 interface QuizStore {
   quizzes: Quiz[]
-  settings: QuizSettings
+  quizSettings: QuizSettings
   previewQuiz: Quiz | null
 
   // Actions
@@ -19,7 +19,7 @@ export const useQuizStore = create<QuizStore>()(
   persist(
     (set, get) => ({
       quizzes: [],
-      settings: {
+      quizSettings: {
         apiKey: '',
         model: 'minimax/minimax-m2:free',
         numQuestions: 5,
@@ -29,7 +29,7 @@ export const useQuizStore = create<QuizStore>()(
 
       addQuiz: (quiz) => set((state) => ({ quizzes: [quiz, ...state.quizzes] })),
       removeQuiz: (id) => set((state) => ({ quizzes: state.quizzes.filter((q) => q.id !== id) })),
-      updateSettings: (newSettings) => set((state) => ({ settings: { ...state.settings, ...newSettings } })),
+      updateSettings: (newSettings) => set((state) => ({ quizSettings: { ...state.quizSettings, ...newSettings } })),
       setPreviewQuiz: (quiz) => set({ previewQuiz: quiz }),
       confirmPreviewQuiz: () => {
         const { previewQuiz } = get()

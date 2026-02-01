@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSettingsStore } from '@/stores/settings'
+import { useQuizStore } from '@/stores/quizStore'
 import { useStatsStore } from '@/stores/stats'
 import { useAudio } from '@/hooks/useAudio'
 import {
@@ -12,6 +13,8 @@ import {
   RotateCcw,
   X,
   Brain,
+  Key,
+  Sliders,
 } from 'lucide-react'
 
 interface SettingsPanelProps {
@@ -20,8 +23,21 @@ interface SettingsPanelProps {
 
 export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const settings = useSettingsStore()
+  const { quizSettings, updateSettings } = useQuizStore()
   const stats = useStatsStore()
   const { playClick } = useAudio()
+  const [apiKey, setApiKey] = useState(quizSettings.apiKey)
+  const [numQuestions, setNumQuestions] = useState(quizSettings.numQuestions)
+
+  const handleSaveApiKey = () => {
+    playClick()
+    updateSettings({ apiKey })
+  }
+
+  const handleSaveQuizSettings = () => {
+    playClick()
+    updateSettings({ numQuestions })
+  }
 
   const themeOptions = [
     { value: 'dark' as const, label: 'Dark', icon: Moon },
@@ -87,6 +103,82 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
 
             {/* Content */}
             <div className="p-6 space-y-8 editorial-scrollbar">
+              {/* API Configuration Section */}
+              <section aria-labelledby="api-section">
+                <h3 className="flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">
+                  <Key size={14} strokeWidth={1.5} />
+                  <span id="api-section">API Configuration</span>
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <label htmlFor="api-key" className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                      OpenRouter API Key
+                    </label>
+                    <input
+                      id="api-key"
+                      type="password"
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      placeholder="sk-or-..."
+                      className="editorial-input font-mono text-sm"
+                    />
+                    <p className="text-xs text-[var(--text-secondary)] mt-2">
+                      Get your API key from{' '}
+                      <a
+                        href="https://openrouter.ai/keys"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[var(--color-ink)] underline hover:no-underline"
+                      >
+                        openrouter.ai
+                      </a>
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleSaveApiKey}
+                    disabled={!apiKey || apiKey === quizSettings.apiKey}
+                    className="editorial-button-primary w-full disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  >
+                    Save API Key
+                  </button>
+                </div>
+              </section>
+
+              {/* Quiz Settings Section */}
+              <section aria-labelledby="quiz-settings-section">
+                <h3 className="flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">
+                  <Sliders size={14} strokeWidth={1.5} />
+                  <span id="quiz-settings-section">Quiz Settings</span>
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <label htmlFor="num-questions" className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                      Default Questions: {numQuestions}
+                    </label>
+                    <input
+                      id="num-questions"
+                      type="range"
+                      min="1"
+                      max="20"
+                      value={numQuestions}
+                      onChange={(e) => setNumQuestions(Number(e.target.value))}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-[var(--text-secondary)] mt-1">
+                      <span>1</span>
+                      <span>20</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleSaveQuizSettings}
+                    disabled={numQuestions === quizSettings.numQuestions}
+                    className="editorial-button-primary w-full disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  >
+                    Save Quiz Settings
+                  </button>
+                </div>
+              </section>
+
               {/* Audio Section */}
               <section aria-labelledby="audio-section">
                 <h3 className="flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">

@@ -89,19 +89,11 @@ export default function App() {
         <footer className="mt-24 pt-8 border-t border-[var(--border-color)]">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-6 text-sm">
             <p className="text-[var(--text-secondary)] font-mono">
+              Made by MK — Musharraf Kazi
+            </p>
+            <p className="text-[var(--text-secondary)] font-mono">
               © 2026 QuizFlow AI
             </p>
-            <div className="flex items-center gap-6">
-              <a href="#" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm">
-                Privacy
-              </a>
-              <a href="#" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm">
-                Terms
-              </a>
-              <a href="#" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm">
-                Contact
-              </a>
-            </div>
           </div>
         </footer>
       </div>

@@ -1,4 +1,4 @@
-# QuizFlow AI — PDF to Quiz Generator
+# QuizFlow PDF Quiz Generator
 
 A professional web application that transforms PDF documents into interactive, AI-powered quizzes.
 
@@ -140,7 +140,7 @@ VITE_DEFAULT_MODEL=google/gemini-flash-1.5-8b:free
 ## Project Structure
 
 ```
-35-tool-pdf-to-quiz/
+35-tool-quizflow-pdf-quiz-generator/
 ├── design-system/
 │   └── MASTER.md              # Black & White editorial theme specification
 ├── src/

@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App'
+import Router from './router'
 import './index.css'
 import { useSettingsStore } from './stores/settings'
 
@@ -9,6 +9,6 @@ useSettingsStore.getState().applyTheme()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <Router />
   </React.StrictMode>
 )

@@ -215,3 +215,20 @@ body {
   z-index: 1000;
   pointer-events: none;
 }
+
+/* Navigation Styles */
+.nav-link {
+  @apply flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium;
+  @apply text-[var(--text-secondary)] hover:text-[var(--text-primary)];
+  @apply hover:bg-[var(--bg-secondary)] transition-colors;
+}
+
+.nav-link.active {
+  @apply text-[var(--color-ink)] bg-[var(--color-ink)]/10;
+}
+
+.mobile-nav-link {
+  @apply flex items-center gap-2 px-3 py-2 rounded-lg text-sm;
+  @apply text-[var(--text-secondary)] hover:text-[var(--text-primary)];
+  @apply hover:bg-[var(--bg-secondary)] transition-colors w-full;
+}

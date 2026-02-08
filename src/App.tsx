@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { SettingsPanel } from './components/SettingsPanel';
 import { useState } from 'react';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   const { isDarkMode, focusMode, toggleHelp } = useSettingsStore();
@@ -20,6 +22,7 @@ export default function App() {
       {focusMode && <div className="focus-mode-indicator">FOCUS MODE</div>}
       <SettingsPanel onClose={() => toggleHelp()} />
 
+      <Toaster position="top-right" />
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
         <header className="flex justify-between items-start mb-8 border-b border-[var(--border-color)] pb-6">
@@ -108,7 +111,9 @@ export default function App() {
 
         {/* Main Content */}
         <main>
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </main>
 
         {/* Footer */}

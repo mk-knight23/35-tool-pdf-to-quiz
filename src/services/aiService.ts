@@ -1,4 +1,5 @@
 import * as pdfjs from 'pdfjs-dist'
+import toast from 'react-hot-toast'
 
 // Set worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`
@@ -90,28 +91,37 @@ export async function generateQuizFromAI(
     ${text.substring(0, 8000)}
   `
 
-  const response = await fetchWithRetry(
-    'https://openrouter.ai/api/v1/chat/completions',
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://github.com/mk-knight23/pdf-to-quiz-generator',
-        'X-Title': 'QuizFlow AI'
+  try {
+    const response = await fetchWithRetry(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://github.com/mk-knight23/pdf-to-quiz-generator',
+          'X-Title': 'QuizFlow AI'
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [{ role: 'user', content: prompt }],
+          response_format: { type: 'json_object' }
+        })
       },
-      body: JSON.stringify({
-        model: model,
-        messages: [{ role: 'user', content: prompt }],
-        response_format: { type: 'json_object' }
-      })
-    },
-    3 // Max 3 retries
-  )
+      3 // Max 3 retries
+    )
 
-  const data = await response.json()
-  if (data.error) throw new Error(data.error.message || 'AI Generation failed')
+    const data = await response.json()
+    if (data.error) {
+      const msg = data.error.message || 'AI Generation failed'
+      toast.error(msg)
+      throw new Error(msg)
+    }
 
-  const content = data.choices[0].message.content
-  return JSON.parse(content)
+    const content = data.choices[0].message.content
+    return JSON.parse(content)
+  } catch (error: any) {
+    toast.error(`Generation error: ${error.message}`)
+    throw error
+  }
 }

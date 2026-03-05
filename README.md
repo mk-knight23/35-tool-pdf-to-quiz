@@ -1,5 +1,12 @@
 # QuizFlow AI — PDF to Quiz Generator
 
+[![CI](https://github.com/mk-knight23/35-tool-pdf-to-quiz/actions/workflows/ci.yml/badge.svg)](https://github.com/mk-knight23/35-tool-pdf-to-quiz/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](https://github.com/mk-knight23/35-tool-pdf-to-quiz/actions)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF.svg)](https://vitejs.dev/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 Transform any PDF document into an interactive multiple-choice quiz using AI. A production-grade, fault-tolerant tool designed for students, educators, and lifelong learners.
 
 ![QuizFlow Banner](https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=80)

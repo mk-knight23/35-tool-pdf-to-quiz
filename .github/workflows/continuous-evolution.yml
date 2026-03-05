@@ -45,8 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run security scan
-        run: |
-          echo "Security scan completed"
+        run: echo "Security scan completed"
 
   quality-check:
     runs-on: ubuntu-latest

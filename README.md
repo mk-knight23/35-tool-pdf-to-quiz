@@ -1,10 +1,10 @@
-# 🚀 PDF to Quiz Generator
+# 🚀 tool pdf to quiz
 
 ![Evolution](https://img.shields.io/badge/Evolution-Live-brightgreen)
 ![Phase 2](https://img.shields.io/badge/Phase-2-blue)
 ![Score](https://img.shields.io/badge/Score-100%2F100-gold)
 
-This repository is part of the **60-Repo Evolution Project**.
+Part of the **60-Repo Evolution Project**.
 
 ## 📋 Evolution Status
 
@@ -16,8 +16,7 @@ This repository is part of the **60-Repo Evolution Project**.
 
 ## 🛠️ Tech Stack
 
-- **Type:** Tool
-- **Stack:** React + Express + TS
+- **Framework:** Modern stack
 - **CI/CD:** 24/7 Continuous Evolution
 - **Deployment:** Multi-platform
 
@@ -26,7 +25,7 @@ This repository is part of the **60-Repo Evolution Project**.
 - ✅ Professional README
 - ✅ Complete EVOLUTION.md
 - ✅ 5 LinkedIn posts
-- ✅ 2 video scripts
+- ✅ 2 video scripts  
 - ✅ Podcast script
 - ✅ Architecture docs
 - ✅ API documentation

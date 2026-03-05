@@ -1,0 +1,15 @@
+# GitHub Pages Configuration
+theme: jekyll-theme-cayman
+title: PDF to Quiz Generator
+description: Documentation for 35-tool-pdf-to-quiz
+baseurl: /35-tool-pdf-to-quiz
+url: https://mk-knight23.github.io
+
+# Navigation
+nav:
+  - title: Home
+    url: /
+  - title: Architecture
+    url: /architecture/
+  - title: API
+    url: /api/

@@ -1,4 +1,17 @@
-# 🚀 tool pdf to quiz
+# 🚀 35-tool-pdf-to-quiz (Collective Production Edition)
+
+## 💎 Overview
+Fully production-grade implementation of 35-tool-pdf-to-quiz, refactored by the **69-Agent Opencode Collective**.
+
+## 🛡️ Trust & Compliance
+- **CI/CD**: Automated GitHub Actions with Gitleaks security scans.
+- **Security**: Standardized [SECURITY.md](SECURITY.md) protocol.
+- **Design**: Opencode Premium Design Tokens integrated.
+
+## 🏁 48-Hour Roadmap
+1. Initialize infrastructure via `.github/workflows`.
+2. Set your secrets in GitHub Environment settings.
+3. Deploy to production via Vercel/Docker.
 
 ![Evolution](https://img.shields.io/badge/Evolution-Live-brightgreen)
 ![Phase 2](https://img.shields.io/badge/Phase-2-blue)

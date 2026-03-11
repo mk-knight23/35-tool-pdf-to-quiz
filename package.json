@@ -4,6 +4,7 @@
   "version": "2.2.0",
   "type": "module",
   "scripts": {
+    "production": "npm run build && npm start",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",

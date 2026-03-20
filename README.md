@@ -98,3 +98,11 @@ MIT License
 ---
 
 🦾 **Evolved with OpenClaw** | 2026-03-06
+
+## Security
+
+This project follows security best practices:
+- No hardcoded credentials
+- Dependency scanning enabled
+- Security headers configured
+- Regular security audits performed

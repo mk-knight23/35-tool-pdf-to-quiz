@@ -95,7 +95,16 @@ export async function runObjectCapability<T>(
   let response: Response;
   try {
     response = await fetch(`/api/ai/${request.id}`, buildInit(request));
-  } catch {
+  } catch (err) {
+    // Preserve user-initiated cancellation so callers can tell it apart from a
+    // real network failure. An aborted fetch throws a DOMException named
+    // "AbortError"; re-throw it untouched instead of masking it as "network".
+    if (
+      request.signal?.aborted ||
+      (err instanceof DOMException && err.name === "AbortError")
+    ) {
+      throw err;
+    }
     throw new AiClientError("network", "Failed to reach the AI server. Check your connection.");
   }
 

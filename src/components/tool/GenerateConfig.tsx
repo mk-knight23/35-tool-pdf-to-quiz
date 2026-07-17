@@ -42,9 +42,10 @@ interface GenerateConfigProps {
   generating: boolean;
   onBack: () => void;
   onGenerate: (req: GenerateRequest) => void;
+  onCancel?: () => void;
 }
 
-export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: GenerateConfigProps) {
+export function GenerateConfig({ wordCount, generating, onBack, onGenerate, onCancel }: GenerateConfigProps) {
   const [output, setOutput] = useState<OutputType>("quiz");
   const [mode, setMode] = useState<GenMode>("quick");
   const [count, setCount] = useState(10);
@@ -343,9 +344,15 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
           <Sparkles size={16} strokeWidth={1.75} aria-hidden />
           Generate {output === "quiz" ? "quiz" : "flashcards"}
         </Button>
-        <Button variant="ghost" onClick={onBack} disabled={generating}>
-          Back to source
-        </Button>
+        {generating && onCancel ? (
+          <Button variant="ghost" onClick={onCancel}>
+            Cancel
+          </Button>
+        ) : (
+          <Button variant="ghost" onClick={onBack} disabled={generating}>
+            Back to source
+          </Button>
+        )}
       </div>
     </section>
   );

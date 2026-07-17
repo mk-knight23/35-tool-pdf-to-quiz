@@ -57,6 +57,10 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+function isAbortError(err: unknown): boolean {
+  return err instanceof DOMException && err.name === "AbortError";
+}
+
 export function ToolWorkspace() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -81,6 +85,7 @@ export function ToolWorkspace() {
   const [confirmRegenAll, setConfirmRegenAll] = useState(false);
 
   const bootstrapped = useRef(false);
+  const generateAbortRef = useRef<AbortController | null>(null);
 
   // Record that the tool was opened (no-op unless analytics are enabled).
   useEffect(() => {
@@ -150,6 +155,8 @@ export function ToolWorkspace() {
       track("tool_started", { mode: req.mode, output: req.output });
 
       if (req.mode === "ai") {
+        const controller = new AbortController();
+        generateAbortRef.current = controller;
         const run = async () => {
           track("ai_started", { output: req.output });
           try {
@@ -164,6 +171,7 @@ export function ToolWorkspace() {
                   audience: req.quiz.audience,
                 },
                 byok: req.byok,
+                signal: controller.signal,
               });
               const qs: Question[] = res.result.questions.map((q) => ({
                 id: newId(),
@@ -188,6 +196,7 @@ export function ToolWorkspace() {
                   count: req.cardCount,
                 },
                 byok: req.byok,
+                signal: controller.signal,
               });
               const cards = res.result.cards.map((c) => ({
                 id: newId(),
@@ -216,7 +225,11 @@ export function ToolWorkspace() {
             track("ai_completed", { output: req.output });
             track("tool_completed", { mode: "ai", output: req.output });
           } catch (err) {
-            console.error("AI generation failed:", err);
+            if (isAbortError(err)) {
+              // User cancelled — not a failure. Leave them on the config screen.
+              setWarnings(["Generation cancelled."]);
+              return;
+            }
             const msg = err instanceof Error ? err.message : "AI generation failed. Try again or use Quick mode.";
             setWarnings([msg]);
             if (err instanceof AiClientError && err.code === "quota_reached") {
@@ -225,6 +238,7 @@ export function ToolWorkspace() {
             track("ai_failed", { output: req.output });
             track("tool_failed", { mode: "ai", output: req.output });
           } finally {
+            generateAbortRef.current = null;
             setGenerating(false);
           }
         };
@@ -277,6 +291,10 @@ export function ToolWorkspace() {
     },
     [buildQuiz, source],
   );
+
+  const handleCancelGenerate = useCallback(() => {
+    generateAbortRef.current?.abort();
+  }, []);
 
   const patchQuiz = useCallback((patch: Partial<Quiz>) => {
     setQuiz((prev) => (prev ? { ...prev, ...patch, updatedAt: nowIso() } : prev));
@@ -570,6 +588,7 @@ export function ToolWorkspace() {
           generating={generating}
           onBack={() => setPhase("source")}
           onGenerate={handleGenerate}
+          onCancel={handleCancelGenerate}
         />
       ) : null}
 

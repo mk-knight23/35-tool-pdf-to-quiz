@@ -30,21 +30,21 @@ export default function PrivacyPage() {
         <section>
           <h2 className="font-display text-xl text-ink">2. AI Generation Services</h2>
           <p>
-            When you select **AI Mode**, the extracted text is streamed securely to the server endpoint to request questions. The server forwards the text block, receives the parsed questions, and returns them to your client. No study text or questions are logged or persisted server-side.
+            When you select <strong>AI mode</strong>, the extracted text is streamed to the server endpoint to request questions. The server forwards the text block, receives the parsed questions, and returns them to your client. No study text or questions are logged or persisted server-side.
           </p>
         </section>
 
         <section>
           <h2 className="font-display text-xl text-ink">3. Bring Your Own Key (BYOK)</h2>
           <p>
-            If you supply your own API key (e.g. OpenRouter key), it is kept in browser tab memory only. It is never saved to the local storage disk, never logged on our servers, and never sent to analytics providers.
+            If you supply your own API key (a Vercel AI Gateway key), it is kept in browser tab session memory only. It is never saved to disk, never logged on our servers, and never sent to analytics providers.
           </p>
         </section>
 
         <section>
           <h2 className="font-display text-xl text-ink">4. Local Storage</h2>
           <p>
-            All generated quizzes, results, metrics, and flashcard decks are stored in **IndexedDB** on your local machine. We cannot access or recover your data if you clear your browser profile data.
+            All generated quizzes, results, metrics, and flashcard decks are stored in <strong>IndexedDB</strong> on your local machine. We cannot access or recover your data if you clear your browser profile data.
           </p>
         </section>
       </div>

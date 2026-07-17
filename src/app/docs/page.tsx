@@ -26,7 +26,7 @@ export default function DocsPage() {
             QuizFlow operates entirely inside your web browser. When you upload a PDF file or paste study notes, the application uses browser-based parsers to read the raw strings. No files or document texts are stored on the server.
           </p>
           <p className="text-sm text-ink-secondary leading-relaxed">
-            Data is persisted client-side using **IndexedDB** via the <code className="bg-raised px-1.5 py-0.5 rounded text-xs">idb</code> wrapper library. Small configuration parameters (such as theme and volume toggles) are stored in <code className="bg-raised px-1.5 py-0.5 rounded text-xs">localStorage</code>.
+            Data is persisted client-side using <strong>IndexedDB</strong> via the <code className="bg-raised px-1.5 py-0.5 rounded text-xs">idb</code> wrapper library. Small configuration parameters (such as theme and volume toggles) are stored in <code className="bg-raised px-1.5 py-0.5 rounded text-xs">localStorage</code>.
           </p>
         </section>
 

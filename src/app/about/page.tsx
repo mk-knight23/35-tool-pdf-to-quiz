@@ -21,7 +21,7 @@ export default function AboutPage() {
 
       <div className="qf-prose flex flex-col gap-6 text-sm text-ink-secondary leading-relaxed">
         <p>
-          QuizFlow was created by **Kazi Musharraf** with a simple objective: to replace ineffective, passive study habits (like highlights and repetitive readings) with high-intensity **Active Recall** and **Spaced Repetition** systems.
+          QuizFlow was created by <strong>Kazi Musharraf</strong> with a simple objective: to replace passive study habits, like highlighting and re-reading, with <strong>active recall</strong> and <strong>spaced repetition</strong>.
         </p>
         
         <h2 className="font-display text-xl text-ink mt-4">Privacy by Design</h2>

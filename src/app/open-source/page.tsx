@@ -25,7 +25,7 @@ export default function OpenSourcePage() {
         <section>
           <h2 className="font-display text-xl text-ink">Licensing</h2>
           <p>
-            The software is distributed under the **MIT License**. This permits commercial use, modification, distribution, and private use, provided that the original copyright and license notice are included.
+            The software is distributed under the <strong>MIT License</strong>. This permits commercial use, modification, distribution, and private use, provided that the original copyright and license notice are included.
           </p>
         </section>
 

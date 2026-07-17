@@ -294,12 +294,14 @@ export function SettingsView() {
         description="Quick mode is the default and needs no key. An optional AI layer can produce reworded questions."
       >
         <p className="text-xs text-ink-secondary leading-relaxed">
-          This build ships the deterministic Quick mode. When the optional AI layer is enabled, you
-          can bring your own key (e.g. OpenRouter key) — it is held only in browser tab memory for the request, never written to disk, and never sent to analytics.
+          AI mode uses this site&apos;s shared free daily allowance first. If it&apos;s unavailable or
+          you reach the daily limit, bring your own Vercel AI Gateway key — it is held only in this
+          browser tab&apos;s session memory for the request, never written to disk, and never sent to
+          analytics.
         </p>
         <div className="flex flex-col gap-3 max-w-md pt-1">
           <label htmlFor="byok-input" className="text-xs font-semibold text-ink">
-            Bring Your Own API Key (OpenRouter or compatible gateway):
+            Bring Your Own API Key (Vercel AI Gateway):
           </label>
           <div className="flex gap-2">
             <input
@@ -307,7 +309,7 @@ export function SettingsView() {
               type="password"
               value={byok}
               onChange={(e) => setByokState(e.target.value)}
-              placeholder="e.g. sk-or-v1-..."
+              placeholder="vck_…"
               className="flex-1 rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3.5 py-2 text-xs text-ink outline-none focus:border-accent focus:bg-white/40 dark:focus:bg-slate-900/40 transition-all shadow-sm"
             />
             <Button size="sm" onClick={handleSaveByok} disabled={byok.trim().length === 0}>

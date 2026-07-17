@@ -75,8 +75,11 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
     );
   };
 
-  const hasKey = mode === "quick" || byok.trim().length > 0;
-  const canGenerate = (output === "flashcards" || types.length > 0) && hasKey;
+  // AI mode is never hard-blocked: it uses the server's shared allowance first
+  // (free daily quota via the AI Gateway / OIDC on deploy) and only needs a
+  // personal key if the server is unconfigured or the limit is reached. On a
+  // failed AI call the workspace shows an honest message and Quick mode remains.
+  const canGenerate = output === "flashcards" || types.length > 0;
 
   return (
     <section aria-labelledby="config-heading" className="flex flex-col gap-6">
@@ -137,17 +140,24 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
         </div>
       </fieldset>
 
-      {/* BYOK Input Inline warning */}
-      {mode === "ai" && !byok && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-warning/20 bg-warning-tint p-5 text-sm text-ink">
-          <p className="font-bold text-warning">Bring your own API key to use AI mode</p>
-          <p className="text-ink-secondary text-xs">
-            No server credentials are configured in local environment. Please enter your API key to proceed. It is held client-side in session memory only.
+      {/* Optional BYOK key for AI mode. AI mode uses the shared server allowance
+          first; a personal key is only needed if the server has no credentials
+          or the daily free limit is reached. */}
+      {mode === "ai" && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-white/20 dark:border-white/5 bg-white/25 dark:bg-slate-900/25 p-5 text-sm text-ink shadow-sm">
+          <p className="font-bold text-ink">
+            Your own API key <span className="font-normal text-ink-muted">(optional)</span>
+          </p>
+          <p className="text-ink-secondary text-xs leading-relaxed">
+            AI mode uses this site&apos;s shared free daily allowance. If AI is unavailable on this
+            deployment or you&apos;ve hit the daily limit, add a Vercel AI Gateway key to keep going.
+            It stays in this browser tab only and is never stored on our servers.
           </p>
           <div className="flex gap-2 max-w-sm mt-1">
             <input
               type="password"
-              placeholder="e.g. sk-or-v1-..."
+              placeholder="Vercel AI Gateway key (vck_…)"
+              aria-label="Vercel AI Gateway API key (optional)"
               value={byok}
               onChange={(e) => {
                 setByok(e.target.value);

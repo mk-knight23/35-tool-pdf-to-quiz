@@ -2,11 +2,18 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { AnalyticsScripts } from "@/components/layout/AnalyticsScripts";
+import { ConsentBanner } from "@/components/layout/ConsentBanner";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ThemeScript } from "@/components/layout/ThemeScript";
 import { CREATOR, SITE } from "@/lib/site";
 import "./globals.css";
+
+/** Ads load only when explicitly enabled AND a publisher id is present (STANDARDS §7). */
+const ADSENSE_ENABLED =
+  process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true" &&
+  Boolean(process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID);
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -64,39 +71,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* Conditionally load Google Analytics 4 */}
-        {process.env.NEXT_PUBLIC_GA_ID && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
-                  page_path: window.location.pathname,
-                });
-              `}
-            </Script>
-          </>
-        )}
-        {/* Conditionally load Google Tag Manager */}
-        {process.env.NEXT_PUBLIC_GTM_ID && (
-          <Script id="google-tag-manager" strategy="afterInteractive">
-            {`
-              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-              })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');
-            `}
-          </Script>
-        )}
-        {/* Conditionally load Google AdSense script */}
-        {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
+        {/* AdSense loads only when explicitly enabled (default off) — see MONETIZATION_PLAN.md */}
+        {ADSENSE_ENABLED && (
           <Script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
@@ -106,18 +82,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         )}
       </head>
       <body className="flex min-h-dvh flex-col bg-surface text-ink antialiased relative overflow-x-hidden">
-        {/* GTM noscript fallback */}
-        {process.env.NEXT_PUBLIC_GTM_ID && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
-              height="0"
-              width="0"
-              style={{ display: "none", visibility: "hidden" }}
-            />
-          </noscript>
-        )}
-
         {/* Floating animated blobs */}
         <div className="qf-blob qf-blob-1" aria-hidden="true" />
         <div className="qf-blob qf-blob-2" aria-hidden="true" />
@@ -137,6 +101,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <SiteFooter />
           </div>
         </div>
+
+        {/* Cookie consent + consent-gated GTM/GA loader (STANDARDS §6) */}
+        <ConsentBanner />
+        <AnalyticsScripts />
 
         {/* Vercel Web Analytics and Speed Insights */}
         <Analytics />

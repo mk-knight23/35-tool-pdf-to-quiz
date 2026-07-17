@@ -18,6 +18,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "e2e": "playwright test",
     "copy-pdf-worker": "node scripts/copy-pdf-worker.mjs",
     "prebuild": "node scripts/copy-pdf-worker.mjs",
     "postinstall": "node scripts/copy-pdf-worker.mjs"

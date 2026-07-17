@@ -37,7 +37,8 @@ export async function extractPdf(
   pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
   const data = await file.arrayBuffer();
-  const doc = await pdfjs.getDocument({ data }).promise;
+  const loadingTask = pdfjs.getDocument({ data });
+  const doc = await loadingTask.promise;
   const pages: PdfPage[] = [];
   try {
     for (let i = 1; i <= doc.numPages; i++) {
@@ -53,7 +54,8 @@ export async function extractPdf(
       onProgress?.(i, doc.numPages);
     }
   } finally {
-    await doc.destroy();
+    // In pdfjs v6 the loading task owns document + worker teardown.
+    await loadingTask.destroy();
   }
   return { numPages: pages.length, pages };
 }

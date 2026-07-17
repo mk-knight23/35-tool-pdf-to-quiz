@@ -1,5 +1,6 @@
-import { Github, Globe, GitBranch } from "lucide-react";
+import { Globe, GitBranch } from "lucide-react";
 import Link from "next/link";
+import { GitHubIcon } from "@/components/ui/icons";
 import { CREATOR, FOOTER_SENTENCE, NAV_LINKS, SITE } from "@/lib/site";
 
 /** Footer present on every route. Carries the exact creator sentence (STANDARDS §3). */
@@ -29,7 +30,7 @@ export function SiteFooter() {
             target="_blank"
             rel="noreferrer noopener"
           >
-            <Github size={16} strokeWidth={1.75} aria-hidden /> GitHub
+            <GitHubIcon size={16} /> GitHub
           </a>
           <a
             href={CREATOR.portfolio}

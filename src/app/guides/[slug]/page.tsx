@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { TrackOnMount } from "@/components/analytics/TrackOnMount";
 import { GUIDES } from "@/lib/guides";
 import { SITE, CREATOR } from "@/lib/site";
 
@@ -74,6 +75,7 @@ export default async function GuidePage({ params }: Props) {
 
   return (
     <article className="flex flex-col gap-6 max-w-4xl mx-auto">
+      <TrackOnMount event="guide_opened" params={{ slug }} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}

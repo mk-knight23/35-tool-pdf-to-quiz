@@ -3,6 +3,7 @@
 import { Check, FileJson, FileSpreadsheet, FileText, Link2, Printer } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { track } from "@/lib/analytics";
 import {
   downloadFile,
   slugify,
@@ -24,6 +25,7 @@ export function ExportMenu({ quiz }: ExportMenuProps) {
 
   const openPrintable = () => {
     const html = toPrintableHtml(quiz);
+    track("result_exported", { format: "print" });
     const win = window.open("", "_blank", "noopener,noreferrer");
     if (!win) {
       // Popup blocked — fall back to a file download.
@@ -34,11 +36,17 @@ export function ExportMenu({ quiz }: ExportMenuProps) {
     win.document.close();
   };
 
+  const exportAs = (format: "json" | "csv" | "md", contents: string, mime: string) => {
+    downloadFile(`${slug}.${format}`, contents, mime);
+    track("result_exported", { format });
+  };
+
   const copyShare = async () => {
     try {
       const url = buildShareUrl(window.location.href, quiz);
       await navigator.clipboard.writeText(url);
       setCopied("share");
+      track("result_shared", { via: "link" });
       window.setTimeout(() => setCopied(null), 2500);
     } catch {
       /* clipboard blocked — non-fatal */
@@ -52,21 +60,21 @@ export function ExportMenu({ quiz }: ExportMenuProps) {
         <Button
           variant="secondary"
           size="sm"
-          onClick={() => downloadFile(`${slug}.json`, toJson(quiz), "application/json")}
+          onClick={() => exportAs("json", toJson(quiz), "application/json")}
         >
           <FileJson size={14} strokeWidth={2} aria-hidden /> JSON
         </Button>
         <Button
           variant="secondary"
           size="sm"
-          onClick={() => downloadFile(`${slug}.csv`, toCsv(quiz), "text/csv")}
+          onClick={() => exportAs("csv", toCsv(quiz), "text/csv")}
         >
           <FileSpreadsheet size={14} strokeWidth={2} aria-hidden /> CSV
         </Button>
         <Button
           variant="secondary"
           size="sm"
-          onClick={() => downloadFile(`${slug}.md`, toMarkdown(quiz), "text/markdown")}
+          onClick={() => exportAs("md", toMarkdown(quiz), "text/markdown")}
         >
           <FileText size={14} strokeWidth={2} aria-hidden /> Markdown
         </Button>

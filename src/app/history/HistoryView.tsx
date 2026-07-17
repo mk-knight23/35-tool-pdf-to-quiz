@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { buttonClasses } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { track } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 import { deleteDeck, deleteQuiz, listDecks, listQuizzes, listResults } from "@/lib/storage";
 import type { Deck, Quiz, QuizResult } from "@/lib/types";
@@ -45,6 +46,7 @@ export function HistoryView() {
   }, []);
 
   useEffect(() => {
+    track("history_opened");
     let active = true;
     void (async () => {
       const [quizzes, decks, results] = await Promise.all([

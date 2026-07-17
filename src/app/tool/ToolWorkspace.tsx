@@ -11,7 +11,8 @@ import { QuestionEditor } from "@/components/tool/QuestionEditor";
 import { SourceInput, type WorkspaceSource } from "@/components/tool/SourceInput";
 import { QuizPlayer, type PlaySession } from "@/components/player/QuizPlayer";
 import { QuizResults } from "@/components/player/QuizResults";
-import { runObjectCapability } from "@/lib/ai/client";
+import { AiClientError, runObjectCapability } from "@/lib/ai/client";
+import { track } from "@/lib/analytics";
 import { generateFlashcards, generateQuiz } from "@/lib/generator";
 import { newId } from "@/lib/id";
 import { getByokKey, getHistoryEnabled } from "@/lib/prefs";
@@ -81,6 +82,11 @@ export function ToolWorkspace() {
 
   const bootstrapped = useRef(false);
 
+  // Record that the tool was opened (no-op unless analytics are enabled).
+  useEffect(() => {
+    track("tool_opened");
+  }, []);
+
   // Load a saved quiz (?quiz=id) or a shared quiz (#quiz=...) once on mount.
   useEffect(() => {
     if (bootstrapped.current) return;
@@ -141,9 +147,11 @@ export function ToolWorkspace() {
       if (!source) return;
       setGenerating(true);
       setWarnings([]);
+      track("tool_started", { mode: req.mode, output: req.output });
 
       if (req.mode === "ai") {
         const run = async () => {
+          track("ai_started", { output: req.output });
           try {
             if (req.output === "quiz") {
               const res = await runObjectCapability<{ questions: RawQuestion[] }>({
@@ -205,10 +213,17 @@ export function ToolWorkspace() {
               });
               setPhase("deck");
             }
+            track("ai_completed", { output: req.output });
+            track("tool_completed", { mode: "ai", output: req.output });
           } catch (err) {
             console.error("AI generation failed:", err);
             const msg = err instanceof Error ? err.message : "AI generation failed. Try again or use Quick mode.";
             setWarnings([msg]);
+            if (err instanceof AiClientError && err.code === "quota_reached") {
+              track("quota_reached", { output: req.output });
+            }
+            track("ai_failed", { output: req.output });
+            track("tool_failed", { mode: "ai", output: req.output });
           } finally {
             setGenerating(false);
           }
@@ -225,6 +240,7 @@ export function ToolWorkspace() {
             setGenConfig(req.quiz);
             setWarnings(result.warnings);
             if (result.questions.length === 0) {
+              track("tool_failed", { mode: "quick", output: "quiz" });
               setGenerating(false);
               return;
             }
@@ -232,10 +248,12 @@ export function ToolWorkspace() {
             setSaved(false);
             setEdited(false);
             setPhase("review");
+            track("tool_completed", { mode: "quick", output: "quiz" });
           } else {
             const result = generateFlashcards(source.text, req.cardCount);
             setWarnings(result.warnings);
             if (result.cards.length === 0) {
+              track("tool_failed", { mode: "quick", output: "flashcards" });
               setGenerating(false);
               return;
             }
@@ -251,6 +269,7 @@ export function ToolWorkspace() {
               schemaVersion: SCHEMA_VERSION,
             });
             setPhase("deck");
+            track("tool_completed", { mode: "quick", output: "flashcards" });
           }
           setGenerating(false);
         }, 30);

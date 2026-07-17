@@ -3,6 +3,7 @@
 import { FileText, FileUp, Loader2, RotateCcw, Type } from "lucide-react";
 import { useCallback, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { sizeBucket, track } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 import {
   extractPdf,
@@ -151,10 +152,12 @@ function PdfPanel({ onReady }: { onReady: (source: WorkspaceSource) => void }) {
   const rangeId = useId();
 
   const handleFile = useCallback(async (file: File) => {
+    track("file_selected", { origin: "pdf", size: sizeBucket(file.size) });
     const validationError = validatePdfFile(file);
     if (validationError) {
       setStatus("error");
       setError(validationError);
+      track("tool_failed", { stage: "pdf_validation" });
       return;
     }
     setStatus("parsing");
@@ -169,13 +172,16 @@ function PdfPanel({ onReady }: { onReady: (source: WorkspaceSource) => void }) {
         setError(
           "This PDF has no extractable text — it looks scanned or image-only. Quick mode can't read images (OCR isn't supported). Try a text-based PDF or paste the text.",
         );
+        track("tool_failed", { stage: "pdf_scanned" });
         return;
       }
       setExtraction(result);
       setStatus("parsed");
+      track("file_processed", { origin: "pdf", pages: result.numPages });
     } catch {
       setStatus("error");
       setError("Couldn't read this PDF. It may be encrypted or corrupted.");
+      track("tool_failed", { stage: "pdf_parse" });
     }
   }, []);
 

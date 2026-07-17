@@ -4,7 +4,7 @@ export const SITE = {
   shortName: "QuizFlow",
   description:
     "Turn PDFs and pasted notes into quizzes and flashcards, right in your browser. The deterministic Quick mode works with zero AI keys.",
-  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://thequizflow.com").replace(/\/$/, ""),
+  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://quizflow.mkazi.live").replace(/\/$/, ""),
 } as const;
 
 export const CREATOR = {

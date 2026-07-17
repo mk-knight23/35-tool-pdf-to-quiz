@@ -65,7 +65,7 @@ export function ConfirmDialog({
           <Button variant="secondary" onClick={onCancel}>
             {cancelLabel}
           </Button>
-          {/* eslint-disable-next-line jsx-a11y/no-autofocus -- intentional: focus the primary action when a modal opens */}
+          {/* autoFocus is intentional here: focus the primary action when the modal opens */}
           <Button autoFocus variant={confirmVariant} onClick={onConfirm}>
             {confirmLabel}
           </Button>

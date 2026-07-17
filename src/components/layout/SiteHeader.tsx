@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenCheck, Menu, X, FileText, BarChart3, Clock, Settings, User } from "lucide-react";
+import { BookOpenCheck, Menu, X, FileText, BarChart3, Clock, Settings, User, Heart } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -71,7 +71,16 @@ export function SiteHeader() {
             <span className="text-xs text-ink-muted font-medium">Appearance</span>
             <ThemeToggle />
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1.5">
+            <a
+              href={process.env.NEXT_PUBLIC_SPONSOR_URL || "https://buymeacoffee.com/mkknights"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-2 text-xs font-bold text-rose-500 transition-colors shadow-sm mb-2"
+            >
+              <Heart size={12} className="fill-current stroke-[2.5]" />
+              <span>Support QuizFlow</span>
+            </a>
             <Link
               href="/creator"
               className="group flex items-center gap-2 text-xs text-ink-secondary hover:text-ink font-medium"
@@ -139,7 +148,17 @@ export function SiteHeader() {
                 </Link>
               );
             })}
-            <div className="pt-2 mt-2 border-t border-white/10">
+            <div className="pt-2 mt-2 border-t border-white/10 flex flex-col gap-1.5">
+              <a
+                href={process.env.NEXT_PUBLIC_SPONSOR_URL || "https://buymeacoffee.com/mkknights"}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 text-xs font-semibold text-rose-500 hover:underline px-4 py-2"
+              >
+                <Heart size={14} className="fill-current" />
+                <span>Support QuizFlow</span>
+              </a>
               <Link
                 href="/creator"
                 onClick={() => setOpen(false)}

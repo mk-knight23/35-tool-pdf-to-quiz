@@ -3,6 +3,7 @@
 import { AlertCircle, Layers, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AdUnit } from "@/components/tool/AdUnit";
 import { QuickModeBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -587,15 +588,15 @@ export function ToolWorkspace() {
           </p>
           <ol className="grid gap-3 sm:grid-cols-2">
             {deck.cards.map((c) => (
-              <li key={c.id} className="flex flex-col gap-2 rounded-md border border-line bg-surface-2 p-4">
-                <span className="font-display text-lg text-ink">{c.front}</span>
-                <span className="text-sm text-ink-secondary">{c.back}</span>
+              <li key={c.id} className="flex flex-col gap-2 rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md p-4 shadow-sm hover:-translate-y-0.5 transition-all duration-200">
+                <span className="font-display font-bold text-base text-ink">{c.front}</span>
+                <span className="text-xs text-ink-secondary leading-relaxed">{c.back}</span>
               </li>
             ))}
           </ol>
           <div className="flex flex-wrap gap-3">
             <Button loading={deckSaving} onClick={handleSaveDeck}>
-              <Layers size={16} strokeWidth={1.75} aria-hidden /> Save deck &amp; study
+              <Layers size={16} strokeWidth={2} aria-hidden /> Save deck &amp; study
             </Button>
             <Button variant="ghost" onClick={() => setPhase("configure")}>
               Back to configure
@@ -635,6 +636,9 @@ export function ToolWorkspace() {
           <Loader2 size={16} className="animate-spin" aria-hidden /> Generating…
         </p>
       ) : null}
+
+      {/* Render responsive Ad/Sponsor banner at the bottom of the workspace when not in active player phase */}
+      {phase !== "play" && <AdUnit className="mt-6" />}
 
       <ConfirmDialog
         open={confirmRegenAll}

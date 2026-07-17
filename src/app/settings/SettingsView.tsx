@@ -1,10 +1,11 @@
 "use client";
 
-import { Download, HardDrive, Trash2, Upload } from "lucide-react";
+import { Download, HardDrive, Trash2, Upload, DollarSign, Sparkles, CheckCircle } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { cn } from "@/lib/cn";
 import { track } from "@/lib/analytics";
 import { downloadFile } from "@/lib/export";
 import {
@@ -53,6 +54,16 @@ export function SettingsView() {
   const [cleared, setCleared] = useState(false);
   const [byok, setByokState] = useState("");
   const [byokStatus, setByokStatus] = useState<string | null>(null);
+  const [premiumSimulated, setPremiumSimulated] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handleSimulateCheckout = () => {
+    setCheckoutLoading(true);
+    window.setTimeout(() => {
+      setCheckoutLoading(false);
+      setPremiumSimulated(true);
+    }, 1500);
+  };
 
   const refreshUsage = useCallback(async () => {
     setUsage(await estimateUsage());
@@ -282,12 +293,12 @@ export function SettingsView() {
         title="AI features"
         description="Quick mode is the default and needs no key. An optional AI layer can produce reworded questions."
       >
-        <p className="text-sm text-ink-secondary">
+        <p className="text-xs text-ink-secondary leading-relaxed">
           This build ships the deterministic Quick mode. When the optional AI layer is enabled, you
           can bring your own key (e.g. OpenRouter key) — it is held only in browser tab memory for the request, never written to disk, and never sent to analytics.
         </p>
-        <div className="flex flex-col gap-3 max-w-md pt-2">
-          <label htmlFor="byok-input" className="text-sm font-medium text-ink">
+        <div className="flex flex-col gap-3 max-w-md pt-1">
+          <label htmlFor="byok-input" className="text-xs font-semibold text-ink">
             Bring Your Own API Key (OpenRouter or compatible gateway):
           </label>
           <div className="flex gap-2">
@@ -297,7 +308,7 @@ export function SettingsView() {
               value={byok}
               onChange={(e) => setByokState(e.target.value)}
               placeholder="e.g. sk-or-v1-..."
-              className="flex-1 rounded-sm border border-line-strong bg-raised px-3 py-1.5 text-sm text-ink outline-none focus:border-accent"
+              className="flex-1 rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3.5 py-2 text-xs text-ink outline-none focus:border-accent focus:bg-white/40 dark:focus:bg-slate-900/40 transition-all shadow-sm"
             />
             <Button size="sm" onClick={handleSaveByok} disabled={byok.trim().length === 0}>
               Save
@@ -307,10 +318,154 @@ export function SettingsView() {
             </Button>
           </div>
           {byokStatus ? (
-            <p role="status" className="text-xs text-success">
+            <p role="status" className="text-xs font-semibold text-success mt-0.5">
               {byokStatus}
             </p>
           ) : null}
+        </div>
+      </Section>
+
+      {/* Analytics Configuration */}
+      <Section
+        title="Analytics & Tracking"
+        description="Monitor web traffic, user behaviors, and speed insights. Configured via environment variables."
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-xs text-ink-secondary leading-relaxed">
+            QuizFlow natively supports **Vercel Web Analytics**, **Speed Insights**, **Google Analytics 4 (GA4)**, and **Google Tag Manager (GTM)**. Adding keys automatically loads tracking code in production builds.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl border border-white/10 bg-white/5 dark:bg-slate-900/10 p-4 flex flex-col gap-1.5">
+              <span className="font-semibold text-xs text-ink">Vercel Web Analytics</span>
+              <p className="text-2xs text-ink-muted leading-relaxed">
+                Tracks page views and usage events. Enabled in Vercel settings and initialized automatically.
+              </p>
+              <span className="inline-flex self-start rounded-full px-2 py-0.5 text-4xs font-semibold uppercase tracking-[0.06em] bg-success-tint text-success border border-success/20 mt-1">
+                Active
+              </span>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 dark:bg-slate-900/10 p-4 flex flex-col gap-1.5">
+              <span className="font-semibold text-xs text-ink">Google Analytics (GA4)</span>
+              <p className="text-2xs text-ink-muted leading-relaxed">
+                Loads global site tag conditionally. Setup standard variable: `NEXT_PUBLIC_GA_ID`.
+              </p>
+              <span className={cn(
+                "inline-flex self-start rounded-full px-2 py-0.5 text-4xs font-semibold uppercase tracking-[0.06em] mt-1 border",
+                process.env.NEXT_PUBLIC_GA_ID 
+                  ? "bg-success-tint text-success border-success/20" 
+                  : "bg-white/10 text-ink-secondary border-white/10"
+              )}>
+                {process.env.NEXT_PUBLIC_GA_ID ? "Configured" : "Not Found"}
+              </span>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 dark:bg-slate-900/10 p-4 flex flex-col gap-1.5">
+              <span className="font-semibold text-xs text-ink">Google Tag Manager (GTM)</span>
+              <p className="text-2xs text-ink-muted leading-relaxed">
+                Manages script triggers and marketing tracking. Setup variable: `NEXT_PUBLIC_GTM_ID`.
+              </p>
+              <span className={cn(
+                "inline-flex self-start rounded-full px-2 py-0.5 text-4xs font-semibold uppercase tracking-[0.06em] mt-1 border",
+                process.env.NEXT_PUBLIC_GTM_ID 
+                  ? "bg-success-tint text-success border-success/20" 
+                  : "bg-white/10 text-ink-secondary border-white/10"
+              )}>
+                {process.env.NEXT_PUBLIC_GTM_ID ? "Configured" : "Not Found"}
+              </span>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 dark:bg-slate-900/10 p-4 flex flex-col gap-1.5">
+              <span className="font-semibold text-xs text-ink">Speed Insights</span>
+              <p className="text-2xs text-ink-muted leading-relaxed">
+                Monitors Core Web Vitals (CLS, LCP, INP) directly inside your Vercel Dashboard.
+              </p>
+              <span className="inline-flex self-start rounded-full px-2 py-0.5 text-4xs font-semibold uppercase tracking-[0.06em] bg-success-tint text-success border border-success/20 mt-1">
+                Active
+              </span>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Monetization & Ads */}
+      <Section
+        title="Monetization & Advertisements"
+        description="Display ads or prompt sponsorships to generate revenue from visitors."
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-xs text-ink-secondary leading-relaxed">
+            QuizFlow natively supports **Google AdSense**. Add your publisher client ID to `NEXT_PUBLIC_ADSENSE_CLIENT_ID` in Vercel. Ad blocks inside playrooms and tool workspaces will load ads automatically.
+          </p>
+          <div className="rounded-xl border border-white/20 dark:border-white/5 bg-white/20 dark:bg-slate-900/20 p-4 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-xs text-ink">Google AdSense Integration</span>
+              <span className={cn(
+                "rounded-full px-2 py-0.5 text-4xs font-semibold uppercase tracking-[0.06em] border",
+                process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID 
+                  ? "bg-success-tint text-success border-success/20" 
+                  : "bg-warning-tint text-warning border-warning/20"
+              )}>
+                {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID ? "Linked" : "No AdSense key found"}
+              </span>
+            </div>
+            <p className="text-2xs text-ink-muted leading-relaxed">
+              When no AdSense client ID is configured, QuizFlow displays fallback glassmorphic callouts encouraging users to upgrade to premium or support the app on Buy Me a Coffee.
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* Premium Tier Preview */}
+      <Section
+        id="premium"
+        title="Premium Tier & Payments"
+        description="Configure subscription payments and donation CTAs."
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-xs text-ink-secondary leading-relaxed">
+            Add your Stripe checkout details, donation URLs, or platform credentials to accept credit card payments.
+          </p>
+          <div className="rounded-xl border border-white/20 dark:border-white/5 bg-gradient-to-r from-accent/5 to-purple-500/5 p-5 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} className="text-accent shrink-0 animate-pulse" />
+                <span className="font-bold text-sm text-ink">Stripe Checkout Simulator</span>
+              </div>
+              <span className={cn(
+                "rounded-full px-2.5 py-0.5 text-3xs font-semibold uppercase tracking-[0.06em] font-mono border",
+                premiumSimulated 
+                  ? "bg-success-tint text-success border-success/20" 
+                  : "bg-white/10 text-ink-secondary border-white/10"
+              )}>
+                {premiumSimulated ? "Premium Active" : "Free Plan"}
+              </span>
+            </div>
+            
+            {premiumSimulated ? (
+              <div className="rounded-xl border border-success/20 bg-success-tint p-4 flex items-start gap-2.5 animate-fade-in">
+                <CheckCircle size={16} className="text-success shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-bold text-xs text-success">Mock Purchase Complete!</span>
+                  <p className="text-2xs text-ink-secondary leading-relaxed">
+                    Stripe webhook successfully simulated. Your account is upgraded. In production, configure `NEXT_PUBLIC_STRIPE_PUBLIC_KEY` to mount Stripe Element checkout.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <p className="text-2xs text-ink-muted leading-relaxed">
+                  Upgrade mock account to premium tier. This validates the responsive client subscription layout.
+                </p>
+                <Button 
+                  onClick={handleSimulateCheckout} 
+                  loading={checkoutLoading}
+                  variant="accent" 
+                  size="sm"
+                  className="self-start font-semibold"
+                >
+                  <DollarSign size={14} className="stroke-[2.5]" /> Purchase Premium Mock ($4.99/mo)
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </Section>
 
@@ -328,19 +483,21 @@ export function SettingsView() {
 }
 
 function Section({
+  id,
   title,
   description,
   children,
 }: {
+  id?: string;
   title: string;
   description: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-4 rounded-lg border border-line bg-surface-2 p-6 shadow-paper">
+    <section id={id} className="flex flex-col gap-4 rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md p-6 shadow-paper">
       <div>
-        <h2 className="font-display text-xl text-ink">{title}</h2>
-        <p className="mt-1 text-sm text-ink-secondary">{description}</p>
+        <h2 className="font-display text-xl font-bold text-ink">{title}</h2>
+        <p className="mt-1 text-xs text-ink-secondary">{description}</p>
       </div>
       {children}
     </section>
@@ -359,16 +516,16 @@ function ToggleRow({
   onChange: (value: boolean) => void;
 }) {
   return (
-    <label className="flex items-start justify-between gap-4">
+    <label className="flex items-start justify-between gap-4 cursor-pointer">
       <span className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium text-ink">{label}</span>
-        <span className="text-sm text-ink-secondary">{hint}</span>
+        <span className="text-xs font-bold text-ink">{label}</span>
+        <span className="text-2xs text-ink-secondary leading-relaxed">{hint}</span>
       </span>
       <input
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="mt-1 size-5 shrink-0 accent-[var(--color-accent-strong)]"
+        className="mt-1 size-5 shrink-0 rounded accent-[var(--color-accent-strong)]"
       />
     </label>
   );

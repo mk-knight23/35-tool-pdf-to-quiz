@@ -37,6 +37,9 @@ yarn-error.log*
 # legacy reference snapshot (kept locally for porting, not committed)
 /_legacy_reference/
 
+# self-hosted pdf worker — generated from node_modules by scripts/copy-pdf-worker.mjs
+/public/pdf.worker.min.mjs
+
 # vercel
 .vercel
 

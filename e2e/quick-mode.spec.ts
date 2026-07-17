@@ -17,9 +17,15 @@ Oxygen is released as a byproduct of the light-dependent reactions.
 Water is split during photosynthesis to supply electrons and protons.`;
 
 async function dismissConsent(page: Page): Promise<void> {
+  // The banner mounts after hydration (a queued timeout), so wait for it before
+  // clicking; once a choice is stored it never reappears on later navigations.
   const decline = page.getByRole("button", { name: "Decline" });
-  if (await decline.isVisible().catch(() => false)) {
+  try {
+    await decline.waitFor({ state: "visible", timeout: 5000 });
     await decline.click();
+    await decline.waitFor({ state: "hidden", timeout: 5000 });
+  } catch {
+    // No banner means consent was already recorded this context — nothing to do.
   }
 }
 

@@ -3,68 +3,68 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --qf-surface: #F6F2EA;
-  --qf-surface-2: #FFFDF8;
-  --qf-raised: #FFFFFF;
-  --qf-ink: #1C1917;
-  --qf-ink-secondary: #57534E;
-  --qf-ink-muted: #79716B;
-  --qf-line: #E7E0D5;
-  --qf-line-strong: #C9BFAE;
-  --qf-accent: #0F766E;
-  --qf-accent-strong: #115E59;
-  --qf-on-accent: #FFFFFF;
-  --qf-accent-tint: #E4F1EE;
-  --qf-highlight: #B45309;
-  --qf-highlight-tint: #F7EDDD;
-  --qf-success: #15803D;
-  --qf-success-tint: #E3F1E7;
-  --qf-error: #B91C1C;
-  --qf-error-tint: #F9E8E8;
-  --qf-warning: #A16207;
-  --qf-warning-tint: #F8F0DC;
-  --qf-focus: #0F766E;
-  --qf-btn-primary-bg: #1C1917;
-  --qf-btn-primary-fg: #F6F2EA;
-  --qf-btn-primary-hover: #292524;
-  --qf-glass-bg: rgba(255, 253, 248, 0.72);
-  --qf-scrim: rgba(23, 20, 18, 0.5);
-  --qf-shadow-hairline: 0 0 0 1px rgba(28, 25, 23, 0.06);
-  --qf-shadow-paper: 0 1px 2px rgba(62, 50, 37, 0.06), 0 2px 6px rgba(62, 50, 37, 0.05);
-  --qf-shadow-lifted: 0 2px 4px rgba(62, 50, 37, 0.07), 0 10px 24px rgba(62, 50, 37, 0.09);
-  --qf-shadow-overlay: 0 4px 12px rgba(62, 50, 37, 0.10), 0 24px 48px rgba(62, 50, 37, 0.16);
+  --qf-surface: #f8fafc;
+  --qf-surface-2: rgba(255, 255, 255, 0.45);
+  --qf-raised: rgba(255, 255, 255, 0.75);
+  --qf-ink: #0f172a;
+  --qf-ink-secondary: #334155;
+  --qf-ink-muted: #64748b;
+  --qf-line: rgba(255, 255, 255, 0.35);
+  --qf-line-strong: rgba(14, 165, 233, 0.25);
+  --qf-accent: #0284c7;
+  --qf-accent-strong: #0369a1;
+  --qf-on-accent: #ffffff;
+  --qf-accent-tint: rgba(224, 242, 254, 0.6);
+  --qf-highlight: #0284c7;
+  --qf-highlight-tint: rgba(224, 242, 254, 0.4);
+  --qf-success: #10b981;
+  --qf-success-tint: rgba(209, 250, 229, 0.6);
+  --qf-error: #ef4444;
+  --qf-error-tint: rgba(254, 226, 226, 0.6);
+  --qf-warning: #f59e0b;
+  --qf-warning-tint: rgba(254, 243, 199, 0.6);
+  --qf-focus: #0284c7;
+  --qf-btn-primary-bg: #0284c7;
+  --qf-btn-primary-fg: #ffffff;
+  --qf-btn-primary-hover: #0369a1;
+  --qf-glass-bg: rgba(255, 255, 255, 0.45);
+  --qf-scrim: rgba(15, 23, 42, 0.15);
+  --qf-shadow-hairline: 0 0 0 1px rgba(255, 255, 255, 0.5);
+  --qf-shadow-paper: 0 8px 32px 0 rgba(31, 38, 135, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  --qf-shadow-lifted: 0 12px 40px 0 rgba(31, 38, 135, 0.07), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  --qf-shadow-overlay: 0 24px 64px 0 rgba(31, 38, 135, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.9);
 }
 
 .dark {
-  --qf-surface: #171412;
-  --qf-surface-2: #1F1B17;
-  --qf-raised: #2A241F;
-  --qf-ink: #F2EDE4;
-  --qf-ink-secondary: #BEB5A7;
-  --qf-ink-muted: #948A7C;
-  --qf-line: #37312A;
-  --qf-line-strong: #4C443A;
-  --qf-accent: #2DD4BF;
-  --qf-accent-strong: #14B8A6;
-  --qf-on-accent: #0F2E28;
-  --qf-accent-tint: #16302C;
-  --qf-highlight: #E5B567;
-  --qf-highlight-tint: #2A2214;
-  --qf-success: #4ADE80;
-  --qf-success-tint: #16261C;
-  --qf-error: #F87171;
-  --qf-error-tint: #2C1A18;
-  --qf-warning: #FBBF24;
-  --qf-warning-tint: #2A2214;
-  --qf-focus: #2DD4BF;
-  --qf-btn-primary-bg: #F2EDE4;
-  --qf-btn-primary-fg: #1C1917;
-  --qf-btn-primary-hover: #E5DFD2;
-  --qf-glass-bg: rgba(31, 27, 23, 0.66);
-  --qf-shadow-hairline: 0 0 0 1px rgba(242, 237, 228, 0.07);
-  --qf-shadow-paper: var(--qf-shadow-hairline);
-  --qf-shadow-lifted: var(--qf-shadow-hairline);
-  --qf-shadow-overlay: 0 24px 48px rgba(0, 0, 0, 0.5);
+  --qf-surface: #e2e8f0;
+  --qf-surface-2: rgba(255, 255, 255, 0.55);
+  --qf-raised: rgba(255, 255, 255, 0.85);
+  --qf-ink: #1e293b;
+  --qf-ink-secondary: #475569;
+  --qf-ink-muted: #64748b;
+  --qf-line: rgba(255, 255, 255, 0.45);
+  --qf-line-strong: rgba(14, 165, 233, 0.35);
+  --qf-accent: #0284c7;
+  --qf-accent-strong: #0369a1;
+  --qf-on-accent: #ffffff;
+  --qf-accent-tint: rgba(224, 242, 254, 0.7);
+  --qf-highlight: #0284c7;
+  --qf-highlight-tint: rgba(224, 242, 254, 0.5);
+  --qf-success: #10b981;
+  --qf-success-tint: rgba(209, 250, 229, 0.7);
+  --qf-error: #ef4444;
+  --qf-error-tint: rgba(254, 226, 226, 0.7);
+  --qf-warning: #f59e0b;
+  --qf-warning-tint: rgba(254, 243, 199, 0.7);
+  --qf-focus: #0284c7;
+  --qf-btn-primary-bg: #0369a1;
+  --qf-btn-primary-fg: #ffffff;
+  --qf-btn-primary-hover: #0284c7;
+  --qf-glass-bg: rgba(255, 255, 255, 0.55);
+  --qf-shadow-hairline: 0 0 0 1px rgba(255, 255, 255, 0.6);
+  --qf-shadow-paper: 0 8px 32px 0 rgba(31, 38, 135, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  --qf-shadow-lifted: 0 12px 40px 0 rgba(31, 38, 135, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+  --qf-shadow-overlay: 0 24px 64px 0 rgba(31, 38, 135, 0.14), inset 0 1px 1px rgba(255, 255, 255, 0.95);
 }
 
 @theme inline {
@@ -110,7 +110,11 @@
 }
 
 body {
-  background: var(--qf-surface);
+  background: radial-gradient(at 0% 0%, #e0f2fe 0px, transparent 55%),
+              radial-gradient(at 50% 0%, #f3e8ff 0px, transparent 55%),
+              radial-gradient(at 100% 0%, #fffbeb 0px, transparent 55%),
+              #f8fafc;
+  background-attachment: fixed;
   color: var(--qf-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -147,8 +151,9 @@ body {
 
 .qf-glass {
   background: var(--qf-glass-bg);
-  border: 1px solid var(--color-line);
-  backdrop-filter: blur(12px) saturate(1.4);
+  border: 1px solid var(--qf-line);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--qf-shadow-paper);
 }
 @supports not (backdrop-filter: blur(1px)) {
   .qf-glass { background: var(--color-surface-2); }

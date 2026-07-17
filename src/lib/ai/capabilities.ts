@@ -26,6 +26,20 @@ const textField = z
   .max(MAX_INPUT_CHARS, "Text exceeds max length.")
   .refine((val) => val.trim().length > 0, "Text cannot be empty.");
 
+/* Defensive size caps for structured (non-source-text) inputs (STANDARDS §8).
+   All sit comfortably above real UI usage (quizzes cap at 30 questions). */
+const MAX_PROMPT_CHARS = 4_000;
+const MAX_OPTION_CHARS = 2_000;
+const MAX_OPTIONS = 10;
+const MAX_ACCEPTABLE = 50;
+const MAX_ANSWER_CHARS = 4_000;
+const MAX_RESULTS = 200;
+const MAX_EXISTING_PROMPTS = 200;
+
+const promptField = z.string().min(1, "Question prompt is required.").max(MAX_PROMPT_CHARS);
+const optionsField = z.array(z.string().max(MAX_OPTION_CHARS)).max(MAX_OPTIONS);
+const acceptableField = z.array(z.string().max(MAX_OPTION_CHARS)).max(MAX_ACCEPTABLE);
+
 const questionTypeSchema = z.enum(["mcq", "tf", "short", "fill"]);
 const difficultySchema = z.enum(["easy", "medium", "hard", "mixed"]);
 const audienceSchema = z.enum(["school", "university", "professional"]);
@@ -139,12 +153,14 @@ Honesty Rule: Rely only on facts in the provided text.`,
   explain: {
     mode: "object",
     inputSchema: z.object({
-      prompt: z.string(),
-      options: z.array(z.string()),
-      correctIndex: z.number().int(),
-      acceptableAnswers: z.array(z.string()),
+      prompt: promptField,
+      options: optionsField,
+      correctIndex: z.number().int().min(-1).max(MAX_OPTIONS),
+      acceptableAnswers: acceptableField,
       type: questionTypeSchema,
-      userAnswer: z.union([z.string(), z.number()]).nullable(),
+      userAnswer: z
+        .union([z.string().max(MAX_ANSWER_CHARS), z.number().int()])
+        .nullable(),
     }),
     outputSchema: explainOutputSchema,
     build: (input) => {
@@ -165,13 +181,16 @@ User's Answer: ${input.userAnswer !== null ? JSON.stringify(input.userAnswer) : 
   "weak-topics": {
     mode: "object",
     inputSchema: z.object({
-      results: z.array(
-        z.object({
-          prompt: z.string(),
-          type: questionTypeSchema,
-          correct: z.boolean(),
-        })
-      ),
+      results: z
+        .array(
+          z.object({
+            prompt: promptField,
+            type: questionTypeSchema,
+            correct: z.boolean(),
+          })
+        )
+        .min(1, "No results to analyze.")
+        .max(MAX_RESULTS),
     }),
     outputSchema: weakTopicsOutputSchema,
     build: (input) => {
@@ -193,7 +212,7 @@ Group the analysis into high-level concepts and determine the user's strength ("
       text: textField,
       type: questionTypeSchema,
       difficulty: difficultySchema,
-      existingPrompts: z.array(z.string()),
+      existingPrompts: z.array(z.string().max(MAX_PROMPT_CHARS)).max(MAX_EXISTING_PROMPTS),
     }),
     outputSchema: aiQuestionSchema,
     build: (input) => ({

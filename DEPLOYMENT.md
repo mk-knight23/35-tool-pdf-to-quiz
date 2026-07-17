@@ -9,15 +9,21 @@ This document details the build and deployment processes.
 ## Local Build Pipeline
 Before release, verify correct compilation via local builds:
 ```bash
-# Install dependencies
 pnpm install
-
-# Run tests
-pnpm test
-
-# Run build
-pnpm build
+pnpm typecheck              # tsc --noEmit
+pnpm lint                   # eslint src
+pnpm test                   # vitest run
+pnpm build                  # next build
+pnpm exec next start --port 3101   # production smoke (only local port used)
+pnpm exec playwright test          # e2e smoke against port 3101
 ```
+
+## Continuous integration
+`.github/workflows/ci.yml` runs on pushes to `main`/`rebuild/**` and PRs to `main`:
+1. **verify** — typecheck → lint → vitest + coverage → build.
+2. **gitleaks** — secret scan over full history.
+3. **audit** — `pnpm audit --prod` report (non-blocking).
+4. **e2e** — Playwright smoke (installs chromium, builds, runs on port 3101; non-blocking).
 
 ## Hosting
 - Target: Vercel (orchestrated under `kazi-reprime` organization).

@@ -4,6 +4,13 @@ All notable updates to the MK QuizFlow workspace are documented here.
 
 ## [2.0.0] - 2026-07-17
 
+### Testing, CI & docs
+- Vitest unit suite expanded to **206 tests** across 21 files covering generators, parsers, scoring, dedupe, the SRS scheduler, derived stats, storage (via `fake-indexeddb`), quota/rate-limit, the consent-gated analytics no-op, share/export, AI catalog/models, and content integrity. Real coverage: 86.85% statements / 94.94% functions on `src/lib`.
+- Playwright smoke suite on port 3101: deterministic paste → generate → play → score flow on desktop and a mobile viewport, plus a keyboard-only pass. Captures real homepage and quiz-player screenshots into `public/screenshots`.
+- GitHub Actions CI (`.github/workflows/ci.yml`): pnpm typecheck → lint → vitest + coverage → build, plus gitleaks secret scan, a non-blocking `pnpm audit --prod` report, and the Playwright smoke job.
+- Docs completed: rewrote the README (overview, features, env vars, testing, deployment, screenshot, author, license); refreshed TEST_REPORT.md with real command output.
+- Fixed the LICENSE file — was Apache-2.0 / "Vercel, Inc."; now MIT © 2026 Kazi Musharraf to match `package.json` and STANDARDS §3.
+
 ### Content, SEO & analytics
 - Cookie consent banner (default declined, equal-weight Allow/Decline, links to `/cookies`).
 - Analytics are now genuinely consent-gated: GTM/GA load only in production, when a container id is set, and after consent. No third-party script loads by default.

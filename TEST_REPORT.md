@@ -36,7 +36,7 @@ Per-area coverage (files under `src/lib`, AAA structure + behaviour-named tests)
 - **Storage** — `storage.test.ts` (IndexedDB via `fake-indexeddb`: CRUD, ordering, export/import validation).
 - **Quota / limits** — `ai/quota.test.ts`, `ai/rate-limit.test.ts`.
 - **Analytics no-op** — `analytics.test.ts` (consent-gated: no data-layer writes until id + production + consent).
-- **ID generation** — `id.test.ts` (`crypto.randomUUID` path, the older-Safari `getRandomValues` v4 fallback, and the no-secure-crypto throw).
+- **ID generation** — `id.test.ts` (**5 tests**: `crypto.randomUUID` path, the older-Safari `getRandomValues` v4 fallback + its distinctness, and the no-secure-crypto throw). Confirmed by vitest as `src/lib/id.test.ts (5 tests)` — an earlier build note said "6", which was off by one.
 - **Config / AI specs** — `prefs.test.ts`, `share.test.ts`, `export.test.ts`, `tips.test.ts`, `cn.test.ts`, `site.test.ts`, `ai/catalog.test.ts`, `ai/models.test.ts`, `ai/capabilities.test.ts`, `ai/errors.test.ts`.
 
 ### Coverage (v8)
@@ -86,6 +86,47 @@ Running 8 tests using 1 worker
 - OG image served as `image/png` (real static PNG, no external service).
 - JSON-LD verified in served HTML: `SoftwareApplication` (root), `FAQPage` (`/faq`), `Article` + `BreadcrumbList` (`/guides/[slug]`), `Person` (`/creator`).
 - Analytics consent gating: 0 GTM/GA and 0 AdSense script references before consent; GTM loads only after consent in production with an id set. AdSense stays disabled behind its flag.
+
+## QA fix pass (2026-07-18)
+
+Independent QA raised one HIGH and three MEDIUM findings; all are resolved or honestly documented below.
+
+### HIGH — security headers (STANDARDS §8) — FIXED & verified
+`next.config.ts` now emits the full §8 header set on every route via `headers()` and sets `poweredByHeader: false`. Verified with the same method QA used — `curl -sID -` against `next start` on port 3101:
+
+```
+# curl -sID - http://localhost:3101/   (and /tool — identical)
+Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none';
+  frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'
+  'wasm-unsafe-eval' <gtm/ga/adsense/vercel hosts>; style-src 'self' 'unsafe-inline';
+  img-src 'self' data: blob: <hosts>; font-src 'self' data:; connect-src 'self' <hosts>;
+  frame-src 'self' <hosts>; worker-src 'self' blob:; manifest-src 'self';
+  upgrade-insecure-requests
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()
+# X-Powered-By: ABSENT (poweredByHeader:false)
+```
+
+Documented CSP exceptions: `'unsafe-inline'` in `script-src`/`style-src` (headers are static so the 38 routes keep prerendering — no per-request nonce; needed for Next's inline bootstrap + the inline theme/JSON-LD scripts). `'wasm-unsafe-eval'` + `worker-src 'self' blob:` are for client-side pdf.js decoding/worker. **No `'unsafe-eval'` in production.** GTM/GA/AdSense/Vercel hosts are an allow-list ceiling only — nothing loads them until consent (§6) / the ads flag (§7). The e2e Quick-mode flow (incl. pdf.js path) still passes under this CSP.
+
+### MEDIUM — glowing blobs + glass shell (DESIGN §13) — FIXED (partial; rest documented)
+Removed the animated purple/indigo/pink `qf-blob-1/2/3` elements + keyframes and replaced the translucent glass shell (`bg-white/10 … backdrop-blur-2xl`) in `src/app/layout.tsx` with a solid semantic paper surface (`bg-surface-2` / `border-line` / `shadow-paper`). The two concrete §13-forbidden items the finding named are gone. **Known remaining deviation (honest):** the wider theme in `globals.css` still uses cool-slate/indigo tokens + glass panels across ~15 components, whereas `DESIGN_SYSTEM.md` §10 specifies the warm-paper "annotated desk" palette + librarian-green accent. Realigning the full token system is a genuine dedicated design pass (15 files / 66 raw utility usages) and was out of scope for this FIX stage; it is not a quick edit and carries contrast/dark-mode regression risk. Flagged for a follow-up design pass.
+
+### MEDIUM — Vercel Analytics/Speed Insights not consent-gated (§6) — FIXED
+`@vercel/analytics` + `@vercel/speed-insights` are now rendered only through `src/components/layout/VercelAnalytics.tsx`, a client wrapper that mounts them exclusively after consent is granted (reacting to the shared `CONSENT_EVENT`), matching the existing GTM/GA gate. No page-view/vitals data is collected before consent.
+
+### MEDIUM — id.test.ts count accuracy — FIXED
+An earlier build note said `id.test.ts` had "6 tests"; vitest reports `src/lib/id.test.ts (5 tests)`. TEST_REPORT now states 5. The three described crypto paths (randomUUID, getRandomValues v4 fallback, no-secure-crypto throw) remain genuinely covered.
+
+### Post-fix regression run
+- `pnpm typecheck` — clean, exit 0.
+- `pnpm lint` — clean, 0 problems, exit 0.
+- `pnpm test` — 222 passed (23 files), exit 0.
+- `pnpm build` — success, 38 routes, static prerender preserved.
+- `pnpm exec playwright test` — 5 passed, 3 skipped (unchanged from baseline; verifies the tool works under the new CSP).
 
 ## Notes
 - Analytics scripts only load in production + with a container id + after consent, so they never appear in `next dev`.

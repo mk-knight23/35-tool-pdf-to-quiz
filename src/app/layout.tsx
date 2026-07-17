@@ -65,41 +65,23 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* Conditionally load Google AdSense script */}
-        {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
-            crossOrigin="anonymous"
-          />
-        )}
-        {/* Google Tag Manager */}
-        {process.env.NEXT_PUBLIC_GTM_ID && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');
-              `,
-            }}
-          />
-        )}
+        {/*
+          AdSense loader (STANDARDS §7): loads ONLY when ads are explicitly
+          enabled AND a publisher id is set. Disabled by default, so no ad
+          script touches the page. Analytics (GTM/GA) are handled exclusively by
+          the consent-gated AnalyticsScripts below (STANDARDS §6) — never loaded
+          unconditionally from <head>.
+        */}
+        {process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true" &&
+          process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
+            <script
+              async
+              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
+              crossOrigin="anonymous"
+            />
+          )}
       </head>
       <body className="flex min-h-dvh flex-col bg-surface text-ink antialiased relative overflow-x-hidden">
-        {/* Google Tag Manager (noscript) */}
-        {process.env.NEXT_PUBLIC_GTM_ID && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
-              height="0"
-              width="0"
-              style={{ display: "none", visibility: "hidden" }}
-            />
-          </noscript>
-        )}
         {/* Floating animated blobs */}
         <div className="qf-blob qf-blob-1" aria-hidden="true" />
         <div className="qf-blob qf-blob-2" aria-hidden="true" />

@@ -1,16 +1,46 @@
 # MK QuizFlow
 
-MK QuizFlow is a privacy-first, local-first web application designed to turn PDF slides and study notes into quizzes and flashcards.
+> MK QuizFlow turns PDFs and pasted notes into quizzes and flashcards, in your browser. The deterministic Quick mode works with zero AI keys; an optional AI layer produces reworded questions. Local-first: documents are never stored server-side, and all user data lives in the browser via IndexedDB.
 
-## Key Features
-- **Local-First Processing**: Browser-side PDF text extraction using pdf.js. No document upload is saved on the server.
-- **Quick Mode**: Heuristic keyword-matching questions generated locally without AI keys or network calls.
-- **AI Mode**: Context-aware multiple choice, true/false, fill-in-the-blanks, and short answer question sets using the Vercel AI SDK and Vercel AI Gateway.
-- **SRS Flashcards**: Spaced repetition self-grading flashcards (Again, Hard, Good, Easy) stored in IndexedDB.
-- **Weak-Topic Analysis**: Educational synthesis of incorrect player answers into topic strength matrices.
+Site: https://quizflow.mkazi.live
+Author: Kazi Musharraf (https://www.mkazi.live)
+Source: https://github.com/mk-knight23/35-tool-pdf-to-quiz
+License: MIT
 
-## Tech Stack
-- Next.js 16 (App Router)
-- Strict TypeScript & Tailwind CSS v4
-- IndexedDB via idb package
-- Vercel AI SDK
+## Key features
+- Local-first processing: browser-side PDF text extraction with pdf.js. No document is uploaded or stored on a server.
+- Quick mode: deterministic keyword-heuristic questions generated locally, no AI keys or network calls.
+- AI mode: multiple choice, true/false, fill-in-the-blank, and short-answer sets via the Vercel AI Gateway, with honest degradation and optional bring-your-own-key.
+- Flashcards: spaced-repetition self-grading (Again, Hard, Good, Easy) stored in IndexedDB.
+- Weak-topic analysis: groups your missed questions into topics from local results only.
+
+## Primary pages
+- [Create quizzes](https://quizflow.mkazi.live/tool): upload a PDF or paste text, configure, generate, play.
+- [Flashcards](https://quizflow.mkazi.live/flashcards): study decks with spaced repetition.
+- [Dashboard](https://quizflow.mkazi.live/dashboard): real local study stats.
+- [Docs](https://quizflow.mkazi.live/docs): how the app works.
+- [FAQ](https://quizflow.mkazi.live/faq): privacy, PDF support, keys, storage.
+- [Creator](https://quizflow.mkazi.live/creator): about Kazi Musharraf.
+- [Privacy](https://quizflow.mkazi.live/privacy) and [Cookies](https://quizflow.mkazi.live/cookies): data handling and consent.
+
+## Guides
+- [How to Study Effectively with Active Recall](https://quizflow.mkazi.live/guides/how-to-study)
+- [Spaced Repetition for Exam Prep](https://quizflow.mkazi.live/guides/spaced-repetition)
+- [How to Extract Text from Complex PDFs Locally](https://quizflow.mkazi.live/guides/text-extraction)
+- [Cloze Deletion vs. Multiple Choice](https://quizflow.mkazi.live/guides/question-types)
+- [Creating Classroom Handouts from Lecture Notes](https://quizflow.mkazi.live/guides/classroom-handouts)
+- [Preparing for Professional Certifications](https://quizflow.mkazi.live/guides/certifications)
+- [Self-Grading Principles for Flashcards](https://quizflow.mkazi.live/guides/self-grading)
+- [Weak-Topic Analysis Explained](https://quizflow.mkazi.live/guides/weak-topic-analysis)
+
+## Use cases
+- [Exam preparation for students](https://quizflow.mkazi.live/use-cases/exam-prep)
+- [Creating classroom handouts](https://quizflow.mkazi.live/use-cases/teaching-handouts)
+- [Studying for professional certifications](https://quizflow.mkazi.live/use-cases/certification-study)
+- [Employee onboarding knowledge checks](https://quizflow.mkazi.live/use-cases/onboarding-training)
+- [Vocabulary and terminology acquisition](https://quizflow.mkazi.live/use-cases/language-vocab)
+
+## Tech stack
+- Next.js (App Router), strict TypeScript, Tailwind CSS v4
+- IndexedDB via the idb package for local persistence
+- Vercel AI SDK with Vercel AI Gateway model strings

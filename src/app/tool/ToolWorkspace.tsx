@@ -3,7 +3,6 @@
 import { AlertCircle, Layers, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AdUnit } from "@/components/tool/AdUnit";
 import { QuickModeBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -636,9 +635,6 @@ export function ToolWorkspace() {
           <Loader2 size={16} className="animate-spin" aria-hidden /> Generating…
         </p>
       ) : null}
-
-      {/* Render responsive Ad/Sponsor banner at the bottom of the workspace when not in active player phase */}
-      {phase !== "play" && <AdUnit className="mt-6" />}
 
       <ConfirmDialog
         open={confirmRegenAll}

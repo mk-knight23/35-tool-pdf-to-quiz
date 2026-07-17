@@ -1,42 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Sparkles, DollarSign } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { useEffect } from "react";
+import { Heart } from "lucide-react";
 
+/**
+ * Reserved ad slot (STANDARDS §7). Ads are DISABLED by default and never load
+ * unless BOTH `NEXT_PUBLIC_ADSENSE_ENABLED === "true"` and a publisher client id
+ * are set. When enabled, the slot has fixed dimensions to avoid layout shift.
+ *
+ * When ads are disabled (the default), this renders nothing — or, if an optional
+ * honest sponsor link is configured, a small non-tracking "support" callout. It
+ * never shows a fake premium tier, fake pricing, or a mock checkout.
+ */
 interface AdUnitProps {
   slot?: string;
   format?: "auto" | "fluid" | "rectangle";
   className?: string;
 }
 
+const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+const ADSENSE_ENABLED =
+  process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true" && Boolean(ADSENSE_CLIENT_ID);
+const SPONSOR_URL = process.env.NEXT_PUBLIC_SPONSOR_URL;
+
 export function AdUnit({ slot = "default-slot", format = "auto", className }: AdUnitProps) {
-  const [adClientId] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || null;
-    }
-    return null;
-  });
-
   useEffect(() => {
-    if (adClientId) {
-      try {
-        // Trigger AdSense loader if window.adsbygoogle is ready
-        // @ts-expect-error window.adsbygoogle is declared globally
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        console.error("AdSense unit initialization error:", e);
-      }
+    if (!ADSENSE_ENABLED) return;
+    try {
+      // @ts-expect-error window.adsbygoogle is injected by the AdSense loader
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch {
+      /* AdSense not ready — non-fatal */
     }
-  }, [adClientId]);
+  }, []);
 
-  if (adClientId) {
+  if (ADSENSE_ENABLED) {
     return (
       <div className={className} aria-label="Advertisement">
         <ins
           className="adsbygoogle"
-          style={{ display: "block" }}
-          data-ad-client={adClientId}
+          style={{ display: "block", minHeight: 90 }}
+          data-ad-client={ADSENSE_CLIENT_ID}
           data-ad-slot={slot}
           data-ad-format={format}
           data-full-width-responsive="true"
@@ -45,35 +49,32 @@ export function AdUnit({ slot = "default-slot", format = "auto", className }: Ad
     );
   }
 
-  // Fallback Premium/Sponsorship Unit to wow the user and show active monetization
+  // Ads disabled. Show an honest sponsor link only if one is configured.
+  if (!SPONSOR_URL) return null;
+
   return (
-    <div
-      className="flex flex-col md:flex-row items-center justify-between gap-4 rounded-2xl border border-white/20 dark:border-white/5 bg-gradient-to-r from-accent/10 to-indigo-500/10 p-5 shadow-sm backdrop-blur-md"
+    <aside
+      className={`flex items-center justify-between gap-3 rounded-md border border-line bg-surface-2 p-4 shadow-paper ${className ?? ""}`}
     >
       <div className="flex items-center gap-3">
-        <span className="flex size-10 items-center justify-center rounded-xl bg-accent-tint text-accent border border-accent/15 shrink-0 animate-pulse">
-          <Sparkles size={18} strokeWidth={2} aria-hidden />
+        <span
+          className="flex size-9 items-center justify-center rounded-md bg-accent-tint text-accent"
+          aria-hidden
+        >
+          <Heart size={18} strokeWidth={1.75} />
         </span>
-        <div className="flex flex-col gap-0.5">
-          <p className="text-sm font-bold text-ink flex items-center gap-1.5">
-            Upgrade to QuizFlow Premium
-          </p>
-          <p className="text-xs text-ink-secondary leading-relaxed">
-            Get unlimited AI question generations, priority servers, and remove all ads.
-          </p>
-        </div>
+        <p className="text-sm text-ink-secondary">
+          QuizFlow is free and open source. If it helps you study, you can support its upkeep.
+        </p>
       </div>
-      <Button
-        variant="accent"
-        size="sm"
-        onClick={() => {
-          // Open mock checkout or premium checkout
-          window.location.href = "/settings#premium";
-        }}
-        className="shrink-0 font-semibold"
+      <a
+        href={SPONSOR_URL}
+        target="_blank"
+        rel="noreferrer noopener"
+        className="shrink-0 rounded-md border border-line-strong bg-surface px-3 py-2 text-sm font-semibold text-ink transition-colors hover:border-ink"
       >
-        <DollarSign size={14} className="stroke-[2.5]" /> Learn More
-      </Button>
-    </div>
+        Support
+      </a>
+    </aside>
   );
 }

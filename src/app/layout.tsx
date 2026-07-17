@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AnalyticsScripts } from "@/components/layout/AnalyticsScripts";
@@ -9,11 +8,6 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ThemeScript } from "@/components/layout/ThemeScript";
 import { CREATOR, SITE } from "@/lib/site";
 import "./globals.css";
-
-/** Ads load only when explicitly enabled AND a publisher id is present (STANDARDS §7). */
-const ADSENSE_ENABLED =
-  process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true" &&
-  Boolean(process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID);
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -71,13 +65,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* AdSense loads only when explicitly enabled (default off) — see MONETIZATION_PLAN.md */}
-        {ADSENSE_ENABLED && (
-          <Script
+        {/* Conditionally load Google AdSense script */}
+        {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
+          <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
             crossOrigin="anonymous"
-            strategy="afterInteractive"
           />
         )}
       </head>

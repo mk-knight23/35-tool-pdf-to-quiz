@@ -49,6 +49,28 @@ export function statusForCode(code: AiErrorCode): number {
   return STATUS_BY_CODE[code];
 }
 
+/**
+ * Build a log-safe label for an upstream error.
+ *
+ * AI SDK errors (e.g. `APICallError`) carry `requestBodyValues` (the prompt =
+ * the user's study text) and `responseBody`. Logging the raw error object would
+ * write that content to server logs, breaking the STANDARDS §8 "no sensitive
+ * logging" rule and the AI_ARCHITECTURE.md zero-retention promise. This returns
+ * ONLY the error class name plus an HTTP status code when one is present — never
+ * any message body, prompt, or response text.
+ */
+export function safeErrorLabel(error: unknown): string {
+  if (error instanceof Error) {
+    const name = error.name || "Error";
+    const status = (error as { statusCode?: unknown }).statusCode;
+    if (typeof status === "number") {
+      return `${name} (status ${status})`;
+    }
+    return name;
+  }
+  return "UnknownError";
+}
+
 /** Build a JSON Response for an AiError (or unknown error -> ai_error). */
 export function errorResponse(error: unknown): Response {
   const aiError =

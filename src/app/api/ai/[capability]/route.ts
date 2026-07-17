@@ -8,7 +8,7 @@ import { getCapabilityMeta, isCapabilityId } from "@/lib/ai/catalog";
 import { resolveModel, hasServerCredentials } from "@/lib/ai/models";
 import { consumeToken } from "@/lib/ai/rate-limit";
 import { consumeQuota, type QuotaResult } from "@/lib/ai/quota";
-import { AiError, errorResponse } from "@/lib/ai/errors";
+import { AiError, errorResponse, safeErrorLabel } from "@/lib/ai/errors";
 import { byokKey, clientKey } from "@/lib/ai/request";
 
 export const runtime = "nodejs";
@@ -114,7 +114,11 @@ export async function POST(req: Request, context: RouteContext) {
       if (err instanceof Error && err.name === "AbortError") {
         return new Response(null, { status: 499 });
       }
-      console.error(`AI Gateway capability [${capability}] error:`, err);
+      // Log only a sanitized label — the raw error carries the prompt
+      // (user study text) via requestBodyValues/responseBody. See safeErrorLabel.
+      console.error(
+        `AI Gateway capability [${capability}] error: ${safeErrorLabel(err)}`
+      );
       throw new AiError(
         "ai_error",
         "The AI provider was unable to fulfill your request. If using a custom key, check its validity."

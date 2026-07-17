@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { AiError, errorResponse, statusForCode } from "./errors";
+import { AiError, errorResponse, safeErrorLabel, statusForCode } from "./errors";
 import { byokKey, clientKey } from "./request";
 
 describe("AI error responses", () => {
@@ -42,6 +42,44 @@ describe("AI error responses", () => {
     const body = await response.json();
     expect(body.error.code).toBe("ai_error");
     expect(body.error.message).not.toContain("secret");
+  });
+});
+
+describe("safeErrorLabel", () => {
+  test("returns only the error name for a plain error", () => {
+    expect(safeErrorLabel(new Error("boom"))).toBe("Error");
+  });
+
+  test("appends the HTTP status code when present", () => {
+    const err = Object.assign(new Error("Unauthorized"), {
+      name: "APICallError",
+      statusCode: 401,
+    });
+    expect(safeErrorLabel(err)).toBe("APICallError (status 401)");
+  });
+
+  test("never includes the prompt (requestBodyValues) or response body", () => {
+    // Simulates an AI SDK APICallError carrying the user's study text.
+    const err = Object.assign(new Error("provider rejected the request"), {
+      name: "APICallError",
+      statusCode: 400,
+      requestBodyValues: {
+        messages: [{ role: "user", content: "SECRET STUDY NOTES about mitosis" }],
+      },
+      responseBody: "SENSITIVE UPSTREAM RESPONSE",
+    });
+    const label = safeErrorLabel(err);
+    expect(label).toBe("APICallError (status 400)");
+    expect(label).not.toContain("SECRET STUDY NOTES");
+    expect(label).not.toContain("mitosis");
+    expect(label).not.toContain("SENSITIVE UPSTREAM RESPONSE");
+    expect(label).not.toContain("provider rejected");
+  });
+
+  test("returns UnknownError for non-Error values", () => {
+    expect(safeErrorLabel("just a string")).toBe("UnknownError");
+    expect(safeErrorLabel(null)).toBe("UnknownError");
+    expect(safeErrorLabel({ message: "leak me" })).toBe("UnknownError");
   });
 });
 

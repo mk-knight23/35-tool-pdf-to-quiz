@@ -74,7 +74,7 @@ pnpm build            # next build
 pnpm exec playwright test   # smoke suite on port 3101
 ```
 
-Latest local run: **206 unit tests passing** across 21 files (86.85% statement / 94.94% function coverage on `src/lib`), **5 Playwright smoke tests passing** (desktop + mobile + keyboard). Full command output is in [TEST_REPORT.md](TEST_REPORT.md).
+Latest local run: **222 unit tests passing** across 23 files (94.33% statement / 93.16% function coverage on `src/lib`), **5 Playwright smoke tests passing, 3 skipped** (desktop + mobile + keyboard). Full command output is in [TEST_REPORT.md](TEST_REPORT.md).
 
 ## Deployment
 

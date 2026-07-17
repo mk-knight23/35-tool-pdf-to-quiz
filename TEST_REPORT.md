@@ -1,6 +1,6 @@
 # TEST_REPORT.md — MK QuizFlow v2
 
-Real command results for the v2 App Router build. Updated after the **tests + CI + docs** stage (2026-07-17). All numbers below are actual local command output, not targets.
+Real command results for the v2 App Router build. Updated after the **tests + CI + docs** stage (2026-07-18). All numbers below are actual local command output, not targets.
 
 ## Summary
 
@@ -8,8 +8,8 @@ Real command results for the v2 App Router build. Updated after the **tests + CI
 | --- | --- | --- |
 | Typecheck | `pnpm typecheck` | clean, exit 0 |
 | Lint | `pnpm lint` (`eslint src`) | clean, 0 problems, exit 0 |
-| Unit tests | `pnpm test` | **206 passed** (21 files), exit 0 |
-| Coverage | `pnpm test:coverage` | 86.85% stmts / 84.13% branch / 94.94% funcs (`src/lib`) |
+| Unit tests | `pnpm test` | **222 passed** (23 files), exit 0 |
+| Coverage | `pnpm test:coverage` | 94.33% stmts / 84.93% branch / 93.16% funcs (`src/lib`) |
 | Build | `pnpm build` | success, 38 routes |
 | E2E smoke | `pnpm exec playwright test` | **5 passed, 3 skipped**, exit 0 |
 
@@ -22,8 +22,8 @@ pnpm test
 
 ### Output
 ```
- Test Files  21 passed (21)
-      Tests  206 passed (206)
+ Test Files  23 passed (23)
+      Tests  222 passed (222)
 ```
 
 Per-area coverage (files under `src/lib`, AAA structure + behaviour-named tests):
@@ -36,19 +36,20 @@ Per-area coverage (files under `src/lib`, AAA structure + behaviour-named tests)
 - **Storage** — `storage.test.ts` (IndexedDB via `fake-indexeddb`: CRUD, ordering, export/import validation).
 - **Quota / limits** — `ai/quota.test.ts`, `ai/rate-limit.test.ts`.
 - **Analytics no-op** — `analytics.test.ts` (consent-gated: no data-layer writes until id + production + consent).
-- **Config / AI specs** — `prefs.test.ts`, `share.test.ts`, `export.test.ts`, `id.test.ts`, `cn.test.ts`, `site.test.ts`, `ai/catalog.test.ts`, `ai/models.test.ts`, `ai/capabilities.test.ts`, `ai/errors.test.ts`.
+- **ID generation** — `id.test.ts` (`crypto.randomUUID` path, the older-Safari `getRandomValues` v4 fallback, and the no-secure-crypto throw).
+- **Config / AI specs** — `prefs.test.ts`, `share.test.ts`, `export.test.ts`, `tips.test.ts`, `cn.test.ts`, `site.test.ts`, `ai/catalog.test.ts`, `ai/models.test.ts`, `ai/capabilities.test.ts`, `ai/errors.test.ts`.
 
 ### Coverage (v8)
 ```
 File              | % Stmts | % Branch | % Funcs | % Lines
 ------------------|---------|----------|---------|--------
-All files         |   86.85 |    84.13 |   94.94 |   86.85
- lib              |   87.91 |    82.09 |      96 |   87.91
- lib/ai           |   84.41 |    94.73 |   91.66 |   84.41
+All files         |   94.33 |    84.93 |   93.16 |   94.33
+ lib              |   92.85 |    83.33 |   93.54 |   92.85
+ lib/ai           |   98.52 |    93.44 |   91.66 |   98.52
 ```
-Fully covered (100% stmts): `analytics`, `cn`, `dedupe`, `scoring`, `share`, `srs`, `stats`, `site`, `types`, `guides`, `use-cases`, `ai/catalog`, `ai/models`, `ai/quota`, `ai/rate-limit`, `ai/errors`, `ai/request`. `text` 98.6%, `capabilities` 96.6%, `export` 90.4%, `generator` 85.2%, `prefs` 89%.
+Fully covered (100% stmts): `analytics`, `cn`, `dedupe`, `scoring`, `share`, `srs`, `stats`, `site`, `types`, `guides`, `use-cases`, `id`, `tips`, `ai/catalog`, `ai/models`, `ai/quota`, `ai/rate-limit`, `ai/errors`, `ai/request`. `text` 98.6%, `capabilities` 96.6%, `export` 90.4%, `prefs` 89%, `storage` 83.7%, `generator` 85.2%.
 
-Excluded from coverage (browser/network-only, exercised by Playwright, not unit tests): `pdf.ts` (pdf.js extraction), `audio.ts` (Web Audio), `ai/client.ts` (streaming fetch). `id.ts` shows partial because the older-Safari UUID fallback is unreachable under Node.
+Excluded from coverage (browser/network-only, exercised by Playwright, not unit tests): `pdf.ts` (pdf.js extraction), `audio.ts` (Web Audio), `ai/client.ts` (streaming fetch). These are listed in `vitest.config.ts` with the rationale inline.
 
 ## Compilation, lint, build
 - `pnpm typecheck` (`tsc --noEmit`): clean, exit 0.
@@ -71,7 +72,7 @@ Running 8 tests using 1 worker
   ✓ [mobile-chrome]     generates and plays a Quick-mode quiz by pointer to a score
   ✓ [mobile-chrome]     mobile viewport reaches the configure step
   3 skipped
-  5 passed (14.7s)
+  5 passed (17.2s)
 ```
 
 - **Primary flow** (both desktop + mobile viewports): paste text → Quick mode → generate quiz → play → score, asserting a percentage result. No AI/network involved.

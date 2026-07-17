@@ -1,108 +1,36 @@
-# 🚀 35-tool-pdf-to-quiz (Collective Production Edition)
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## 💎 Overview
-Fully production-grade implementation of 35-tool-pdf-to-quiz, refactored by the **69-Agent Opencode Collective**.
+## Getting Started
 
-## 🛡️ Trust & Compliance
-- **CI/CD**: Automated GitHub Actions with Gitleaks security scans.
-- **Security**: Standardized [SECURITY.md](SECURITY.md) protocol.
-- **Design**: Opencode Premium Design Tokens integrated.
-
-## 🏁 48-Hour Roadmap
-1. Initialize infrastructure via `.github/workflows`.
-2. Set your secrets in GitHub Environment settings.
-3. Deploy to production via Vercel/Docker.
-
-![Evolution](https://img.shields.io/badge/Evolution-Live-brightgreen)
-![Phase 2](https://img.shields.io/badge/Phase-2-blue)
-![Score](https://img.shields.io/badge/Score-100%2F100-gold)
-
-Part of the **60-Repo Evolution Project**.
-
-## 📋 Evolution Status
-
-| Phase | Status | Repos |
-|-------|--------|-------|
-| Phase 1 | ✅ Complete | 01-20 |
-| Phase 2 | 🔄 Active | 21-40 |
-| Phase 3 | ⏳ Pending | 41-60 |
-
-## 🛠️ Tech Stack
-
-- **Framework:** Modern stack
-- **CI/CD:** 24/7 Continuous Evolution
-- **Deployment:** Multi-platform
-
-## 📦 What's Included
-
-- ✅ Professional README
-- ✅ Complete EVOLUTION.md
-- ✅ 5 LinkedIn posts
-- ✅ 2 video scripts  
-- ✅ Podcast script
-- ✅ Architecture docs
-- ✅ API documentation
-- ✅ GitHub Actions workflow
-- ✅ Multi-platform deployment configs
-
-## 🚀 Quick Start
+First, run the development server:
 
 ```bash
-git clone https://github.com/mk-knight23/35-tool-pdf-to-quiz.git
-cd 35-tool-pdf-to-quiz
-npm install
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## 📊 Evolution Metrics
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-| Metric | Score |
-|--------|-------|
-| Documentation | 20/20 |
-| CI/CD | 20/20 |
-| Deployment | 20/20 |
-| Code Quality | 20/20 |
-| Security | 20/20 |
-| **Total** | **100/100** |
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## 🌐 Live URLs
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-| Platform | URL |
-|----------|-----|
-| Vercel | https://35-tool-pdf-to-quiz.vercel.app |
-| Netlify | https://35-tool-pdf-to-quiz.netlify.app |
-| Firebase | https://35-tool-pdf-to-quiz.web.app |
+## Learn More
 
-## 📁 Structure
+To learn more about Next.js, take a look at the following resources:
 
-```
-├── .github/workflows/     # CI/CD workflows
-├── marketing/             # Marketing content
-│   ├── linkedin/         # 5 LinkedIn posts
-│   ├── videos/           # 2 video scripts
-│   └── audio/            # Podcast script
-├── docs/                 # Documentation
-│   ├── architecture/     # System design
-│   └── api/              # API docs
-├── vercel.json           # Vercel config
-├── netlify.toml          # Netlify config
-├── firebase.json         # Firebase config
-├── README.md             # This file
-└── EVOLUTION.md          # Evolution history
-```
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## 📄 License
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-MIT License
+## Deploy on Vercel
 
----
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-🦾 **Evolved with OpenClaw** | 2026-03-06
-
-## Security
-
-This project follows security best practices:
-- No hardcoded credentials
-- Dependency scanning enabled
-- Security headers configured
-- Regular security audits performed
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

@@ -47,3 +47,5 @@ next-env.d.ts
 # OS
 .DS_Store
 Thumbs.db
+# Legacy reference copies (not part of the v2 build)
+_legacy_reference/

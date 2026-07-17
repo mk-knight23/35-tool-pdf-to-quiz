@@ -99,21 +99,21 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
       </div>
 
       {/* Generation Mode Selector */}
-      <fieldset className="flex flex-col gap-2">
-        <legend className="text-sm font-medium text-ink">Generation Mode</legend>
+      <fieldset className="flex flex-col gap-2.5">
+        <legend className="text-sm font-semibold text-ink mb-1">Generation Mode</legend>
         <div className="grid gap-3 sm:grid-cols-2">
           <button
             type="button"
             onClick={() => setMode("quick")}
             className={cn(
-              "flex flex-col gap-1 rounded-md border p-3 text-left transition-colors cursor-pointer",
+              "flex flex-col gap-1 rounded-2xl border p-4 text-left transition-all duration-200 cursor-pointer shadow-sm",
               mode === "quick"
-                ? "border-accent bg-accent-tint"
-                : "border-line-strong bg-surface-2 hover:border-ink-muted"
+                ? "border-accent bg-accent-tint/70 dark:bg-accent-tint/35 text-ink"
+                : "border-white/20 dark:border-white/5 bg-white/25 dark:bg-slate-900/25 hover:border-accent dark:hover:border-accent hover:bg-white/30"
             )}
           >
-            <span className="font-display font-semibold text-sm text-ink">Quick mode (no AI)</span>
-            <span className="text-xs text-ink-secondary">
+            <span className="font-display font-bold text-sm text-ink">Quick mode (no AI)</span>
+            <span className="text-xs text-ink-secondary mt-0.5">
               Deterministic, uses sentence heuristics. Fully offline, no keys needed.
             </span>
           </button>
@@ -121,16 +121,16 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
             type="button"
             onClick={() => setMode("ai")}
             className={cn(
-              "flex flex-col gap-1 rounded-md border p-3 text-left transition-colors cursor-pointer",
+              "flex flex-col gap-1 rounded-2xl border p-4 text-left transition-all duration-200 cursor-pointer shadow-sm",
               mode === "ai"
-                ? "border-accent bg-accent-tint"
-                : "border-line-strong bg-surface-2 hover:border-ink-muted"
+                ? "border-accent bg-accent-tint/70 dark:bg-accent-tint/35 text-ink"
+                : "border-white/20 dark:border-white/5 bg-white/25 dark:bg-slate-900/25 hover:border-accent dark:hover:border-accent hover:bg-white/30"
             )}
           >
-            <span className="font-display font-semibold text-sm text-ink flex items-center gap-1.5">
+            <span className="font-display font-bold text-sm text-ink flex items-center gap-1.5">
               <Sparkles size={14} className="text-accent" /> AI mode
             </span>
-            <span className="text-xs text-ink-secondary">
+            <span className="text-xs text-ink-secondary mt-0.5">
               Uses high-quality language models to parse, reword, and structure concepts.
             </span>
           </button>
@@ -139,8 +139,8 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
 
       {/* BYOK Input Inline warning */}
       {mode === "ai" && !byok && (
-        <div className="flex flex-col gap-2 rounded-md border border-warning bg-warning-tint p-4 text-sm text-ink">
-          <p className="font-semibold text-warning">Bring your own API key to use AI mode</p>
+        <div className="flex flex-col gap-3 rounded-2xl border border-warning/20 bg-warning-tint p-5 text-sm text-ink">
+          <p className="font-bold text-warning">Bring your own API key to use AI mode</p>
           <p className="text-ink-secondary text-xs">
             No server credentials are configured in local environment. Please enter your API key to proceed. It is held client-side in session memory only.
           </p>
@@ -153,15 +153,15 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
                 setByok(e.target.value);
                 setByokKey(e.target.value);
               }}
-              className="flex-1 rounded-sm border border-line-strong bg-raised px-2.5 py-1 text-xs text-ink outline-none focus:border-accent"
+              className="flex-1 rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3 py-2 text-xs text-ink outline-none focus:border-accent focus:bg-white/40 dark:focus:bg-slate-900/40 transition-all shadow-sm"
             />
           </div>
         </div>
       )}
 
       {/* Output type */}
-      <fieldset className="flex flex-col gap-2">
-        <legend className="text-sm font-medium text-ink">What should we make?</legend>
+      <fieldset className="flex flex-col gap-2.5">
+        <legend className="text-sm font-semibold text-ink mb-1">What should we make?</legend>
         <div className="grid gap-3 sm:grid-cols-2">
           <OutputCard
             active={output === "quiz"}
@@ -182,8 +182,8 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
 
       {output === "quiz" ? (
         <>
-          <fieldset className="flex flex-col gap-2">
-            <legend className="text-sm font-medium text-ink">Question types</legend>
+          <fieldset className="flex flex-col gap-2.5">
+            <legend className="text-sm font-semibold text-ink">Question types</legend>
             <div className="flex flex-wrap gap-2">
               {ALL_TYPES.map((type) => {
                 const checked = types.includes(type);
@@ -191,17 +191,17 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
                   <label
                     key={type}
                     className={cn(
-                      "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors",
+                      "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border px-4 py-2 text-sm transition-all duration-200",
                       checked
-                        ? "border-accent bg-accent-tint text-accent"
-                        : "border-line-strong bg-surface-2 text-ink-secondary hover:border-ink-muted",
+                        ? "border-accent bg-accent-tint/70 dark:bg-accent-tint/25 text-accent font-semibold"
+                        : "border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 text-ink-secondary hover:border-ink-muted",
                     )}
                   >
                     <input
                       type="checkbox"
                       checked={checked}
                       onChange={() => toggleType(type)}
-                      className="size-4 accent-[var(--color-accent-strong)]"
+                      className="size-4 rounded accent-[var(--color-accent-strong)]"
                     />
                     {QUESTION_TYPE_LABELS[type]}
                   </label>
@@ -209,7 +209,7 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
               })}
             </div>
             {types.length === 0 ? (
-              <p role="alert" className="text-sm text-error">
+              <p role="alert" className="text-xs font-semibold text-error mt-0.5">
                 Pick at least one question type.
               </p>
             ) : null}
@@ -217,8 +217,8 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <label htmlFor={countId} className="text-sm font-medium text-ink">
-                Number of questions: <span className="font-mono text-accent">{count}</span>
+              <label htmlFor={countId} className="text-xs font-semibold text-ink">
+                Number of questions: <span className="font-mono text-accent font-bold">{count}</span>
               </label>
               <input
                 id={countId}
@@ -227,20 +227,20 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
                 max={30}
                 value={count}
                 onChange={(e) => setCount(Number(e.target.value))}
-                className="accent-[var(--color-accent-strong)]"
+                className="accent-[var(--color-accent-strong)] cursor-pointer h-2 bg-white/20 dark:bg-slate-800 rounded-lg appearance-none"
               />
             </div>
 
-            <div className="flex flex-col gap-5 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
-                <label htmlFor={difficultyId} className="text-sm font-medium text-ink">
+                <label htmlFor={difficultyId} className="text-xs font-semibold text-ink">
                   Difficulty
                 </label>
                 <select
                   id={difficultyId}
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-                  className="min-h-11 rounded-sm border border-line-strong bg-surface-2 px-3 text-sm text-ink outline-none hover:border-ink-muted focus:border-accent"
+                  className="min-h-11 rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3 text-sm text-ink outline-none hover:border-accent focus:border-accent focus:bg-white/40 dark:focus:bg-slate-900/40 transition-all shadow-sm cursor-pointer"
                 >
                   {DIFFICULTIES.map((d) => (
                     <option key={d} value={d}>
@@ -252,14 +252,14 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
 
               {mode === "ai" ? (
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor={audienceId} className="text-sm font-medium text-ink">
+                  <label htmlFor={audienceId} className="text-xs font-semibold text-ink">
                     Target Audience Level
                   </label>
                   <select
                     id={audienceId}
                     value={audience}
                     onChange={(e) => setAudience(e.target.value as Audience)}
-                    className="min-h-11 rounded-sm border border-line-strong bg-surface-2 px-3 text-sm text-ink outline-none hover:border-ink-muted focus:border-accent"
+                    className="min-h-11 rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3 text-sm text-ink outline-none hover:border-accent focus:border-accent focus:bg-white/40 dark:focus:bg-slate-900/40 transition-all shadow-sm cursor-pointer"
                   >
                     <option value="school">School / K-12</option>
                     <option value="university">University / Higher Ed</option>
@@ -270,19 +270,19 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 rounded-md border border-line bg-surface-2 p-4">
-            <label className="inline-flex cursor-pointer items-center gap-3 text-sm font-medium text-ink">
+          <div className="flex flex-col gap-3 rounded-2xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 p-4 shadow-sm">
+            <label className="inline-flex cursor-pointer items-center gap-3 text-sm font-semibold text-ink">
               <input
                 type="checkbox"
                 checked={timed}
                 onChange={(e) => setTimed(e.target.checked)}
-                className="size-4 accent-[var(--color-accent-strong)]"
+                className="size-4 rounded accent-[var(--color-accent-strong)]"
               />
               Timed mode <span className="font-normal text-ink-muted">(optional)</span>
             </label>
             {timed ? (
-              <div className="flex items-center gap-2">
-                <label htmlFor={timeId} className="text-sm text-ink-secondary">
+              <div className="flex items-center gap-3 mt-1 pl-7">
+                <label htmlFor={timeId} className="text-xs font-semibold text-ink-secondary">
                   Time limit
                 </label>
                 <input
@@ -292,17 +292,17 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
                   max={180}
                   value={timeLimitMin}
                   onChange={(e) => setTimeLimitMin(Math.max(1, Number(e.target.value)))}
-                  className="w-20 rounded-sm border border-line-strong bg-raised px-2 py-1.5 font-mono text-sm text-ink outline-none focus:border-accent"
+                  className="w-20 rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3 py-1.5 font-mono text-xs text-ink outline-none focus:border-accent shadow-sm"
                 />
-                <span className="text-sm text-ink-secondary">minutes</span>
+                <span className="text-xs text-ink-secondary">minutes</span>
               </div>
             ) : null}
           </div>
         </>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <label htmlFor={cardCountId} className="text-sm font-medium text-ink">
-            Number of cards: <span className="font-mono text-accent">{cardCount}</span>
+          <label htmlFor={cardCountId} className="text-xs font-semibold text-ink">
+            Number of cards: <span className="font-mono text-accent font-bold">{cardCount}</span>
           </label>
           <input
             id={cardCountId}
@@ -311,12 +311,12 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
             max={40}
             value={cardCount}
             onChange={(e) => setCardCount(Number(e.target.value))}
-            className="accent-[var(--color-accent-strong)]"
+            className="accent-[var(--color-accent-strong)] cursor-pointer h-2 bg-white/20 dark:bg-slate-800 rounded-lg appearance-none"
           />
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 mt-2">
         <Button
           loading={generating}
           disabled={!canGenerate}
@@ -360,22 +360,22 @@ function OutputCard({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "flex flex-col gap-2 rounded-md border p-4 text-left transition-colors",
+        "flex flex-col gap-2 rounded-2xl border p-4 text-left transition-all duration-200 cursor-pointer shadow-sm",
         active
-          ? "border-accent bg-accent-tint"
-          : "border-line-strong bg-surface-2 hover:border-ink-muted",
+          ? "border-accent bg-accent-tint/70 dark:bg-accent-tint/35 text-ink"
+          : "border-white/20 dark:border-white/5 bg-white/25 dark:bg-slate-900/25 hover:border-accent dark:hover:border-accent hover:bg-white/30",
       )}
     >
       <span
         className={cn(
-          "flex size-9 items-center justify-center rounded-md",
-          active ? "bg-accent-strong text-on-accent" : "bg-raised text-accent",
+          "flex size-9 items-center justify-center rounded-xl transition-colors",
+          active ? "bg-accent-strong text-on-accent shadow-sm" : "bg-white/30 dark:bg-slate-800 text-accent border border-white/20 dark:border-white/5",
         )}
       >
-        <Icon size={18} strokeWidth={1.75} aria-hidden />
+        <Icon size={18} strokeWidth={2} aria-hidden />
       </span>
-      <span className="font-display text-lg text-ink">{title}</span>
-      <span className="text-sm text-ink-secondary">{body}</span>
+      <span className="font-display font-bold text-base text-ink">{title}</span>
+      <span className="text-xs text-ink-secondary leading-relaxed">{body}</span>
     </button>
   );
 }

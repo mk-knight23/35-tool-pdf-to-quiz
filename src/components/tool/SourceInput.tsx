@@ -40,7 +40,7 @@ export function SourceInput({ onReady }: SourceInputProps) {
         </p>
       </div>
 
-      <div role="tablist" aria-label="Source type" className="flex gap-1 rounded-md border border-line bg-surface-2 p-1">
+      <div role="tablist" aria-label="Source type" className="flex gap-1 rounded-xl border border-white/20 dark:border-white/5 bg-white/15 dark:bg-slate-900/20 p-1">
         <TabButton active={tab === "paste"} onClick={() => setTab("paste")} icon={Type}>
           Paste text
         </TabButton>
@@ -72,11 +72,13 @@ function TabButton({
       aria-selected={active}
       onClick={onClick}
       className={cn(
-        "inline-flex flex-1 items-center justify-center gap-2 rounded-sm px-3 py-2 text-sm font-medium transition-colors",
-        active ? "bg-raised text-ink shadow-paper" : "text-ink-secondary hover:text-ink",
+        "inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 border border-transparent",
+        active 
+          ? "bg-white/20 dark:bg-white/10 text-ink shadow-sm border-white/25 dark:border-white/10" 
+          : "text-ink-secondary hover:text-ink hover:bg-white/5",
       )}
     >
-      <Icon size={16} strokeWidth={1.75} aria-hidden />
+      <Icon size={16} strokeWidth={2} aria-hidden />
       {children}
     </button>
   );
@@ -90,7 +92,7 @@ function PastePanel({ onReady }: { onReady: (source: WorkspaceSource) => void })
   const words = wordCount(text);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
         <label htmlFor={titleId} className="text-sm font-medium text-ink">
           Source name <span className="font-normal text-ink-muted">(optional)</span>
@@ -99,8 +101,8 @@ function PastePanel({ onReady }: { onReady: (source: WorkspaceSource) => void })
           id={titleId}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. Biology chapter 4"
-          className="rounded-sm border border-line-strong bg-surface-2 px-3 py-2.5 text-base text-ink outline-none placeholder:text-ink-muted hover:border-ink-muted focus:border-accent"
+          placeholder="e.g. Biology chapter 4..."
+          className="rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-accent focus:bg-white/40 dark:focus:bg-slate-900/40 transition-all duration-200 shadow-sm"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -112,10 +114,10 @@ function PastePanel({ onReady }: { onReady: (source: WorkspaceSource) => void })
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={10}
-          placeholder="Paste lecture notes, an article, or any prose you want to be quizzed on."
-          className="min-h-48 resize-y rounded-sm border border-line-strong bg-surface-2 px-3 py-2.5 text-base leading-relaxed text-ink outline-none placeholder:text-ink-muted hover:border-ink-muted focus:border-accent"
+          placeholder="Paste lecture notes, an article, or any prose you want to be quizzed on..."
+          className="min-h-48 resize-y rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-4 py-3 text-sm leading-relaxed text-ink outline-none placeholder:text-ink-muted focus:border-accent focus:bg-white/40 dark:focus:bg-slate-900/40 transition-all duration-200 shadow-sm"
         />
-        <p className="font-mono text-xs text-ink-muted">
+        <p className="font-mono text-2xs text-ink-muted mt-0.5">
           {words} {words === 1 ? "word" : "words"}
         </p>
       </div>
@@ -233,73 +235,73 @@ function PdfPanel({ onReady }: { onReady: (source: WorkspaceSource) => void }) {
             if (file) void handleFile(file);
           }}
           className={cn(
-            "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-12 text-center transition-colors",
+            "flex cursor-pointer flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-all duration-200 shadow-sm",
             dragOver
-              ? "border-accent bg-accent-tint"
-              : "border-line-strong bg-surface-2 hover:border-ink-muted",
+              ? "border-accent bg-accent-tint/50"
+              : "border-white/20 dark:border-white/10 bg-white/25 dark:bg-slate-900/25 hover:border-accent dark:hover:border-accent hover:bg-white/35 dark:hover:bg-slate-900/35",
           )}
         >
           {status === "parsing" ? (
             <>
               <Loader2 className="animate-spin text-accent" size={28} aria-hidden />
-              <p className="text-sm text-ink-secondary">
+              <p className="text-sm font-medium text-ink-secondary">
                 Reading {fileName}
                 {progress && progress.total > 0 ? ` — page ${progress.page} of ${progress.total}` : "…"}
               </p>
             </>
           ) : (
             <>
-              <span className="flex size-12 items-center justify-center rounded-full bg-accent-tint text-accent">
-                <FileUp size={24} strokeWidth={1.75} aria-hidden />
+              <span className="flex size-12 items-center justify-center rounded-xl bg-accent-tint text-accent border border-accent/15">
+                <FileUp size={24} strokeWidth={2} aria-hidden />
               </span>
-              <p className="text-base font-medium text-ink">Drop a PDF here, or click to choose</p>
-              <p className="text-sm text-ink-muted">Up to 20 MB. Text-based PDFs only.</p>
+              <p className="text-base font-bold text-ink">Drop a PDF here, or click to choose</p>
+              <p className="text-xs text-ink-muted">Up to 20 MB. Text-based PDFs only.</p>
             </>
           )}
         </div>
       ) : null}
 
       {status === "error" && error ? (
-        <div className="flex flex-col gap-3 rounded-md border border-error bg-error-tint p-4">
-          <p role="alert" className="text-sm text-error">
+        <div className="flex flex-col gap-4 rounded-2xl border border-error/20 bg-error-tint p-5">
+          <p role="alert" className="text-sm font-medium text-error">
             {error}
           </p>
           <Button variant="secondary" size="sm" className="self-start" onClick={reset}>
-            <RotateCcw size={15} strokeWidth={1.75} aria-hidden /> Try another file
+            <RotateCcw size={14} strokeWidth={2} aria-hidden /> Try another file
           </Button>
         </div>
       ) : null}
 
       {status === "parsed" && extraction ? (
-        <div className="flex flex-col gap-4 rounded-md border border-line bg-surface-2 p-4">
+        <div className="flex flex-col gap-5 rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md p-5 shadow-paper">
           <div className="flex items-center justify-between gap-3">
-            <span className="inline-flex items-center gap-2 text-sm font-medium text-ink">
-              <FileText size={16} strokeWidth={1.75} className="text-accent" aria-hidden />
+            <span className="inline-flex items-center gap-2 text-sm font-semibold text-ink">
+              <FileText size={16} strokeWidth={2} className="text-accent" aria-hidden />
               {fileName}
             </span>
             <button
               type="button"
               onClick={reset}
-              className="inline-flex items-center gap-1.5 text-sm text-ink-secondary hover:text-ink"
+              className="inline-flex items-center gap-1.5 text-xs text-ink-secondary hover:text-ink font-semibold"
             >
-              <RotateCcw size={14} strokeWidth={1.75} aria-hidden /> Change
+              <RotateCcw size={14} strokeWidth={2} aria-hidden /> Change
             </button>
           </div>
 
-          <p className="text-sm text-ink-secondary">
+          <p className="text-xs text-ink-secondary">
             {extraction.numPages} {extraction.numPages === 1 ? "page" : "pages"} with extractable
             text.
           </p>
 
-          <details className="rounded-sm border border-line">
-            <summary className="cursor-pointer px-3 py-2 text-sm text-ink-secondary">
+          <details className="rounded-xl border border-white/20 dark:border-white/5 bg-white/10 dark:bg-slate-900/10">
+            <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-ink-secondary">
               Per-page character counts
             </summary>
-            <ul className="max-h-40 overflow-auto border-t border-line px-3 py-2 font-mono text-xs text-ink-muted">
+            <ul className="max-h-40 overflow-auto border-t border-white/10 px-3 py-2 font-mono text-2xs text-ink-muted">
               {extraction.pages.map((p) => (
                 <li key={p.pageNumber} className="flex justify-between gap-4 py-0.5">
                   <span>Page {p.pageNumber}</span>
-                  <span className={p.charCount < 20 ? "text-warning" : ""}>
+                  <span className={p.charCount < 20 ? "text-warning font-semibold" : ""}>
                     {p.charCount} chars{p.charCount < 20 ? " (empty/scanned)" : ""}
                   </span>
                 </li>
@@ -308,18 +310,18 @@ function PdfPanel({ onReady }: { onReady: (source: WorkspaceSource) => void }) {
           </details>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={rangeId} className="text-sm font-medium text-ink">
+            <label htmlFor={rangeId} className="text-xs font-semibold text-ink">
               Page range <span className="font-normal text-ink-muted">(blank = all pages)</span>
             </label>
             <input
               id={rangeId}
               value={range}
               onChange={(e) => setRange(e.target.value)}
-              placeholder="e.g. 1-3, 5, 8-10"
+              placeholder="e.g. 1-3, 5, 8-10..."
               inputMode="numeric"
-              className="rounded-sm border border-line-strong bg-raised px-3 py-2 font-mono text-sm text-ink outline-none placeholder:text-ink-muted hover:border-ink-muted focus:border-accent"
+              className="rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3 py-2.5 font-mono text-xs text-ink outline-none placeholder:text-ink-muted focus:border-accent focus:bg-white/40 dark:focus:bg-slate-900/40 transition-all duration-200 shadow-sm"
             />
-            <p className="font-mono text-xs text-ink-muted">
+            <p className="font-mono text-2xs text-ink-muted mt-0.5">
               {selectedPages.length} {selectedPages.length === 1 ? "page" : "pages"} selected ·{" "}
               {selectedChars} chars
             </p>

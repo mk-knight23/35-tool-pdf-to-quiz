@@ -37,15 +37,26 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <ThemeScript />
       </head>
-      <body className="flex min-h-dvh flex-col bg-surface text-ink antialiased">
+      <body className="flex min-h-dvh flex-col bg-surface text-ink antialiased relative overflow-x-hidden">
+        {/* Floating animated blobs */}
+        <div className="qf-blob qf-blob-1" aria-hidden="true" />
+        <div className="qf-blob qf-blob-2" aria-hidden="true" />
+        <div className="qf-blob qf-blob-3" aria-hidden="true" />
+
         <a href="#main-content" className="qf-skip-link">
           Skip to content
         </a>
-        <SiteHeader />
-        <main id="main-content" className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
-          {children}
-        </main>
-        <SiteFooter />
+        
+        {/* Outer Glass Shell Container */}
+        <div className="mx-auto sm:my-4 md:my-8 w-full max-w-6xl flex-1 flex flex-col md:flex-row rounded-none sm:rounded-2xl md:rounded-3xl border border-white/20 dark:border-white/10 bg-white/10 dark:bg-slate-950/15 backdrop-blur-2xl shadow-overlay overflow-hidden relative z-10">
+          <SiteHeader />
+          <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-white/5 dark:bg-slate-950/5">
+            <main id="main-content" className="flex-1 px-4 py-6 sm:px-6 md:py-8 lg:px-8 overflow-y-auto">
+              {children}
+            </main>
+            <SiteFooter />
+          </div>
+        </div>
       </body>
     </html>
   );

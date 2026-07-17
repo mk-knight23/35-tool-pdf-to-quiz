@@ -70,7 +70,7 @@ export function QuestionEditor({
             aria-label="Quiz title"
             value={quiz.title}
             onChange={(e) => onChangeTitle(e.target.value)}
-            className="max-w-md rounded-sm border border-line-strong bg-surface-2 px-3 py-2 text-base font-medium text-ink outline-none hover:border-ink-muted focus:border-accent"
+            className="max-w-md rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-4 py-2.5 text-base font-bold text-ink outline-none hover:border-accent focus:border-accent focus:bg-white/45 dark:focus:bg-slate-900/45 transition-all duration-200 shadow-sm"
           />
         </div>
         {quick ? <QuickModeBadge /> : null}
@@ -198,22 +198,22 @@ function EditableCard({
   return (
     <li
       className={cn(
-        "flex flex-col gap-3 rounded-md border bg-surface-2 p-4 shadow-paper transition-colors",
-        isDuplicate ? "border-warning bg-warning-tint" : "border-line",
-        editing && "border-accent",
+        "flex flex-col gap-4 rounded-2xl border bg-white/35 dark:bg-slate-900/40 border-white/20 dark:border-white/5 p-5 shadow-paper transition-all duration-200",
+        isDuplicate ? "border-warning/30 bg-warning-tint" : "border-white/20 dark:border-white/5",
+        editing && "border-accent shadow-lifted bg-white/45 dark:bg-slate-900/50",
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-sm text-ink-muted">{index + 1}</span>
+        <div className="flex items-center gap-2.5">
+          <span className="font-mono text-xs text-ink-muted font-semibold">Q{index + 1}</span>
           <Badge tone="accent">{QUESTION_TYPE_LABELS[question.type]}</Badge>
           {isDuplicate ? (
             <Badge tone="warning">
-              <AlertTriangle size={12} strokeWidth={1.75} aria-hidden /> Possible duplicate
+              <AlertTriangle size={12} strokeWidth={2} aria-hidden /> Possible duplicate
             </Badge>
           ) : null}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 bg-white/10 dark:bg-slate-950/20 p-0.5 rounded-xl border border-white/10">
           <IconAction label="Move up" disabled={isFirst} onClick={() => onMove("up")}>
             <ChevronUp size={16} aria-hidden />
           </IconAction>
@@ -226,7 +226,7 @@ function EditableCard({
               disabled={regenerating}
               onClick={onRegenerate}
             >
-              <RefreshCw size={15} className={regenerating ? "animate-spin" : ""} aria-hidden />
+              <RefreshCw size={15} className={regenerating ? "animate-spin text-accent" : ""} aria-hidden />
             </IconAction>
           ) : null}
           <IconAction label={editing ? "Close editor" : "Edit"} onClick={() => setEditing((v) => !v)}>
@@ -239,27 +239,27 @@ function EditableCard({
       </div>
 
       {!editing ? (
-        <>
-          <p className="text-ink">{question.prompt}</p>
-          <p className="text-sm text-ink-secondary">
-            Answer: <span className="font-medium text-ink">{answerSummary}</span>
+        <div className="flex flex-col gap-1.5 pl-1">
+          <p className="text-ink font-medium leading-relaxed">{question.prompt}</p>
+          <p className="text-xs text-ink-secondary mt-1">
+            Answer: <span className="font-semibold text-accent">{answerSummary}</span>
           </p>
-        </>
+        </div>
       ) : (
-        <div className="flex flex-col gap-4">
-          <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
+        <div className="flex flex-col gap-4 pl-1">
+          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink">
             Question
             <textarea
               value={question.prompt}
               onChange={(e) => onUpdate({ prompt: e.target.value })}
               rows={2}
-              className="resize-y rounded-sm border border-line-strong bg-raised px-3 py-2 text-base font-normal text-ink outline-none focus:border-accent"
+              className="resize-y rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3.5 py-2.5 text-sm font-normal leading-relaxed text-ink outline-none focus:border-accent focus:bg-white/45 dark:focus:bg-slate-900/45 transition-all shadow-sm"
             />
           </label>
 
           {question.type === "mcq" ? (
-            <fieldset className="flex flex-col gap-2">
-              <legend className="text-sm font-medium text-ink">Options (select the correct one)</legend>
+            <fieldset className="flex flex-col gap-2.5">
+              <legend className="text-xs font-semibold text-ink mb-1">Options (select the correct one)</legend>
               {question.options.map((option, oi) => (
                 <div key={oi} className="flex items-center gap-2">
                   <input
@@ -268,12 +268,12 @@ function EditableCard({
                     checked={question.correctIndex === oi}
                     onChange={() => onUpdate({ correctIndex: oi })}
                     aria-label={`Mark option ${oi + 1} correct`}
-                    className="size-4 accent-[var(--color-accent-strong)]"
+                    className="size-4 accent-[var(--color-accent-strong)] shrink-0"
                   />
                   <input
                     value={option}
                     onChange={(e) => updateOption(oi, e.target.value)}
-                    className="flex-1 rounded-sm border border-line-strong bg-raised px-2.5 py-1.5 text-sm text-ink outline-none focus:border-accent"
+                    className="flex-1 rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3.5 py-2 text-xs text-ink outline-none focus:border-accent focus:bg-white/45 dark:focus:bg-slate-900/45 transition-all shadow-sm"
                   />
                   <IconAction
                     label={`Remove option ${oi + 1}`}
@@ -286,18 +286,18 @@ function EditableCard({
                 </div>
               ))}
               {question.options.length < 6 ? (
-                <Button variant="ghost" size="sm" className="self-start" onClick={addOption}>
-                  <Plus size={14} strokeWidth={1.75} aria-hidden /> Add option
+                <Button variant="ghost" size="sm" className="self-start mt-1" onClick={addOption}>
+                  <Plus size={14} strokeWidth={2} aria-hidden /> Add option
                 </Button>
               ) : null}
             </fieldset>
           ) : null}
 
           {question.type === "tf" ? (
-            <fieldset className="flex gap-4">
-              <legend className="mb-1 w-full text-sm font-medium text-ink">Correct answer</legend>
+            <fieldset className="flex gap-5">
+              <legend className="mb-2 w-full text-xs font-semibold text-ink">Correct answer</legend>
               {["True", "False"].map((label, oi) => (
-                <label key={label} className="inline-flex items-center gap-2 text-sm text-ink">
+                <label key={label} className="inline-flex items-center gap-2 text-xs font-semibold text-ink cursor-pointer">
                   <input
                     type="radio"
                     name={`correct-${question.id}`}
@@ -312,7 +312,7 @@ function EditableCard({
           ) : null}
 
           {question.type === "short" || question.type === "fill" ? (
-            <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
+            <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink">
               Acceptable answers (comma-separated)
               <input
                 value={question.acceptableAnswers.join(", ")}
@@ -324,18 +324,18 @@ function EditableCard({
                       .filter(Boolean),
                   })
                 }
-                className="rounded-sm border border-line-strong bg-raised px-3 py-2 text-sm font-normal text-ink outline-none focus:border-accent"
+                className="rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3.5 py-2 text-xs font-normal text-ink outline-none focus:border-accent focus:bg-white/45 dark:focus:bg-slate-900/45 transition-all shadow-sm"
               />
             </label>
           ) : null}
 
-          <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
+          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink">
             Explanation <span className="font-normal text-ink-muted">(optional)</span>
             <textarea
               value={question.explanation}
               onChange={(e) => onUpdate({ explanation: e.target.value })}
               rows={2}
-              className="resize-y rounded-sm border border-line-strong bg-raised px-3 py-2 text-sm font-normal text-ink outline-none focus:border-accent"
+              className="resize-y rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3.5 py-2 text-xs font-normal leading-relaxed text-ink outline-none focus:border-accent focus:bg-white/45 dark:focus:bg-slate-900/45 transition-all shadow-sm"
             />
           </label>
         </div>
@@ -365,10 +365,10 @@ function IconAction({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "inline-flex size-8 items-center justify-center rounded-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
+        "inline-flex size-8 items-center justify-center rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed",
         tone === "danger"
           ? "text-ink-secondary hover:bg-error-tint hover:text-error"
-          : "text-ink-secondary hover:bg-raised hover:text-ink",
+          : "text-ink-secondary hover:bg-white/10 hover:text-ink",
       )}
     >
       {children}

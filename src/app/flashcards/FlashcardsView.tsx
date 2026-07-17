@@ -108,15 +108,15 @@ export function FlashcardsView() {
             return (
               <li
                 key={deck.id}
-                className="flex flex-col gap-3 rounded-lg border border-line bg-surface-2 p-5 shadow-paper"
+                className="flex flex-col gap-3 rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md p-5 shadow-paper transition-all duration-200 hover:-translate-y-1 hover:shadow-lifted hover:bg-white/45 dark:hover:bg-slate-900/50"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="font-display text-xl text-ink">{deck.title}</h2>
+                <div className="flex items-start justify-between gap-3 min-w-0">
+                  <h2 className="font-display text-xl font-bold text-ink truncate flex-1">{deck.title}</h2>
                   <button
                     type="button"
                     aria-label={`Delete ${deck.title}`}
                     onClick={() => setPendingDelete(deck)}
-                    className="inline-flex size-8 items-center justify-center rounded-sm text-ink-secondary transition-colors hover:bg-error-tint hover:text-error"
+                    className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl text-ink-secondary transition-colors hover:bg-error-tint hover:text-error"
                   >
                     <Trash2 size={15} aria-hidden />
                   </button>
@@ -131,8 +131,8 @@ export function FlashcardsView() {
                     <Badge tone="success">All reviewed</Badge>
                   )}
                 </div>
-                <Button variant="accent" size="sm" className="self-start" onClick={() => startStudy(deck)}>
-                  <Play size={15} strokeWidth={1.75} aria-hidden /> Study
+                <Button variant="accent" size="sm" className="self-start mt-2" onClick={() => startStudy(deck)}>
+                  <Play size={15} strokeWidth={2} aria-hidden /> Study
                 </Button>
               </li>
             );

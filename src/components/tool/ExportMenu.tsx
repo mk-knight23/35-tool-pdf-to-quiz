@@ -46,41 +46,41 @@ export function ExportMenu({ quiz }: ExportMenuProps) {
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-md border border-line bg-surface-2 p-4">
-      <p className="text-sm font-medium text-ink">Export</p>
+    <div className="flex flex-col gap-3.5 rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 p-4 shadow-paper">
+      <p className="text-xs font-bold uppercase tracking-[0.08em] text-ink-muted">Export</p>
       <div className="flex flex-wrap gap-2">
         <Button
           variant="secondary"
           size="sm"
           onClick={() => downloadFile(`${slug}.json`, toJson(quiz), "application/json")}
         >
-          <FileJson size={15} strokeWidth={1.75} aria-hidden /> JSON
+          <FileJson size={14} strokeWidth={2} aria-hidden /> JSON
         </Button>
         <Button
           variant="secondary"
           size="sm"
           onClick={() => downloadFile(`${slug}.csv`, toCsv(quiz), "text/csv")}
         >
-          <FileSpreadsheet size={15} strokeWidth={1.75} aria-hidden /> CSV
+          <FileSpreadsheet size={14} strokeWidth={2} aria-hidden /> CSV
         </Button>
         <Button
           variant="secondary"
           size="sm"
           onClick={() => downloadFile(`${slug}.md`, toMarkdown(quiz), "text/markdown")}
         >
-          <FileText size={15} strokeWidth={1.75} aria-hidden /> Markdown
+          <FileText size={14} strokeWidth={2} aria-hidden /> Markdown
         </Button>
         <Button variant="secondary" size="sm" onClick={openPrintable}>
-          <Printer size={15} strokeWidth={1.75} aria-hidden /> Print / PDF
+          <Printer size={14} strokeWidth={2} aria-hidden /> Print / PDF
         </Button>
         <Button variant="secondary" size="sm" onClick={copyShare}>
           {copied === "share" ? (
             <>
-              <Check size={15} strokeWidth={1.75} aria-hidden /> Link copied
+              <Check size={14} strokeWidth={2} aria-hidden /> Link copied
             </>
           ) : (
             <>
-              <Link2 size={15} strokeWidth={1.75} aria-hidden /> Copy share link
+              <Link2 size={14} strokeWidth={2} aria-hidden /> Copy share link
             </>
           )}
         </Button>

@@ -3,68 +3,68 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --qf-surface: #f8fafc;
-  --qf-surface-2: rgba(255, 255, 255, 0.45);
-  --qf-raised: rgba(255, 255, 255, 0.75);
+  --qf-surface: #f1f5f9;
+  --qf-surface-2: rgba(255, 255, 255, 0.4);
+  --qf-raised: rgba(255, 255, 255, 0.7);
   --qf-ink: #0f172a;
   --qf-ink-secondary: #334155;
   --qf-ink-muted: #64748b;
-  --qf-line: rgba(255, 255, 255, 0.35);
-  --qf-line-strong: rgba(14, 165, 233, 0.25);
-  --qf-accent: #0284c7;
-  --qf-accent-strong: #0369a1;
+  --qf-line: rgba(255, 255, 255, 0.25);
+  --qf-line-strong: rgba(99, 102, 241, 0.25);
+  --qf-accent: #6366f1;
+  --qf-accent-strong: #4f46e5;
   --qf-on-accent: #ffffff;
-  --qf-accent-tint: rgba(224, 242, 254, 0.6);
-  --qf-highlight: #0284c7;
-  --qf-highlight-tint: rgba(224, 242, 254, 0.4);
+  --qf-accent-tint: rgba(238, 242, 255, 0.7);
+  --qf-highlight: #f59e0b;
+  --qf-highlight-tint: rgba(254, 243, 199, 0.5);
   --qf-success: #10b981;
   --qf-success-tint: rgba(209, 250, 229, 0.6);
   --qf-error: #ef4444;
   --qf-error-tint: rgba(254, 226, 226, 0.6);
   --qf-warning: #f59e0b;
   --qf-warning-tint: rgba(254, 243, 199, 0.6);
-  --qf-focus: #0284c7;
-  --qf-btn-primary-bg: #0284c7;
+  --qf-focus: #6366f1;
+  --qf-btn-primary-bg: #4f46e5;
   --qf-btn-primary-fg: #ffffff;
-  --qf-btn-primary-hover: #0369a1;
-  --qf-glass-bg: rgba(255, 255, 255, 0.45);
+  --qf-btn-primary-hover: #4338ca;
+  --qf-glass-bg: rgba(255, 255, 255, 0.25);
   --qf-scrim: rgba(15, 23, 42, 0.15);
-  --qf-shadow-hairline: 0 0 0 1px rgba(255, 255, 255, 0.5);
-  --qf-shadow-paper: 0 8px 32px 0 rgba(31, 38, 135, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.8);
-  --qf-shadow-lifted: 0 12px 40px 0 rgba(31, 38, 135, 0.07), inset 0 1px 1px rgba(255, 255, 255, 0.9);
-  --qf-shadow-overlay: 0 24px 64px 0 rgba(31, 38, 135, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  --qf-shadow-hairline: 0 0 0 1px rgba(255, 255, 255, 0.4);
+  --qf-shadow-paper: 0 8px 32px 0 rgba(31, 38, 135, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  --qf-shadow-lifted: 0 12px 40px 0 rgba(31, 38, 135, 0.09), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  --qf-shadow-overlay: 0 24px 64px 0 rgba(31, 38, 135, 0.14), inset 0 1px 1px rgba(255, 255, 255, 0.9);
 }
 
 .dark {
-  --qf-surface: #e2e8f0;
-  --qf-surface-2: rgba(255, 255, 255, 0.55);
-  --qf-raised: rgba(255, 255, 255, 0.85);
-  --qf-ink: #1e293b;
-  --qf-ink-secondary: #475569;
-  --qf-ink-muted: #64748b;
-  --qf-line: rgba(255, 255, 255, 0.45);
-  --qf-line-strong: rgba(14, 165, 233, 0.35);
-  --qf-accent: #0284c7;
-  --qf-accent-strong: #0369a1;
+  --qf-surface: #09090b;
+  --qf-surface-2: rgba(20, 20, 25, 0.4);
+  --qf-raised: rgba(30, 41, 59, 0.45);
+  --qf-ink: #f8fafc;
+  --qf-ink-secondary: #cbd5e1;
+  --qf-ink-muted: #94a3b8;
+  --qf-line: rgba(255, 255, 255, 0.08);
+  --qf-line-strong: rgba(56, 189, 248, 0.25);
+  --qf-accent: #38bdf8;
+  --qf-accent-strong: #0ea5e9;
   --qf-on-accent: #ffffff;
-  --qf-accent-tint: rgba(224, 242, 254, 0.7);
-  --qf-highlight: #0284c7;
-  --qf-highlight-tint: rgba(224, 242, 254, 0.5);
-  --qf-success: #10b981;
-  --qf-success-tint: rgba(209, 250, 229, 0.7);
-  --qf-error: #ef4444;
-  --qf-error-tint: rgba(254, 226, 226, 0.7);
-  --qf-warning: #f59e0b;
-  --qf-warning-tint: rgba(254, 243, 199, 0.7);
-  --qf-focus: #0284c7;
-  --qf-btn-primary-bg: #0369a1;
+  --qf-accent-tint: rgba(14, 165, 233, 0.15);
+  --qf-highlight: #fbbf24;
+  --qf-highlight-tint: rgba(251, 191, 36, 0.15);
+  --qf-success: #34d399;
+  --qf-success-tint: rgba(52, 211, 153, 0.15);
+  --qf-error: #f87171;
+  --qf-error-tint: rgba(248, 113, 113, 0.15);
+  --qf-warning: #fbbf24;
+  --qf-warning-tint: rgba(251, 191, 36, 0.15);
+  --qf-focus: #38bdf8;
+  --qf-btn-primary-bg: #0ea5e9;
   --qf-btn-primary-fg: #ffffff;
   --qf-btn-primary-hover: #0284c7;
-  --qf-glass-bg: rgba(255, 255, 255, 0.55);
-  --qf-shadow-hairline: 0 0 0 1px rgba(255, 255, 255, 0.6);
-  --qf-shadow-paper: 0 8px 32px 0 rgba(31, 38, 135, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9);
-  --qf-shadow-lifted: 0 12px 40px 0 rgba(31, 38, 135, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.95);
-  --qf-shadow-overlay: 0 24px 64px 0 rgba(31, 38, 135, 0.14), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+  --qf-glass-bg: rgba(20, 20, 25, 0.45);
+  --qf-shadow-hairline: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --qf-shadow-paper: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --qf-shadow-lifted: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --qf-shadow-overlay: 0 24px 64px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 @theme inline {
@@ -110,14 +110,66 @@
 }
 
 body {
-  background: radial-gradient(at 0% 0%, #e0f2fe 0px, transparent 55%),
-              radial-gradient(at 50% 0%, #f3e8ff 0px, transparent 55%),
-              radial-gradient(at 100% 0%, #fffbeb 0px, transparent 55%),
-              #f8fafc;
+  background: var(--qf-surface);
   background-attachment: fixed;
   color: var(--qf-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Floating animated blur blobs in background */
+.qf-blob {
+  position: fixed;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.28;
+  z-index: -10;
+  pointer-events: none;
+}
+.dark .qf-blob {
+  opacity: 0.18;
+  filter: blur(120px);
+}
+.qf-blob-1 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(99,102,241,0.65) 0%, rgba(168,85,247,0.3) 100%);
+  top: -10%;
+  left: -5%;
+  animation: float-blob-1 25s infinite alternate ease-in-out;
+}
+.qf-blob-2 {
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(56,189,248,0.55) 0%, rgba(99,102,241,0.2) 100%);
+  bottom: -15%;
+  right: -5%;
+  animation: float-blob-2 30s infinite alternate ease-in-out;
+}
+.qf-blob-3 {
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(236,72,153,0.5) 0%, rgba(244,63,94,0.12) 100%);
+  top: 45%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+  animation: float-blob-3 22s infinite alternate ease-in-out;
+}
+
+@keyframes float-blob-1 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(70px, 40px) scale(1.08); }
+  100% { transform: translate(-30px, -20px) scale(0.92); }
+}
+@keyframes float-blob-2 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(-50px, -60px) scale(1.15); }
+  100% { transform: translate(40px, 30px) scale(0.88); }
+}
+@keyframes float-blob-3 {
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+  50% { transform: translate(-35%, -55%) rotate(180deg) scale(1.1); }
+  100% { transform: translate(-55%, -45%) rotate(360deg) scale(0.95); }
 }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {

@@ -65,9 +65,9 @@ export function FlashcardPlayer({ title, cards, onGrade, onExit }: FlashcardPlay
 
   if (done) {
     return (
-      <section className="flex flex-col items-center gap-4 rounded-lg border border-line bg-surface-2 p-8 text-center shadow-paper">
-        <h2 className="font-display text-2xl text-ink">Review complete</h2>
-        <p className="text-sm text-ink-secondary">
+      <section className="flex flex-col items-center gap-4 rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md p-8 text-center shadow-paper">
+        <h2 className="font-display text-2xl font-bold text-ink">Review complete</h2>
+        <p className="text-sm text-ink-secondary leading-relaxed">
           You graded {graded} {graded === 1 ? "card" : "cards"} in {title}. Come back when they are
           due again.
         </p>
@@ -80,7 +80,7 @@ export function FlashcardPlayer({ title, cards, onGrade, onExit }: FlashcardPlay
 
   return (
     <section aria-label={`Studying ${title}`} className="flex flex-col gap-5">
-      <div className="flex items-center justify-between text-sm text-ink-secondary">
+      <div className="flex items-center justify-between text-xs font-semibold text-ink-secondary">
         <span>
           Card {index + 1} of {cards.length}
         </span>
@@ -100,33 +100,33 @@ export function FlashcardPlayer({ title, cards, onGrade, onExit }: FlashcardPlay
             type="button"
             onClick={flip}
             aria-label="Flip card to see the answer"
-            className="qf-flip-face qf-flip-front flex min-h-56 w-full flex-col items-center justify-center gap-2 rounded-lg border border-line bg-surface-2 p-8 text-center shadow-paper"
+            className="qf-flip-face qf-flip-front flex min-h-56 w-full flex-col items-center justify-center gap-2 rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 p-8 text-center shadow-paper cursor-pointer hover:bg-white/45 dark:hover:bg-slate-900/50 transition-colors"
           >
-            <span className="text-2xs font-medium uppercase tracking-[0.08em] text-ink-muted">
+            <span className="text-2xs font-semibold uppercase tracking-[0.08em] text-ink-muted">
               Front
             </span>
-            <span className="font-display text-2xl text-ink">{card.front}</span>
+            <span className="font-display text-2xl font-bold text-ink">{card.front}</span>
             <span className="mt-2 inline-flex items-center gap-1.5 text-xs text-ink-muted">
-              <RotateCw size={13} strokeWidth={1.75} aria-hidden /> Tap or press Space to flip
+              <RotateCw size={13} strokeWidth={2} aria-hidden /> Tap or press Space to flip
             </span>
           </button>
           <button
             type="button"
             onClick={flip}
             aria-label="Flip card to see the question"
-            className="qf-flip-face qf-flip-back flex min-h-56 w-full flex-col items-center justify-center gap-2 rounded-lg border border-accent bg-accent-tint p-8 text-center shadow-paper"
+            className="qf-flip-face qf-flip-back flex min-h-56 w-full flex-col items-center justify-center gap-2 rounded-2xl border border-accent bg-accent-tint/90 dark:bg-accent-tint/40 p-8 text-center shadow-paper cursor-pointer hover:bg-accent-tint dark:hover:bg-accent-tint/50 transition-colors"
           >
-            <span className="text-2xs font-medium uppercase tracking-[0.08em] text-accent">
+            <span className="text-2xs font-semibold uppercase tracking-[0.08em] text-accent">
               Back
             </span>
-            <span className="text-lg text-ink">{card.back}</span>
+            <span className="text-lg text-ink font-medium leading-relaxed">{card.back}</span>
           </button>
         </div>
       </div>
 
       {flipped ? (
-        <div className="flex flex-col gap-2">
-          <p className="text-center text-sm text-ink-secondary">How well did you know it?</p>
+        <div className="flex flex-col gap-3">
+          <p className="text-center text-xs font-semibold text-ink-secondary">How well did you know it?</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {GRADES.map((g, i) => (
               <button
@@ -134,19 +134,19 @@ export function FlashcardPlayer({ title, cards, onGrade, onExit }: FlashcardPlay
                 type="button"
                 onClick={() => grade(g)}
                 className={cn(
-                  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md border bg-surface-2 px-3 py-2 text-sm font-medium transition-colors",
+                  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border bg-white/20 dark:bg-slate-900/20 px-3 py-2 text-xs font-bold transition-all hover:-translate-y-0.5 cursor-pointer shadow-sm border-white/20 dark:border-white/5",
                   GRADE_TONE[g],
                 )}
               >
-                <span className="font-mono text-xs opacity-70">{i + 1}</span>
+                <span className="font-mono text-2xs opacity-70">{i + 1}</span>
                 {GRADE_LABELS[g]}
               </button>
             ))}
           </div>
         </div>
       ) : (
-        <Button variant="accent" className="self-center" onClick={flip}>
-          <RotateCw size={16} strokeWidth={1.75} aria-hidden /> Flip card
+        <Button variant="accent" className="self-center mt-1" onClick={flip}>
+          <RotateCw size={16} strokeWidth={2} aria-hidden /> Flip card
         </Button>
       )}
     </section>

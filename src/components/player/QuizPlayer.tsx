@@ -187,29 +187,29 @@ export function QuizPlayer({
   return (
     <section aria-label={`Playing ${title}`} className="flex flex-col gap-6">
       {/* Sticky progress + timer */}
-      <div className="sticky top-14 z-30 flex flex-col gap-2 rounded-md border border-line bg-surface-2/95 p-3 backdrop-blur">
+      <div className="sticky top-14 z-30 flex flex-col gap-2.5 rounded-2xl border border-white/20 dark:border-white/5 bg-white/25 dark:bg-slate-900/25 p-4 backdrop-blur-md shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             {quick ? <QuickModeBadge /> : null}
-            <span className="text-sm text-ink-secondary">
+            <span className="text-xs font-semibold text-ink-secondary">
               Question {index + 1} of {questions.length}
             </span>
           </div>
           {timed && timeLimitSec ? (
             <span
               className={cn(
-                "inline-flex items-center gap-1.5 font-mono text-sm tabular-nums",
+                "inline-flex items-center gap-1.5 font-mono text-xs font-bold tabular-nums",
                 remaining <= 30 ? "text-error" : "text-ink-secondary",
               )}
               role="timer"
               aria-live="off"
             >
-              <Clock size={14} strokeWidth={1.75} aria-hidden />
+              <Clock size={14} strokeWidth={2.2} aria-hidden />
               {formatClock(remaining)} left
             </span>
           ) : null}
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-line">
+        <div className="h-2 overflow-hidden rounded-full bg-white/20 dark:bg-slate-800/40 border border-white/10">
           <div
             className="h-full rounded-full bg-accent transition-[width] duration-[240ms] ease-(--ease-enter)"
             style={{ width: `${Math.round(progress * 100)}%` }}
@@ -218,11 +218,11 @@ export function QuizPlayer({
       </div>
 
       {/* Question card */}
-      <div className="flex flex-col gap-5 rounded-lg border border-line bg-surface-2 p-6 shadow-paper">
-        <p className="text-2xs font-medium uppercase tracking-[0.08em] text-ink-muted">
+      <div className="flex flex-col gap-5 rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md p-6 shadow-paper">
+        <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-ink-muted">
           {QUESTION_TYPE_LABELS[question.type]}
         </p>
-        <h2 className="font-display text-xl leading-snug text-ink">{question.prompt}</h2>
+        <h2 className="font-display text-xl font-bold leading-snug text-ink">{question.prompt}</h2>
 
         {isTextType ? (
           <input
@@ -231,9 +231,9 @@ export function QuizPlayer({
             value={textDraft}
             disabled={revealed}
             onChange={(e) => setTextDraft(e.target.value)}
-            placeholder="Type your answer"
+            placeholder="Type your answer..."
             aria-label="Your answer"
-            className="rounded-sm border border-line-strong bg-raised px-3 py-2.5 text-base text-ink outline-none placeholder:text-ink-muted focus:border-accent disabled:opacity-70"
+            className="rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-accent focus:bg-white/40 dark:focus:bg-slate-900/40 transition-all shadow-sm disabled:opacity-60"
           />
         ) : (
           <ul className="flex flex-col gap-2.5" role="listbox" aria-label="Answer options">
@@ -251,23 +251,23 @@ export function QuizPlayer({
                     disabled={revealed}
                     onClick={() => select(i)}
                     className={cn(
-                      "flex w-full items-center gap-3 rounded-md border px-4 py-3 text-left text-base transition-colors",
-                      "min-h-11 disabled:cursor-default",
-                      showRight && "border-success bg-success-tint",
-                      showWrong && "border-error bg-error-tint",
-                      !revealed && selected && "border-accent bg-accent-tint",
-                      !revealed && !selected && "border-line-strong bg-raised hover:border-ink-muted",
-                      revealed && !isRight && !selected && "border-line bg-raised opacity-70",
+                      "flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm transition-all duration-150",
+                      "min-h-11 disabled:cursor-default hover:-translate-y-0.5 shadow-sm",
+                      showRight && "border-success bg-success-tint/65 dark:bg-success-tint/25 text-success font-semibold",
+                      showWrong && "border-error bg-error-tint/65 dark:bg-error-tint/25 text-error font-semibold",
+                      !revealed && selected && "border-accent bg-accent-tint/60 dark:bg-accent-tint/20 text-ink font-semibold",
+                      !revealed && !selected && "border-white/20 dark:border-white/5 bg-white/20 dark:bg-slate-900/20 text-ink hover:border-accent hover:bg-white/35 dark:hover:bg-slate-900/35",
+                      revealed && !isRight && !selected && "border-white/10 bg-white/5 dark:bg-slate-900/5 opacity-55",
                     )}
                   >
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-sm border border-line-strong font-mono text-xs text-ink-secondary">
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-lg border border-white/20 bg-white/20 font-mono text-2xs text-ink-secondary">
                       {i + 1}
                     </span>
                     <span className="flex-1 text-ink">{option}</span>
                     {showRight ? (
-                      <Check size={18} className="text-success" aria-label="Correct" />
+                      <Check size={18} className="text-success stroke-[2.5]" aria-label="Correct" />
                     ) : null}
-                    {showWrong ? <X size={18} className="text-error" aria-label="Incorrect" /> : null}
+                    {showWrong ? <X size={18} className="text-error stroke-[2.5]" aria-label="Incorrect" /> : null}
                   </button>
                 </li>
               );
@@ -277,9 +277,9 @@ export function QuizPlayer({
 
         {/* Hint Section */}
         {!revealed && !quick && (
-          <div className="flex flex-col gap-2 pt-2 border-t border-line">
+          <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
             {hint ? (
-              <p className="text-sm italic text-highlight bg-highlight-tint p-3 rounded-md">
+              <p className="text-xs italic text-highlight bg-highlight-tint/65 dark:bg-highlight-tint/20 p-3.5 rounded-xl border border-warning/15">
                 Hint: {hint}
               </p>
             ) : (
@@ -301,30 +301,30 @@ export function QuizPlayer({
           {revealed ? (
             <div
               className={cn(
-                "flex flex-col gap-2 rounded-md border p-4",
-                answeredCorrectly ? "border-success bg-success-tint" : "border-error bg-error-tint",
+                "flex flex-col gap-2 rounded-xl border p-4 shadow-sm",
+                answeredCorrectly ? "border-success bg-success-tint/65 dark:bg-success-tint/25" : "border-error bg-error-tint/65 dark:bg-error-tint/25",
               )}
             >
               <p
                 className={cn(
-                  "inline-flex items-center gap-2 text-sm font-semibold",
+                  "inline-flex items-center gap-2 text-sm font-bold",
                   answeredCorrectly ? "text-success" : "text-error",
                 )}
               >
                 {answeredCorrectly ? (
-                  <Check size={16} aria-hidden />
+                  <Check size={16} className="stroke-[2.5]" aria-hidden />
                 ) : (
-                  <X size={16} aria-hidden />
+                  <X size={16} className="stroke-[2.5]" aria-hidden />
                 )}
                 {answeredCorrectly ? "Correct" : "Incorrect"}
               </p>
               {!answeredCorrectly ? (
-                <p className="text-sm text-ink">
-                  Answer: <span className="font-medium">{correctText}</span>
+                <p className="text-xs text-ink leading-relaxed">
+                  Answer: <span className="font-semibold text-accent">{correctText}</span>
                 </p>
               ) : null}
               {question.explanation ? (
-                <p className="text-sm text-ink-secondary">{question.explanation}</p>
+                <p className="text-xs text-ink-secondary leading-relaxed">{question.explanation}</p>
               ) : null}
             </div>
           ) : null}

@@ -86,7 +86,7 @@ export function QuizResults({
 
   return (
     <section aria-label={`Results for ${title}`} className="flex flex-col gap-6">
-      <div className="flex flex-col items-center gap-4 rounded-lg border border-line bg-surface-2 p-6 text-center shadow-paper sm:flex-row sm:text-left">
+      <div className="flex flex-col items-center gap-5 rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md p-6 text-center shadow-paper sm:flex-row sm:text-left">
         <ProgressRing
           value={summary.accuracy}
           size={112}
@@ -94,13 +94,13 @@ export function QuizResults({
           center={`${percent}%`}
         />
         <div className="flex flex-col gap-1">
-          <h2 className="font-display text-2xl text-ink">
+          <h2 className="font-display text-2xl font-bold text-ink">
             {summary.correct} of {summary.total} correct
           </h2>
-          <p className="text-sm text-ink-secondary">
+          <p className="text-sm font-medium text-ink-secondary">
             {title} · {formatDuration(durationSec)}
           </p>
-          <p className="text-sm text-ink-muted">
+          <p className="text-xs text-ink-muted leading-relaxed mt-0.5">
             {percent >= 80
               ? "Strong result. Revisit anything you missed to lock it in."
               : percent >= 50
@@ -126,10 +126,10 @@ export function QuizResults({
       </div>
 
       {/* AI Analysis Block */}
-      <div className="rounded-lg border border-line bg-surface-2 p-5 shadow-paper">
+      <div className="rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md p-5 shadow-paper">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
-            <h3 className="font-display text-lg text-ink flex items-center gap-1.5">
+            <h3 className="font-display text-lg font-bold text-ink flex items-center gap-1.5">
               <Sparkles size={16} className="text-accent" /> Weak-Topic Analysis
             </h3>
             <p className="text-xs text-ink-secondary">
@@ -149,30 +149,30 @@ export function QuizResults({
         </div>
 
         {analysisError ? (
-          <p role="alert" className="mt-3 text-sm text-error flex items-start gap-2 bg-error-tint p-3 rounded-md">
+          <p role="alert" className="mt-3 text-xs font-semibold text-error flex items-start gap-2 bg-error-tint p-3 rounded-xl border border-error/25">
             <AlertCircle size={15} className="mt-0.5 shrink-0" />
             {analysisError}
           </p>
         ) : null}
 
         {analysis ? (
-          <div className="mt-4 flex flex-col gap-4 border-t border-line pt-4 animate-fade-in">
+          <div className="mt-4 flex flex-col gap-4 border-t border-white/10 pt-4 animate-fade-in">
             <div className="flex flex-col gap-2">
-              <h4 className="text-sm font-semibold text-ink">Topic Strengths</h4>
+              <h4 className="text-xs font-bold text-ink">Topic Strengths</h4>
               <div className="grid gap-3 sm:grid-cols-2">
                 {analysis.topics.map((t) => (
                   <div
                     key={t.topic}
-                    className="rounded-md border border-line bg-raised p-3.5 flex flex-col gap-1.5"
+                    className="rounded-xl border border-white/20 dark:border-white/5 bg-white/15 dark:bg-slate-900/15 p-3.5 flex flex-col gap-1.5"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium text-sm text-ink">{t.topic}</span>
+                      <span className="font-bold text-sm text-ink">{t.topic}</span>
                       <span
                         className={cn(
-                          "rounded-full px-2 py-0.5 text-3xs font-semibold uppercase tracking-[0.06em]",
-                          t.strength === "weak" && "bg-error-tint text-error",
-                          t.strength === "medium" && "bg-warning-tint text-warning",
-                          t.strength === "strong" && "bg-success-tint text-success"
+                          "rounded-full px-2.5 py-0.5 text-3xs font-semibold uppercase tracking-[0.06em] font-mono",
+                          t.strength === "weak" && "bg-error-tint text-error border border-error/20",
+                          t.strength === "medium" && "bg-warning-tint text-warning border border-warning/20",
+                          t.strength === "strong" && "bg-success-tint text-success border border-success/20"
                         )}
                       >
                         {t.strength}
@@ -186,7 +186,7 @@ export function QuizResults({
 
             {analysis.tasks.length > 0 ? (
               <div className="flex flex-col gap-2">
-                <h4 className="text-sm font-semibold text-ink">Recommended Revision Tasks</h4>
+                <h4 className="text-xs font-bold text-ink">Recommended Revision Tasks</h4>
                 <ul className="list-disc pl-5 text-xs text-ink-secondary flex flex-col gap-1.5">
                   {analysis.tasks.map((task, idx) => (
                     <li key={idx} className="leading-relaxed">{task}</li>
@@ -199,7 +199,7 @@ export function QuizResults({
       </div>
 
       <div className="flex flex-col gap-3">
-        <h3 className="font-display text-lg text-ink">Review</h3>
+        <h3 className="font-display text-lg font-bold text-ink">Review</h3>
         <ol className="flex flex-col gap-3">
           {questions.map((question, i) => {
             const answer = answers[question.id] ?? null;
@@ -208,36 +208,40 @@ export function QuizResults({
               <li
                 key={question.id}
                 className={cn(
-                  "flex flex-col gap-2 rounded-md border p-4",
-                  right ? "border-line bg-surface-2" : "border-error/40 bg-error-tint/40",
+                  "flex flex-col gap-3 rounded-2xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5",
+                  right 
+                    ? "border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40" 
+                    : "border-error/25 bg-error-tint/50",
                 )}
               >
                 <div className="flex items-start gap-3">
                   <span
                     className={cn(
-                      "mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full",
-                      right ? "bg-success-tint text-success" : "bg-error-tint text-error",
+                      "mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-lg border",
+                      right 
+                        ? "bg-success-tint text-success border-success/20" 
+                        : "bg-error-tint text-error border-error/20",
                     )}
                   >
                     {right ? (
-                      <Check size={14} aria-label="Correct" />
+                      <Check size={14} className="stroke-[2.5]" aria-label="Correct" />
                     ) : (
-                      <X size={14} aria-label="Incorrect" />
+                      <X size={14} className="stroke-[2.5]" aria-label="Incorrect" />
                     )}
                   </span>
-                  <div className="flex flex-col gap-1">
-                    <p className="font-medium text-ink">
+                  <div className="flex flex-col gap-1 min-w-0">
+                    <p className="font-semibold text-sm text-ink leading-relaxed">
                       {i + 1}. {question.prompt}
                     </p>
                     {!right ? (
-                      <p className="text-sm text-ink-secondary">
+                      <p className="text-xs text-ink-secondary leading-relaxed mt-1">
                         Your answer:{" "}
-                        <span className="text-error">{answerText(question, answer)}</span>
+                        <span className="text-error font-semibold">{answerText(question, answer)}</span>
                       </p>
                     ) : null}
-                    <p className="text-sm text-ink-secondary">
+                    <p className="text-xs text-ink-secondary leading-relaxed">
                       Correct answer:{" "}
-                      <span className="font-medium text-ink">{correctText(question)}</span>
+                      <span className="font-semibold text-accent">{correctText(question)}</span>
                     </p>
                   </div>
                 </div>

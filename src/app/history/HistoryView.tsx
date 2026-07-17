@@ -132,7 +132,7 @@ export function HistoryView() {
         />
       ) : (
         <>
-          <div role="tablist" aria-label="History type" className="flex gap-1 rounded-md border border-line bg-surface-2 p-1">
+          <div role="tablist" aria-label="History type" className="flex gap-1 rounded-xl border border-white/20 dark:border-white/5 bg-white/15 dark:bg-slate-900/20 p-1">
             {TABS.map((t) => (
               <button
                 key={t.id}
@@ -141,11 +141,13 @@ export function HistoryView() {
                 aria-selected={tab === t.id}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "inline-flex flex-1 items-center justify-center gap-2 rounded-sm px-3 py-2 text-sm font-medium transition-colors",
-                  tab === t.id ? "bg-raised text-ink shadow-paper" : "text-ink-secondary hover:text-ink",
+                  "inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 border border-transparent",
+                  tab === t.id 
+                    ? "bg-white/20 dark:bg-white/10 text-ink shadow-sm border-white/25 dark:border-white/10" 
+                    : "text-ink-secondary hover:text-ink hover:bg-white/5",
                 )}
               >
-                <t.icon size={15} strokeWidth={1.75} aria-hidden />
+                <t.icon size={15} strokeWidth={2} className={tab === t.id ? "text-accent" : "text-ink-muted"} aria-hidden />
                 {t.label}
               </button>
             ))}
@@ -162,9 +164,9 @@ export function HistoryView() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by title"
+                placeholder="Search by title..."
                 aria-label="Search history"
-                className="w-full rounded-sm border border-line-strong bg-surface-2 py-2 pl-9 pr-3 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-accent"
+                className="w-full rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 py-2.5 pl-10 pr-4 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-accent focus:bg-white/40 dark:focus:bg-slate-900/40 transition-all duration-200 shadow-sm"
               />
             </div>
             <label className="flex items-center gap-2 text-sm text-ink-secondary">
@@ -172,7 +174,7 @@ export function HistoryView() {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as Sort)}
-                className="rounded-sm border border-line-strong bg-surface-2 px-2 py-2 text-sm text-ink outline-none focus:border-accent"
+                className="rounded-xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 px-3 py-2.5 text-sm text-ink outline-none focus:border-accent focus:bg-white/40 dark:focus:bg-slate-900/40 transition-all duration-200 shadow-sm"
               >
                 <option value="newest">Newest</option>
                 <option value="oldest">Oldest</option>
@@ -251,28 +253,32 @@ interface ListItem {
 
 function ItemList({ items, empty }: { items: ListItem[]; empty: string }) {
   if (items.length === 0) {
-    return <p className="py-6 text-sm text-ink-secondary">{empty}</p>;
+    return (
+      <div className="rounded-2xl border border-white/20 dark:border-white/5 bg-white/30 dark:bg-slate-900/30 p-8 text-center text-sm text-ink-secondary">
+        {empty}
+      </div>
+    );
   }
   return (
     <ul className="flex flex-col gap-2">
       {items.map((item) => (
         <li
           key={item.id}
-          className="flex items-center justify-between gap-3 rounded-md border border-line bg-surface-2 p-4 shadow-paper"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md p-4 shadow-paper transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/45 dark:hover:bg-slate-900/50"
         >
           <Link href={item.href} className="min-w-0 flex-1">
             <span className="flex items-center gap-2">
-              <span className="truncate font-medium text-ink">{item.title}</span>
+              <span className="truncate font-semibold text-ink">{item.title}</span>
               {item.badge ? <Badge tone="highlight">{item.badge}</Badge> : null}
             </span>
-            <span className="mt-0.5 block text-xs text-ink-muted">{item.meta}</span>
+            <span className="mt-1 block text-xs text-ink-muted">{item.meta}</span>
           </Link>
           {item.onDelete ? (
             <button
               type="button"
               aria-label={`Delete ${item.title}`}
               onClick={item.onDelete}
-              className="inline-flex size-8 shrink-0 items-center justify-center rounded-sm text-ink-secondary transition-colors hover:bg-error-tint hover:text-error"
+              className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl text-ink-secondary transition-all hover:bg-error-tint hover:text-error"
             >
               <Trash2 size={15} aria-hidden />
             </button>

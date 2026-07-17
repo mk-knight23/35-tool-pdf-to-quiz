@@ -13,6 +13,8 @@ export const CREATOR = {
   github: "https://github.com/mk-knight23",
   portfolio: "https://www.mkazi.live",
   repo: "https://github.com/mk-knight23/35-tool-pdf-to-quiz",
+  email: "kazi@reprime.com",
+  issues: "https://github.com/mk-knight23/35-tool-pdf-to-quiz/issues",
 } as const;
 
 /** The exact footer sentence required on every public route (STANDARDS §3). */

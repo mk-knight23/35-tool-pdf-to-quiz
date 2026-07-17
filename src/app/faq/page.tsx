@@ -27,6 +27,38 @@ const FAQS = [
     q: "How is my study progress saved?",
     a: "Your study history, flashcards, and results are stored on your local device inside IndexedDB. Clearing browser cookies or cache may remove this data, so we recommend using the Export button in Settings to create backups.",
   },
+  {
+    q: "What question types can QuizFlow make?",
+    a: "Multiple choice, true/false, short answer, and fill-in-the-blank (cloze). In the editor you can change a question's type, rewrite the prompt and options, set the correct answer, and add an explanation. Quick mode leans on fill-in-the-blank and short answer because those are what keyword heuristics do reliably; AI mode can produce all four with reworded options.",
+  },
+  {
+    q: "Can I pick which pages of a PDF to use?",
+    a: "Yes. After a PDF is read, you get a page-range field (for example 12-34, or 1-3, 5, 8-10). QuizFlow shows the character count per page so you can spot blank or scanned pages before generating, and it only uses the pages you select.",
+  },
+  {
+    q: "Is there really no sign-up, and is it free?",
+    a: "There is no account and no sign-up. Quick mode is free and unlimited because it runs on your machine. AI mode draws on a shared daily allowance; if that runs out you can add your own gateway key. The code is MIT-licensed and public, so you can also run your own copy.",
+  },
+  {
+    q: "Does it work offline?",
+    a: "Quick mode does. Once the page has loaded, PDF reading, question generation, playing, scoring, and exporting all run in the browser with no network calls carrying your content. AI mode is the only part that needs a connection, because it calls the AI gateway.",
+  },
+  {
+    q: "What are the keyboard shortcuts in the quiz player?",
+    a: "Press 1-4 to pick an option, Enter to confirm or move to the next question, and Escape to exit. The whole app is keyboard-operable, and the reorder controls in the editor have up/down buttons so you never need a mouse to rearrange questions.",
+  },
+  {
+    q: "How does 'retake incorrect only' work?",
+    a: "When you finish a quiz, the results screen lists which questions you missed. 'Retake incorrect only' starts a new run containing just those questions, so you spend your time on the material you haven't locked in yet rather than repeating what you already know.",
+  },
+  {
+    q: "What can I export, and will it re-import?",
+    a: "You can export a quiz to JSON, CSV, Markdown, or a printable HTML page (use your browser's print-to-PDF for a clean handout). JSON re-imports back into QuizFlow with its schema validated first. Exports made in Quick mode carry a 'Quick mode (no AI)' label so their origin is clear.",
+  },
+  {
+    q: "How does weak-topic analysis use my data?",
+    a: "It looks only at your local results — which questions you got right or wrong — and groups the misses into topics so you can see where to focus. It never re-reads or uploads your source document; it works from the aggregated outcomes already stored on your device.",
+  },
 ];
 
 export default function FaqPage() {

@@ -1,26 +1,14 @@
-"use client";
+import type { Metadata } from "next";
+import { CookiesConsent } from "./CookiesConsent";
 
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { getConsent, setConsent } from "@/lib/prefs";
-import { track } from "@/lib/analytics";
+export const metadata: Metadata = {
+  title: "Cookie Policy & Consent",
+  description:
+    "How MK QuizFlow uses cookies and analytics, and how to allow or decline tracking. Analytics are off by default.",
+  alternates: { canonical: "/cookies" },
+};
 
 export default function CookiesPage() {
-  const [consent, setConsentState] = useState<"granted" | "denied" | null>(null);
-
-  useEffect(() => {
-    const c = getConsent();
-    window.setTimeout(() => {
-      setConsentState(c);
-    }, 0);
-  }, []);
-
-  const changeConsent = (value: "granted" | "denied") => {
-    setConsentState(value);
-    setConsent(value);
-    track("settings_changed", { setting: "consent" });
-  };
-
   return (
     <div className="flex flex-col gap-6 max-w-3xl">
       <div>
@@ -34,38 +22,30 @@ export default function CookiesPage() {
       <hr className="border-line" />
 
       <div className="qf-prose flex flex-col gap-6 text-sm text-ink-secondary leading-relaxed">
-        <section>
-          <h2 className="font-display text-xl text-ink">Use of Cookies</h2>
+        <section className="flex flex-col gap-2">
+          <h2 className="font-display text-xl text-ink">Use of cookies</h2>
           <p>
-            We use Google Tag Manager (GTM) in production to collect anonymous, bucketed usage statistics to help improve the tool. We **never** transmit text files, question content, passwords, or API keys.
+            QuizFlow does not set advertising or cross-site tracking cookies. In production it can
+            load Google Tag Manager to collect anonymous, bucketed usage statistics that help us
+            improve the tool — but only after you allow it below. We never transmit your document
+            text, question content, file names, passwords, or API keys.
           </p>
           <p>
-            By default, analytics tracking is fully disabled. You must explicitly opt-in to enable tracking.
+            Analytics are declined by default. Nothing loads until you explicitly opt in, and you can
+            change your mind here at any time.
           </p>
         </section>
 
-        <section className="flex flex-col gap-3 border border-line bg-surface-2 p-5 rounded-md mt-2">
-          <h3 className="font-display text-base font-semibold text-ink">Manage Preferences</h3>
-          <p className="text-xs text-ink-secondary">
-            Your current selection is stored in your browser&apos;s local storage.
+        <section className="flex flex-col gap-2">
+          <h2 className="font-display text-xl text-ink">Local storage (not cookies)</h2>
+          <p>
+            Your quizzes, decks, results, and preferences live in your browser via IndexedDB and
+            localStorage. That is how the app remembers your work between visits. It is separate from
+            analytics and never leaves your device. You can export or clear all of it from Settings.
           </p>
-          <div className="flex gap-2">
-            <Button
-              variant={consent === "granted" ? "accent" : "secondary"}
-              size="sm"
-              onClick={() => changeConsent("granted")}
-            >
-              Allow Analytics
-            </Button>
-            <Button
-              variant={consent === "denied" || consent === null ? "accent" : "secondary"}
-              size="sm"
-              onClick={() => changeConsent("denied")}
-            >
-              Decline Analytics
-            </Button>
-          </div>
         </section>
+
+        <CookiesConsent />
       </div>
     </div>
   );

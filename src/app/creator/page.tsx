@@ -42,13 +42,19 @@ export default function CreatorPage() {
 
       <div className="qf-prose text-sm text-ink-secondary leading-relaxed flex flex-col gap-4">
         <p>
-          Hi! I am **Kazi Musharraf** (commonly known as mk-knight), an AI systems engineer and full-stack developer. I design local-first, low-maintenance, and privacy-native developer tools and study platforms.
+          Hi. I&apos;m {CREATOR.name} (also known as mk-knight), an AI systems engineer and
+          full-stack developer. I build local-first, low-maintenance, privacy-minded developer tools
+          and study platforms.
         </p>
         <p>
-          I built **QuizFlow** because I wanted a study tool that respects the user&apos;s data privacy. Highlighting lectures is passive, and cloud-heavy AI platforms are bloated. QuizFlow operates purely client-side by default, allowing you to test yourself offline.
+          I made QuizFlow because I wanted a study tool that keeps my documents on my own machine.
+          Highlighting lecture slides is passive, and most cloud study apps ask you to upload
+          everything first. QuizFlow runs client-side by default, so you can generate and take
+          quizzes offline.
         </p>
         <p>
-          If you want to collaborate on AI integration pipelines, custom MCP servers, or full-stack Next.js systems, you can reach out via my portfolio.
+          If you want to collaborate on AI integration pipelines, custom MCP servers, or full-stack
+          Next.js systems, reach out through my portfolio or open an issue on the repo.
         </p>
       </div>
 

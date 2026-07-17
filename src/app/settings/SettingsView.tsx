@@ -3,6 +3,7 @@
 import { Download, HardDrive, Trash2, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { CONSENT_EVENT } from "@/components/layout/ConsentBanner";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/cn";
@@ -136,6 +137,7 @@ export function SettingsView() {
     setConsentState(value);
     setConsent(value);
     track("settings_changed", { setting: "consent" });
+    window.dispatchEvent(new Event(CONSENT_EVENT));
   };
 
   const handleSaveByok = () => {

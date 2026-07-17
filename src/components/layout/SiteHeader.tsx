@@ -20,7 +20,13 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => setOpen(false), [pathname]);
+  // Close the mobile menu when the route changes (adjust state during render,
+  // the React-recommended alternative to a setState-in-effect).
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    setOpen(false);
+  }
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 

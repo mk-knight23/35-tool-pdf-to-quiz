@@ -22,8 +22,15 @@ export function FlashcardsView() {
   }, []);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    let active = true;
+    void (async () => {
+      const loaded = await listDecks();
+      if (active) setDecks(loaded);
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const startStudy = (deck: Deck) => {
     const due = deck.cards.filter((c) => isDue(c));

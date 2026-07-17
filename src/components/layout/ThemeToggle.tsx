@@ -18,8 +18,11 @@ export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMode(getTheme());
-    setMounted(true);
+    const t = getTheme();
+    window.setTimeout(() => {
+      setMode(t);
+      setMounted(true);
+    }, 0);
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => {
       if (getTheme() === "system") applyTheme("system");

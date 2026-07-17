@@ -1,0 +1,4 @@
+Contact: https://www.mkazi.live
+Preferred-Languages: en
+Expires: 2027-12-31T23:59:59Z
+Policy: https://github.com/mk-knight23/35-tool-pdf-to-quiz/blob/rebuild/v2/SECURITY.md

@@ -45,8 +45,19 @@ export function HistoryView() {
   }, []);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    let active = true;
+    void (async () => {
+      const [quizzes, decks, results] = await Promise.all([
+        listQuizzes(),
+        listDecks(),
+        listResults(),
+      ]);
+      if (active) setData({ quizzes, decks, results });
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const applySort = useCallback(
     <T extends { createdAt: string }>(items: T[], titleOf: (item: T) => string): T[] => {

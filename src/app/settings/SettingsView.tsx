@@ -14,6 +14,9 @@ import {
   setConsent,
   setHistoryEnabled,
   setSoundEnabled,
+  getByokKey,
+  setByokKey,
+  clearByokKey,
 } from "@/lib/prefs";
 import {
   clearAll,
@@ -48,17 +51,30 @@ export function SettingsView() {
   const [importError, setImportError] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [cleared, setCleared] = useState(false);
+  const [byok, setByokState] = useState("");
+  const [byokStatus, setByokStatus] = useState<string | null>(null);
 
   const refreshUsage = useCallback(async () => {
     setUsage(await estimateUsage());
   }, []);
 
   useEffect(() => {
-    setHistoryEnabledState(getHistoryEnabled());
-    setSoundEnabledState(getSoundEnabled());
-    setConsentState(getConsent());
-    void refreshUsage();
-  }, [refreshUsage]);
+    let active = true;
+    void (async () => {
+      // Read client-only values after the estimate resolves so every state
+      // update lands in a microtask (avoids synchronous setState-in-effect).
+      const estimate = await estimateUsage();
+      if (!active) return;
+      setHistoryEnabledState(getHistoryEnabled());
+      setSoundEnabledState(getSoundEnabled());
+      setConsentState(getConsent());
+      setByokState(getByokKey() || "");
+      setUsage(estimate);
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleExport = useCallback(async () => {
     const envelope = await exportAll();
@@ -114,6 +130,21 @@ export function SettingsView() {
     setConsentState(value);
     setConsent(value);
     track("settings_changed", { setting: "consent" });
+  };
+
+  const handleSaveByok = () => {
+    setByokKey(byok.trim());
+    setByokStatus("Key saved to session memory.");
+    track("settings_changed", { setting: "byok_key_saved" });
+    window.setTimeout(() => setByokStatus(null), 3000);
+  };
+
+  const handleClearByok = () => {
+    clearByokKey();
+    setByokState("");
+    setByokStatus("Key cleared from session memory.");
+    track("settings_changed", { setting: "byok_key_cleared" });
+    window.setTimeout(() => setByokStatus(null), 3000);
   };
 
   const usagePercent =
@@ -253,9 +284,34 @@ export function SettingsView() {
       >
         <p className="text-sm text-ink-secondary">
           This build ships the deterministic Quick mode. When the optional AI layer is enabled, you
-          can bring your own key — it is held only in memory for the request, never written to disk
-          and never sent to analytics.
+          can bring your own key (e.g. OpenRouter key) — it is held only in browser tab memory for the request, never written to disk, and never sent to analytics.
         </p>
+        <div className="flex flex-col gap-3 max-w-md pt-2">
+          <label htmlFor="byok-input" className="text-sm font-medium text-ink">
+            Bring Your Own API Key (OpenRouter or compatible gateway):
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="byok-input"
+              type="password"
+              value={byok}
+              onChange={(e) => setByokState(e.target.value)}
+              placeholder="e.g. sk-or-v1-..."
+              className="flex-1 rounded-sm border border-line-strong bg-raised px-3 py-1.5 text-sm text-ink outline-none focus:border-accent"
+            />
+            <Button size="sm" onClick={handleSaveByok} disabled={byok.trim().length === 0}>
+              Save
+            </Button>
+            <Button size="sm" variant="secondary" onClick={handleClearByok}>
+              Clear
+            </Button>
+          </div>
+          {byokStatus ? (
+            <p role="status" className="text-xs text-success">
+              {byokStatus}
+            </p>
+          ) : null}
+        </div>
       </Section>
 
       <ConfirmDialog

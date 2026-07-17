@@ -7,6 +7,8 @@ import { QuickModeBadge } from "@/components/ui/Badge";
 import { useAudio } from "@/lib/audio";
 import { cn } from "@/lib/cn";
 import { type AnswerValue, isCorrect } from "@/lib/scoring";
+import { runObjectCapability } from "@/lib/ai/client";
+import { getByokKey } from "@/lib/prefs";
 import { QUESTION_TYPE_LABELS, type Question } from "@/lib/types";
 
 export interface PlaySession {
@@ -44,7 +46,12 @@ export function QuizPlayer({
   const [revealed, setRevealed] = useState(false);
   const [textDraft, setTextDraft] = useState("");
   const [remaining, setRemaining] = useState(timed && timeLimitSec ? timeLimitSec : 0);
-  const startRef = useRef(Date.now());
+  const [hint, setHint] = useState<string | null>(null);
+  const [loadingHint, setLoadingHint] = useState(false);
+  const startRef = useRef(0);
+  useEffect(() => {
+    startRef.current = Date.now();
+  }, []);
   const { playCorrect, playWrong } = useAudio();
 
   const question = questions[index];
@@ -59,6 +66,37 @@ export function QuizPlayer({
     },
     [onFinish],
   );
+
+  const [prevIndex, setPrevIndex] = useState(0);
+  if (index !== prevIndex) {
+    setPrevIndex(index);
+    setHint(null);
+  }
+
+  const fetchHint = async () => {
+    setLoadingHint(true);
+    try {
+      const byok = getByokKey();
+      const res = await runObjectCapability<{ hint: string; explanation: string }>({
+        id: "explain",
+        body: {
+          prompt: question.prompt,
+          options: question.options,
+          correctIndex: question.correctIndex,
+          acceptableAnswers: question.acceptableAnswers,
+          type: question.type,
+          userAnswer: null,
+        },
+        byok,
+      });
+      setHint(res.result.hint);
+    } catch (err) {
+      console.error("Failed to load hint:", err);
+      setHint("Failed to get hint. Try checking your key.");
+    } finally {
+      setLoadingHint(false);
+    }
+  };
 
   // Countdown timer for timed mode.
   useEffect(() => {
@@ -104,6 +142,7 @@ export function QuizPlayer({
     setIndex((i) => i + 1);
     setRevealed(false);
     setTextDraft("");
+    setHint(null);
   }, [answers, finish, isLast]);
 
   // Keyboard map: 1–4 select, Enter confirm/next, Escape exit (spec F3).
@@ -234,6 +273,27 @@ export function QuizPlayer({
               );
             })}
           </ul>
+        )}
+
+        {/* Hint Section */}
+        {!revealed && !quick && (
+          <div className="flex flex-col gap-2 pt-2 border-t border-line">
+            {hint ? (
+              <p className="text-sm italic text-highlight bg-highlight-tint p-3 rounded-md">
+                Hint: {hint}
+              </p>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                loading={loadingHint}
+                onClick={fetchHint}
+                className="self-start text-xs cursor-pointer animate-fade-in"
+              >
+                Need a hint?
+              </Button>
+            )}
+          </div>
         )}
 
         {/* Feedback */}

@@ -11,9 +11,10 @@ import { QuestionEditor } from "@/components/tool/QuestionEditor";
 import { SourceInput, type WorkspaceSource } from "@/components/tool/SourceInput";
 import { QuizPlayer, type PlaySession } from "@/components/player/QuizPlayer";
 import { QuizResults } from "@/components/player/QuizResults";
+import { runObjectCapability } from "@/lib/ai/client";
 import { generateFlashcards, generateQuiz } from "@/lib/generator";
 import { newId } from "@/lib/id";
-import { getHistoryEnabled } from "@/lib/prefs";
+import { getByokKey, getHistoryEnabled } from "@/lib/prefs";
 import { isCorrect, scoreQuiz } from "@/lib/scoring";
 import { decodeQuizPayload, SHARE_PREFIX } from "@/lib/share";
 import { getQuiz, saveDeck, saveQuiz, saveResult } from "@/lib/storage";
@@ -25,6 +26,20 @@ import {
   type QuizResult,
   SCHEMA_VERSION,
 } from "@/lib/types";
+
+interface RawQuestion {
+  type: Question["type"];
+  prompt: string;
+  options?: string[];
+  correctIndex?: number;
+  acceptableAnswers?: string[];
+  explanation?: string;
+}
+
+interface RawCard {
+  front: string;
+  back: string;
+}
 
 type Phase = "source" | "configure" | "review" | "deck" | "play" | "results";
 
@@ -71,36 +86,39 @@ export function ToolWorkspace() {
     if (bootstrapped.current) return;
     bootstrapped.current = true;
 
-    const hash = typeof window !== "undefined" ? window.location.hash : "";
-    if (hash.startsWith(SHARE_PREFIX)) {
-      try {
-        const shared = decodeQuizPayload(hash);
-        setQuiz(shared);
-        setPhase("review");
-        history.replaceState(null, "", window.location.pathname);
-        return;
-      } catch (err) {
-        setLoadError(err instanceof Error ? err.message : "This shared quiz couldn't be loaded.");
-        return;
-      }
-    }
-
-    const quizId = searchParams.get("quiz");
-    if (quizId) {
-      void getQuiz(quizId).then((found) => {
-        if (found) {
-          setQuiz(found);
-          setSaved(true);
+    window.setTimeout(() => {
+      const hash = typeof window !== "undefined" ? window.location.hash : "";
+      if (hash.startsWith(SHARE_PREFIX)) {
+        try {
+          const shared = decodeQuizPayload(hash);
+          setQuiz(shared);
           setPhase("review");
-        } else {
-          setLoadError("That quiz is no longer in your local library.");
+          history.replaceState(null, "", window.location.pathname);
+          return;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "This shared quiz couldn't be loaded.";
+          setLoadError(msg);
+          return;
         }
-      });
-    }
+      }
+
+      const quizId = searchParams.get("quiz");
+      if (quizId) {
+        void getQuiz(quizId).then((found) => {
+          if (found) {
+            setQuiz(found);
+            setSaved(true);
+            setPhase("review");
+          } else {
+            setLoadError("That quiz is no longer in your local library.");
+          }
+        });
+      }
+    }, 0);
   }, [searchParams]);
 
   const buildQuiz = useCallback(
-    (questions: Question[], src: WorkspaceSource, cfg: QuizConfigValues): Quiz => {
+    (questions: Question[], src: WorkspaceSource, cfg: QuizConfigValues, mode: "quick" | "ai"): Quiz => {
       const iso = nowIso();
       return {
         id: newId(),
@@ -109,7 +127,7 @@ export function ToolWorkspace() {
         createdAt: iso,
         updatedAt: iso,
         sourceName: src.name,
-        mode: "quick",
+        mode,
         timed: cfg.timed,
         timeLimitSec: cfg.timed ? cfg.timeLimitSec : null,
         schemaVersion: SCHEMA_VERSION,
@@ -123,46 +141,120 @@ export function ToolWorkspace() {
       if (!source) return;
       setGenerating(true);
       setWarnings([]);
-      // Let the button show its loading state before the (sync) generator runs.
-      window.setTimeout(() => {
-        if (req.output === "quiz") {
-          const result = generateQuiz(source.text, {
-            count: req.quiz.count,
-            types: req.quiz.types,
-            difficulty: req.quiz.difficulty,
-          });
-          setGenConfig(req.quiz);
-          setWarnings(result.warnings);
-          if (result.questions.length === 0) {
+
+      if (req.mode === "ai") {
+        const run = async () => {
+          try {
+            if (req.output === "quiz") {
+              const res = await runObjectCapability<{ questions: RawQuestion[] }>({
+                id: "quiz",
+                body: {
+                  text: source.text,
+                  count: req.quiz.count,
+                  types: req.quiz.types,
+                  difficulty: req.quiz.difficulty,
+                  audience: req.quiz.audience,
+                },
+                byok: req.byok,
+              });
+              const qs: Question[] = res.result.questions.map((q) => ({
+                id: newId(),
+                type: q.type,
+                prompt: q.prompt,
+                options: q.options || [],
+                correctIndex: q.correctIndex ?? -1,
+                acceptableAnswers: q.acceptableAnswers || [],
+                explanation: q.explanation || "",
+                source: "ai",
+              }));
+              setGenConfig(req.quiz);
+              setQuiz(buildQuiz(qs, source, req.quiz, "ai"));
+              setSaved(false);
+              setEdited(false);
+              setPhase("review");
+            } else {
+              const res = await runObjectCapability<{ cards: RawCard[] }>({
+                id: "flashcards",
+                body: {
+                  text: source.text,
+                  count: req.cardCount,
+                },
+                byok: req.byok,
+              });
+              const cards = res.result.cards.map((c) => ({
+                id: newId(),
+                front: c.front,
+                back: c.back,
+                source: "ai" as const,
+                due: new Date(0).toISOString(),
+                intervalDays: 0,
+                ease: 2.5,
+                reps: 0,
+                lapses: 0,
+              }));
+              const iso = nowIso();
+              setDeck({
+                id: newId(),
+                title: `${source.name} — deck`,
+                cards,
+                createdAt: iso,
+                updatedAt: iso,
+                sourceName: source.name,
+                mode: "ai",
+                schemaVersion: SCHEMA_VERSION,
+              });
+              setPhase("deck");
+            }
+          } catch (err) {
+            console.error("AI generation failed:", err);
+            const msg = err instanceof Error ? err.message : "AI generation failed. Try again or use Quick mode.";
+            setWarnings([msg]);
+          } finally {
             setGenerating(false);
-            return;
           }
-          setQuiz(buildQuiz(result.questions, source, req.quiz));
-          setSaved(false);
-          setEdited(false);
-          setPhase("review");
-        } else {
-          const result = generateFlashcards(source.text, req.cardCount);
-          setWarnings(result.warnings);
-          if (result.cards.length === 0) {
-            setGenerating(false);
-            return;
+        };
+        void run();
+      } else {
+        window.setTimeout(() => {
+          if (req.output === "quiz") {
+            const result = generateQuiz(source.text, {
+              count: req.quiz.count,
+              types: req.quiz.types,
+              difficulty: req.quiz.difficulty,
+            });
+            setGenConfig(req.quiz);
+            setWarnings(result.warnings);
+            if (result.questions.length === 0) {
+              setGenerating(false);
+              return;
+            }
+            setQuiz(buildQuiz(result.questions, source, req.quiz, "quick"));
+            setSaved(false);
+            setEdited(false);
+            setPhase("review");
+          } else {
+            const result = generateFlashcards(source.text, req.cardCount);
+            setWarnings(result.warnings);
+            if (result.cards.length === 0) {
+              setGenerating(false);
+              return;
+            }
+            const iso = nowIso();
+            setDeck({
+              id: newId(),
+              title: `${source.name} — deck`,
+              cards: result.cards,
+              createdAt: iso,
+              updatedAt: iso,
+              sourceName: source.name,
+              mode: "quick",
+              schemaVersion: SCHEMA_VERSION,
+            });
+            setPhase("deck");
           }
-          const iso = nowIso();
-          setDeck({
-            id: newId(),
-            title: `${source.name} — deck`,
-            cards: result.cards,
-            createdAt: iso,
-            updatedAt: iso,
-            sourceName: source.name,
-            mode: "quick",
-            schemaVersion: SCHEMA_VERSION,
-          });
-          setPhase("deck");
-        }
-        setGenerating(false);
-      }, 30);
+          setGenerating(false);
+        }, 30);
+      }
     },
     [buildQuiz, source],
   );
@@ -220,33 +312,79 @@ export function ToolWorkspace() {
       const target = quiz.questions.find((q) => q.id === id);
       if (!target) return;
       setRegeneratingId(id);
-      window.setTimeout(() => {
-        const existing = new Set(
-          quiz.questions.filter((q) => q.id !== id).map((q) => normalizePrompt(q.prompt)),
-        );
-        existing.add(normalizePrompt(target.prompt));
-        const pool = generateQuiz(source.text, {
-          count: quiz.questions.length + 10,
-          types: [target.type],
-          difficulty: genConfig.difficulty,
-        }).questions;
-        const replacement = pool.find((q) => !existing.has(normalizePrompt(q.prompt)));
-        if (replacement) {
-          setQuiz((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  questions: prev.questions.map((q) => (q.id === id ? replacement : q)),
-                  updatedAt: nowIso(),
-                }
-              : prev,
+
+      if (quiz.mode === "ai") {
+        const run = async () => {
+          try {
+            const byok = getByokKey();
+            const res = await runObjectCapability<RawQuestion>({
+              id: "regenerate-one",
+              body: {
+                text: source.text,
+                type: target.type,
+                difficulty: genConfig.difficulty,
+                existingPrompts: quiz.questions.map((q) => q.prompt),
+              },
+              byok,
+            });
+            const q = res.result;
+            const replacement: Question = {
+              id: newId(),
+              type: q.type,
+              prompt: q.prompt,
+              options: q.options || [],
+              correctIndex: q.correctIndex ?? -1,
+              acceptableAnswers: q.acceptableAnswers || [],
+              explanation: q.explanation || "",
+              source: "ai",
+            };
+            setQuiz((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    questions: prev.questions.map((item) => (item.id === id ? replacement : item)),
+                    updatedAt: nowIso(),
+                  }
+                : prev,
+            );
+            setSaved(false);
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : "Failed to regenerate question using AI.";
+            setWarnings([msg]);
+          } finally {
+            setRegeneratingId(null);
+          }
+        };
+        void run();
+      } else {
+        window.setTimeout(() => {
+          const existing = new Set(
+            quiz.questions.filter((q) => q.id !== id).map((q) => normalizePrompt(q.prompt)),
           );
-          setSaved(false);
-        } else {
-          setWarnings(["Couldn't find a different question for that slot from this source."]);
-        }
-        setRegeneratingId(null);
-      }, 30);
+          existing.add(normalizePrompt(target.prompt));
+          const pool = generateQuiz(source.text, {
+            count: quiz.questions.length + 10,
+            types: [target.type],
+            difficulty: genConfig.difficulty,
+          }).questions;
+          const replacement = pool.find((q) => !existing.has(normalizePrompt(q.prompt)));
+          if (replacement) {
+            setQuiz((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    questions: prev.questions.map((q) => (q.id === id ? replacement : q)),
+                    updatedAt: nowIso(),
+                  }
+                : prev,
+            );
+            setSaved(false);
+          } else {
+            setWarnings(["Couldn't find a different question for that slot from this source."]);
+          }
+          setRegeneratingId(null);
+        }, 30);
+      }
     },
     [genConfig, quiz, source],
   );
@@ -255,22 +393,63 @@ export function ToolWorkspace() {
     if (!source || !quiz || !genConfig) return;
     setRegeneratingAll(true);
     setConfirmRegenAll(false);
-    window.setTimeout(() => {
-      const result = generateQuiz(source.text, {
-        count: genConfig.count,
-        types: genConfig.types,
-        difficulty: genConfig.difficulty,
-      });
-      setWarnings(result.warnings);
-      if (result.questions.length > 0) {
-        setQuiz((prev) =>
-          prev ? { ...prev, questions: result.questions, updatedAt: nowIso() } : prev,
-        );
-        setEdited(false);
-        setSaved(false);
-      }
-      setRegeneratingAll(false);
-    }, 30);
+
+    if (quiz.mode === "ai") {
+      const run = async () => {
+        try {
+          const byok = getByokKey();
+          const res = await runObjectCapability<{ questions: RawQuestion[] }>({
+            id: "quiz",
+            body: {
+              text: source.text,
+              count: genConfig.count,
+              types: genConfig.types,
+              difficulty: genConfig.difficulty,
+              audience: genConfig.audience || "university",
+            },
+            byok,
+          });
+          const qs: Question[] = res.result.questions.map((q) => ({
+            id: newId(),
+            type: q.type,
+            prompt: q.prompt,
+            options: q.options || [],
+            correctIndex: q.correctIndex ?? -1,
+            acceptableAnswers: q.acceptableAnswers || [],
+            explanation: q.explanation || "",
+            source: "ai",
+          }));
+          setQuiz((prev) =>
+            prev ? { ...prev, questions: qs, updatedAt: nowIso() } : prev,
+          );
+          setEdited(false);
+          setSaved(false);
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "Failed to regenerate quiz using AI.";
+          setWarnings([msg]);
+        } finally {
+          setRegeneratingAll(false);
+        }
+      };
+      void run();
+    } else {
+      window.setTimeout(() => {
+        const result = generateQuiz(source.text, {
+          count: genConfig.count,
+          types: genConfig.types,
+          difficulty: genConfig.difficulty,
+        });
+        setWarnings(result.warnings);
+        if (result.questions.length > 0) {
+          setQuiz((prev) =>
+            prev ? { ...prev, questions: result.questions, updatedAt: nowIso() } : prev,
+          );
+          setEdited(false);
+          setSaved(false);
+        }
+        setRegeneratingAll(false);
+      }, 30);
+    }
   }, [genConfig, quiz, source]);
 
   const handleRegenerateAll = useCallback(() => {

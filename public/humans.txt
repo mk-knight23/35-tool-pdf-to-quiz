@@ -1,0 +1,15 @@
+/* TEAM */
+Creator: Kazi Musharraf
+Role: AI Engineer & Full-Stack Developer
+Portfolio: https://www.mkazi.live
+GitHub: https://github.com/mk-knight23
+
+/* THANKS */
+Google DeepMind
+Vercel AI SDK team
+Tailwind CSS team
+Next.js community
+
+/* SITE */
+Standards: Next.js App Router, TypeScript Strict, Tailwind CSS v4, Local IndexedDB
+Software: MIT License

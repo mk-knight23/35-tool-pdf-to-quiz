@@ -76,3 +76,31 @@ export function applyTheme(mode: ThemeMode): void {
   if (typeof document === "undefined") return;
   document.documentElement.classList.toggle("dark", resolveDark(mode));
 }
+
+const SESSION_KEYS = {
+  byok: "quizflow.byok",
+} as const;
+
+export function getByokKey(): string | null {
+  if (typeof window === "undefined" || typeof window.sessionStorage === "undefined") return null;
+  try {
+    return window.sessionStorage.getItem(SESSION_KEYS.byok);
+  } catch {
+    return null;
+  }
+}
+
+export function setByokKey(key: string): void {
+  if (typeof window === "undefined" || typeof window.sessionStorage === "undefined") return;
+  try {
+    window.sessionStorage.setItem(SESSION_KEYS.byok, key);
+  } catch {}
+}
+
+export function clearByokKey(): void {
+  if (typeof window === "undefined" || typeof window.sessionStorage === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(SESSION_KEYS.byok);
+  } catch {}
+}
+

@@ -1,0 +1,16 @@
+# MK QuizFlow
+
+MK QuizFlow is a privacy-first, local-first web application designed to turn PDF slides and study notes into quizzes and flashcards.
+
+## Key Features
+- **Local-First Processing**: Browser-side PDF text extraction using pdf.js. No document upload is saved on the server.
+- **Quick Mode**: Heuristic keyword-matching questions generated locally without AI keys or network calls.
+- **AI Mode**: Context-aware multiple choice, true/false, fill-in-the-blanks, and short answer question sets using the Vercel AI SDK and Vercel AI Gateway.
+- **SRS Flashcards**: Spaced repetition self-grading flashcards (Again, Hard, Good, Easy) stored in IndexedDB.
+- **Weak-Topic Analysis**: Educational synthesis of incorrect player answers into topic strength matrices.
+
+## Tech Stack
+- Next.js 16 (App Router)
+- Strict TypeScript & Tailwind CSS v4
+- IndexedDB via idb package
+- Vercel AI SDK

@@ -1,15 +1,18 @@
 "use client";
 
 import { GraduationCap, Layers, Sparkles } from "lucide-react";
-import { useId, useState } from "react";
+import { useId, useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { QuickModeBadge } from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
+import { getByokKey, setByokKey } from "@/lib/prefs";
 import {
   DIFFICULTY_LABELS,
   type Difficulty,
   QUESTION_TYPE_LABELS,
   type QuestionType,
+  type GenMode,
+  type Audience,
 } from "@/lib/types";
 
 export type OutputType = "quiz" | "flashcards";
@@ -18,14 +21,17 @@ export interface QuizConfigValues {
   count: number;
   types: QuestionType[];
   difficulty: Difficulty;
+  audience: Audience;
   timed: boolean;
   timeLimitSec: number;
 }
 
 export interface GenerateRequest {
   output: OutputType;
+  mode: GenMode;
   quiz: QuizConfigValues;
   cardCount: number;
+  byok: string | null;
 }
 
 const ALL_TYPES: QuestionType[] = ["mcq", "tf", "short", "fill"];
@@ -40,17 +46,28 @@ interface GenerateConfigProps {
 
 export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: GenerateConfigProps) {
   const [output, setOutput] = useState<OutputType>("quiz");
+  const [mode, setMode] = useState<GenMode>("quick");
   const [count, setCount] = useState(10);
   const [types, setTypes] = useState<QuestionType[]>(["mcq", "fill"]);
   const [difficulty, setDifficulty] = useState<Difficulty>("mixed");
+  const [audience, setAudience] = useState<Audience>("university");
   const [timed, setTimed] = useState(false);
   const [timeLimitMin, setTimeLimitMin] = useState(10);
   const [cardCount, setCardCount] = useState(15);
+  const [byok, setByok] = useState("");
 
   const countId = useId();
   const difficultyId = useId();
+  const audienceId = useId();
   const timeId = useId();
   const cardCountId = useId();
+
+  useEffect(() => {
+    const k = getByokKey() || "";
+    window.setTimeout(() => {
+      setByok(k);
+    }, 0);
+  }, []);
 
   const toggleType = (type: QuestionType) => {
     setTypes((prev) =>
@@ -58,7 +75,8 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
     );
   };
 
-  const canGenerate = output === "flashcards" || types.length > 0;
+  const hasKey = mode === "quick" || byok.trim().length > 0;
+  const canGenerate = (output === "flashcards" || types.length > 0) && hasKey;
 
   return (
     <section aria-labelledby="config-heading" className="flex flex-col gap-6">
@@ -71,8 +89,75 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
             <span className="font-mono">{wordCount}</span> words of source ready.
           </p>
         </div>
-        <QuickModeBadge />
+        {mode === "quick" ? (
+          <QuickModeBadge />
+        ) : (
+          <span className="inline-flex items-center gap-1 rounded-sm bg-accent-tint px-2 py-1 text-2xs font-semibold uppercase tracking-[0.08em] text-accent">
+            <Sparkles size={11} className="shrink-0" /> AI Mode
+          </span>
+        )}
       </div>
+
+      {/* Generation Mode Selector */}
+      <fieldset className="flex flex-col gap-2">
+        <legend className="text-sm font-medium text-ink">Generation Mode</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setMode("quick")}
+            className={cn(
+              "flex flex-col gap-1 rounded-md border p-3 text-left transition-colors cursor-pointer",
+              mode === "quick"
+                ? "border-accent bg-accent-tint"
+                : "border-line-strong bg-surface-2 hover:border-ink-muted"
+            )}
+          >
+            <span className="font-display font-semibold text-sm text-ink">Quick mode (no AI)</span>
+            <span className="text-xs text-ink-secondary">
+              Deterministic, uses sentence heuristics. Fully offline, no keys needed.
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("ai")}
+            className={cn(
+              "flex flex-col gap-1 rounded-md border p-3 text-left transition-colors cursor-pointer",
+              mode === "ai"
+                ? "border-accent bg-accent-tint"
+                : "border-line-strong bg-surface-2 hover:border-ink-muted"
+            )}
+          >
+            <span className="font-display font-semibold text-sm text-ink flex items-center gap-1.5">
+              <Sparkles size={14} className="text-accent" /> AI mode
+            </span>
+            <span className="text-xs text-ink-secondary">
+              Uses high-quality language models to parse, reword, and structure concepts.
+            </span>
+          </button>
+        </div>
+      </fieldset>
+
+      {/* BYOK Input Inline warning */}
+      {mode === "ai" && !byok && (
+        <div className="flex flex-col gap-2 rounded-md border border-warning bg-warning-tint p-4 text-sm text-ink">
+          <p className="font-semibold text-warning">Bring your own API key to use AI mode</p>
+          <p className="text-ink-secondary text-xs">
+            No server credentials are configured in local environment. Please enter your API key to proceed. It is held client-side in session memory only.
+          </p>
+          <div className="flex gap-2 max-w-sm mt-1">
+            <input
+              type="password"
+              placeholder="e.g. sk-or-v1-..."
+              value={byok}
+              onChange={(e) => {
+                setByok(e.target.value);
+                setByokKey(e.target.value);
+              }}
+              className="flex-1 rounded-sm border border-line-strong bg-raised px-2.5 py-1 text-xs text-ink outline-none focus:border-accent"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Output type */}
       <fieldset className="flex flex-col gap-2">
@@ -146,22 +231,42 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={difficultyId} className="text-sm font-medium text-ink">
-                Difficulty
-              </label>
-              <select
-                id={difficultyId}
-                value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-                className="min-h-11 rounded-sm border border-line-strong bg-surface-2 px-3 text-sm text-ink outline-none hover:border-ink-muted focus:border-accent"
-              >
-                {DIFFICULTIES.map((d) => (
-                  <option key={d} value={d}>
-                    {DIFFICULTY_LABELS[d]}
-                  </option>
-                ))}
-              </select>
+            <div className="flex flex-col gap-5 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor={difficultyId} className="text-sm font-medium text-ink">
+                  Difficulty
+                </label>
+                <select
+                  id={difficultyId}
+                  value={difficulty}
+                  onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+                  className="min-h-11 rounded-sm border border-line-strong bg-surface-2 px-3 text-sm text-ink outline-none hover:border-ink-muted focus:border-accent"
+                >
+                  {DIFFICULTIES.map((d) => (
+                    <option key={d} value={d}>
+                      {DIFFICULTY_LABELS[d]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {mode === "ai" ? (
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor={audienceId} className="text-sm font-medium text-ink">
+                    Target Audience Level
+                  </label>
+                  <select
+                    id={audienceId}
+                    value={audience}
+                    onChange={(e) => setAudience(e.target.value as Audience)}
+                    className="min-h-11 rounded-sm border border-line-strong bg-surface-2 px-3 text-sm text-ink outline-none hover:border-ink-muted focus:border-accent"
+                  >
+                    <option value="school">School / K-12</option>
+                    <option value="university">University / Higher Ed</option>
+                    <option value="professional">Professional / Certification</option>
+                  </select>
+                </div>
+              ) : null}
             </div>
           </div>
 
@@ -218,8 +323,10 @@ export function GenerateConfig({ wordCount, generating, onBack, onGenerate }: Ge
           onClick={() =>
             onGenerate({
               output,
-              quiz: { count, types, difficulty, timed, timeLimitSec: timeLimitMin * 60 },
+              mode,
+              quiz: { count, types, difficulty, audience, timed, timeLimitSec: timeLimitMin * 60 },
               cardCount,
+              byok: mode === "ai" ? byok || null : null,
             })
           }
         >

@@ -23,6 +23,7 @@
     "postinstall": "node scripts/copy-pdf-worker.mjs"
   },
   "dependencies": {
+    "ai": "^7.0.29",
     "clsx": "^2.1.1",
     "idb": "^8.0.3",
     "lucide-react": "^1.25.0",

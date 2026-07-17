@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AnalyticsScripts } from "@/components/layout/AnalyticsScripts";
 import { ConsentBanner } from "@/components/layout/ConsentBanner";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ThemeScript } from "@/components/layout/ThemeScript";
+import { VercelAnalytics } from "@/components/layout/VercelAnalytics";
 import { CREATOR, SITE } from "@/lib/site";
 import "./globals.css";
 
@@ -81,20 +80,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             />
           )}
       </head>
-      <body className="flex min-h-dvh flex-col bg-surface text-ink antialiased relative overflow-x-hidden">
-        {/* Floating animated blobs */}
-        <div className="qf-blob qf-blob-1" aria-hidden="true" />
-        <div className="qf-blob qf-blob-2" aria-hidden="true" />
-        <div className="qf-blob qf-blob-3" aria-hidden="true" />
-
+      <body className="flex min-h-dvh flex-col bg-surface text-ink antialiased overflow-x-hidden">
         <a href="#main-content" className="qf-skip-link">
           Skip to content
         </a>
-        
-        {/* Outer Glass Shell Container */}
-        <div className="mx-auto sm:my-4 md:my-8 w-full max-w-6xl flex-1 flex flex-col md:flex-row rounded-none sm:rounded-2xl md:rounded-3xl border border-white/20 dark:border-white/10 bg-white/10 dark:bg-slate-950/15 backdrop-blur-2xl shadow-overlay overflow-hidden relative z-10">
+
+        {/* Content shell — solid paper surface, no glass/blur (DESIGN §13) */}
+        <div className="mx-auto sm:my-4 md:my-8 w-full max-w-6xl flex-1 flex flex-col md:flex-row rounded-none sm:rounded-2xl md:rounded-3xl border border-line bg-surface-2 shadow-paper overflow-hidden">
           <SiteHeader />
-          <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-white/5 dark:bg-slate-950/5">
+          <div className="flex-1 flex flex-col min-w-0 min-h-0">
             <main id="main-content" className="flex-1 px-4 py-6 sm:px-6 md:py-8 lg:px-8 overflow-y-auto">
               {children}
             </main>
@@ -106,9 +100,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ConsentBanner />
         <AnalyticsScripts />
 
-        {/* Vercel Web Analytics and Speed Insights */}
-        <Analytics />
-        <SpeedInsights />
+        {/* Consent-gated Vercel Web Analytics + Speed Insights (STANDARDS §6) */}
+        <VercelAnalytics />
       </body>
     </html>
   );

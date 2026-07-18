@@ -2,6 +2,13 @@
 
 All notable updates to the MK QuizFlow workspace are documented here.
 
+## [Unreleased]
+
+### Repo consolidation & docs
+- Removed the GitHub Actions CI workflow (`.github/workflows/ci.yml`) — this is now a single-branch repo and verification runs locally (`pnpm typecheck`/`lint`/`test`/`build` + Playwright smoke).
+- Moved the deep reference docs into `docs/` (architecture, AI architecture, database, deployment, privacy, security, product spec, design system, analytics/SEO/monetization plans, audit, test report). `README`, `LICENSE` and `CHANGELOG` stay at the root.
+- Rewrote `README.md` as the primary doc: features, screenshots, a documented `src/` tree, environment-variable table, privacy summary, and a step-by-step Vercel deployment + custom-domain launch guide.
+
 ## [2.0.0] - 2026-07-17
 
 ### Testing, CI & docs

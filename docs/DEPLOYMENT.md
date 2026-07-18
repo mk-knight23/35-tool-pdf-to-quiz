@@ -3,8 +3,8 @@
 This document details the build and deployment processes.
 
 ## Build Requirements
-- Node.js >= 26.5.0
-- pnpm >= 11.12.0
+- Node.js >= 20 (Next.js 16 requires Node 20.9+)
+- pnpm >= 9
 
 ## Local Build Pipeline
 Before release, verify correct compilation via local builds:
@@ -18,12 +18,13 @@ pnpm exec next start --port 3101   # production smoke (only local port used)
 pnpm exec playwright test          # e2e smoke against port 3101
 ```
 
-## Continuous integration
-`.github/workflows/ci.yml` runs on pushes to `main`/`rebuild/**` and PRs to `main`:
-1. **verify** — typecheck → lint → vitest + coverage → build.
-2. **gitleaks** — secret scan over full history.
-3. **audit** — `pnpm audit --prod` report (non-blocking).
-4. **e2e** — Playwright smoke (installs chromium, builds, runs on port 3101; non-blocking).
+## Verification (run locally before shipping)
+This repo has no hosted CI — GitHub Actions was intentionally removed during the
+single-branch consolidation. Run the same gates by hand before deploying:
+1. **verify** — `pnpm typecheck` → `pnpm lint` → `pnpm test` (+ `pnpm test:coverage`) → `pnpm build`.
+2. **secrets** — keep credentials out of the tree; only `.env.example` is committed.
+3. **audit** — `pnpm audit --prod` (advisory, non-blocking).
+4. **e2e** — `pnpm exec playwright test` (builds and runs the smoke on port 3101).
 
 ## Hosting
 - Target: Vercel (orchestrated under `kazi-reprime` organization).

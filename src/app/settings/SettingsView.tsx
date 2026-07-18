@@ -395,7 +395,7 @@ export function SettingsView() {
             to <code className="font-mono">true</code> and a publisher id in{" "}
             <code className="font-mono">NEXT_PUBLIC_ADSENSE_CLIENT_ID</code>. Until both are set,
             nothing is requested from any ad network and no ad space is reserved. See
-            MONETIZATION_PLAN.md for the intended placements.
+            docs/MONETIZATION_PLAN.md for the intended placements.
           </p>
           <div className="rounded-xl border border-line bg-surface-2 p-4 flex items-center justify-between gap-2">
             <span className="font-semibold text-xs text-ink">Google AdSense</span>

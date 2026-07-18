@@ -213,8 +213,6 @@ If QuizFlow graduates to its own domain (candidate: `mkquizflow.com`):
 1. Buy the domain and add it in **Settings → Domains** as the new primary, pointing its apex `A` record to `76.76.21.21` (and a `CNAME` for `www` to `cname.vercel-dns.com`).
 2. Keep `quizflow.mkazi.live` attached and set it to **redirect** to the new primary domain in Vercel's domain settings, so old links keep working.
 
-Netlify and Cloudflare Pages can also host a Next.js app and are viable alternatives, but Vercel is the supported path here.
-
 ## Roadmap
 
 - Wire the production AI Gateway key so shared-allowance AI mode is live on the deployment.

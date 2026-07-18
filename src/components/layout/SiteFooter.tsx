@@ -1,7 +1,7 @@
 import { Globe, GitBranch } from "lucide-react";
 import Link from "next/link";
 import { GitHubIcon } from "@/components/ui/icons";
-import { CREATOR, FOOTER_SENTENCE, NAV_LINKS, SITE } from "@/lib/site";
+import { CREATOR, FOOTER_SENTENCE, PRIMARY_LINKS, SECONDARY_LINKS, SITE } from "@/lib/site";
 
 /** Footer present on every route. Carries the exact creator sentence (STANDARDS §3). */
 export function SiteFooter() {
@@ -16,7 +16,7 @@ export function SiteFooter() {
         </div>
 
         <nav aria-label="Footer" className="flex flex-col gap-2 text-xs">
-          {NAV_LINKS.map((link) => (
+          {[...PRIMARY_LINKS, ...SECONDARY_LINKS].map((link) => (
             <Link key={link.href} href={link.href} className="text-ink-secondary hover:text-ink">
               {link.label}
             </Link>

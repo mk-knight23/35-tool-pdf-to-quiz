@@ -20,9 +20,15 @@ export const CREATOR = {
 /** The exact footer sentence required on every public route (STANDARDS §3). */
 export const FOOTER_SENTENCE = "Built and maintained by Kazi Musharraf. Open source for everyone.";
 
-export const NAV_LINKS: { href: string; label: string }[] = [
-  { href: "/tool", label: "Create" },
+export const PRIMARY_LINKS = [
+  { href: "/", label: "Create Quiz" },
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/guides", label: "Guides" },
+];
+
+export const SECONDARY_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/history", label: "History" },
   { href: "/settings", label: "Settings" },
 ];
+

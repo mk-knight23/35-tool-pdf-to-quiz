@@ -1,14 +1,13 @@
 "use client";
 
-import { AlertCircle, Layers, Loader2 } from "lucide-react";
+import { AlertCircle, Layers } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { QuickModeBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { GenerateConfig, type GenerateRequest, type QuizConfigValues } from "@/components/tool/GenerateConfig";
 import { QuestionEditor } from "@/components/tool/QuestionEditor";
-import { SourceInput, type WorkspaceSource } from "@/components/tool/SourceInput";
+import { SourceInput, type GenerateRequest, type QuizConfigValues, type WorkspaceSource } from "@/components/tool/SourceInput";
 import { QuizPlayer, type PlaySession } from "@/components/player/QuizPlayer";
 import { QuizResults } from "@/components/player/QuizResults";
 import { AiClientError, runObjectCapability } from "@/lib/ai/client";
@@ -19,7 +18,6 @@ import { getByokKey, getHistoryEnabled } from "@/lib/prefs";
 import { isCorrect, scoreQuiz } from "@/lib/scoring";
 import { decodeQuizPayload, SHARE_PREFIX } from "@/lib/share";
 import { getQuiz, saveDeck, saveQuiz, saveResult } from "@/lib/storage";
-import { wordCount } from "@/lib/text";
 import {
   type Deck,
   type Question,
@@ -42,7 +40,7 @@ interface RawCard {
   back: string;
 }
 
-type Phase = "source" | "configure" | "review" | "deck" | "play" | "results";
+type Phase = "source" | "review" | "deck" | "play" | "results";
 
 function normalizePrompt(s: string): string {
   return s
@@ -148,8 +146,8 @@ export function ToolWorkspace() {
   );
 
   const handleGenerate = useCallback(
-    (req: GenerateRequest) => {
-      if (!source) return;
+    (src: WorkspaceSource, req: GenerateRequest) => {
+      setSource(src);
       setGenerating(true);
       setWarnings([]);
       track("tool_started", { mode: req.mode, output: req.output });
@@ -164,7 +162,7 @@ export function ToolWorkspace() {
               const res = await runObjectCapability<{ questions: RawQuestion[] }>({
                 id: "quiz",
                 body: {
-                  text: source.text,
+                  text: src.text,
                   count: req.quiz.count,
                   types: req.quiz.types,
                   difficulty: req.quiz.difficulty,
@@ -184,15 +182,22 @@ export function ToolWorkspace() {
                 source: "ai",
               }));
               setGenConfig(req.quiz);
-              setQuiz(buildQuiz(qs, source, req.quiz, "ai"));
+              const qz = buildQuiz(qs, src, req.quiz, "ai");
+              setQuiz(qz);
               setSaved(false);
               setEdited(false);
-              setPhase("review");
+              
+              if (req.previewBeforePlay) {
+                setPhase("review");
+              } else {
+                setPlayQuestions(qs);
+                setPhase("play");
+              }
             } else {
               const res = await runObjectCapability<{ cards: RawCard[] }>({
                 id: "flashcards",
                 body: {
-                  text: source.text,
+                  text: src.text,
                   count: req.cardCount,
                 },
                 byok: req.byok,
@@ -212,11 +217,11 @@ export function ToolWorkspace() {
               const iso = nowIso();
               setDeck({
                 id: newId(),
-                title: `${source.name} — deck`,
+                title: `${src.name} — deck`,
                 cards,
                 createdAt: iso,
                 updatedAt: iso,
-                sourceName: source.name,
+                sourceName: src.name,
                 mode: "ai",
                 schemaVersion: SCHEMA_VERSION,
               });
@@ -226,7 +231,6 @@ export function ToolWorkspace() {
             track("tool_completed", { mode: "ai", output: req.output });
           } catch (err) {
             if (isAbortError(err)) {
-              // User cancelled — not a failure. Leave them on the config screen.
               setWarnings(["Generation cancelled."]);
               return;
             }
@@ -246,7 +250,7 @@ export function ToolWorkspace() {
       } else {
         window.setTimeout(() => {
           if (req.output === "quiz") {
-            const result = generateQuiz(source.text, {
+            const result = generateQuiz(src.text, {
               count: req.quiz.count,
               types: req.quiz.types,
               difficulty: req.quiz.difficulty,
@@ -258,13 +262,20 @@ export function ToolWorkspace() {
               setGenerating(false);
               return;
             }
-            setQuiz(buildQuiz(result.questions, source, req.quiz, "quick"));
+            const qz = buildQuiz(result.questions, src, req.quiz, "quick");
+            setQuiz(qz);
             setSaved(false);
             setEdited(false);
-            setPhase("review");
+            
+            if (req.previewBeforePlay) {
+              setPhase("review");
+            } else {
+              setPlayQuestions(result.questions);
+              setPhase("play");
+            }
             track("tool_completed", { mode: "quick", output: "quiz" });
           } else {
-            const result = generateFlashcards(source.text, req.cardCount);
+            const result = generateFlashcards(src.text, req.cardCount);
             setWarnings(result.warnings);
             if (result.cards.length === 0) {
               track("tool_failed", { mode: "quick", output: "flashcards" });
@@ -274,11 +285,11 @@ export function ToolWorkspace() {
             const iso = nowIso();
             setDeck({
               id: newId(),
-              title: `${source.name} — deck`,
+              title: `${src.name} — deck`,
               cards: result.cards,
               createdAt: iso,
               updatedAt: iso,
-              sourceName: source.name,
+              sourceName: src.name,
               mode: "quick",
               schemaVersion: SCHEMA_VERSION,
             });
@@ -289,7 +300,7 @@ export function ToolWorkspace() {
         }, 30);
       }
     },
-    [buildQuiz, source],
+    [buildQuiz],
   );
 
   const handleCancelGenerate = useCallback(() => {
@@ -552,7 +563,7 @@ export function ToolWorkspace() {
 
   if (loadError) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-lg border border-error bg-error-tint p-8 text-center">
+      <div className="flex flex-col items-center gap-4 rounded-lg border border-error bg-error-tint p-8 text-center animate-fade-in">
         <AlertCircle size={28} className="text-error" aria-hidden />
         <p className="text-ink">{loadError}</p>
         <Button
@@ -569,8 +580,8 @@ export function ToolWorkspace() {
 
   return (
     <div className="flex flex-col gap-6">
-      {warnings.length > 0 && (phase === "configure" || phase === "review") ? (
-        <div className="flex flex-col gap-1 rounded-md border border-warning bg-warning-tint p-3 text-sm text-ink">
+      {warnings.length > 0 && (phase === "review") ? (
+        <div className="flex flex-col gap-1 rounded-md border border-warning bg-warning-tint p-3 text-sm text-ink animate-fade-in">
           {warnings.map((w) => (
             <p key={w} className="flex items-start gap-2">
               <AlertCircle size={15} className="mt-0.5 shrink-0 text-warning" aria-hidden />
@@ -580,15 +591,11 @@ export function ToolWorkspace() {
         </div>
       ) : null}
 
-      {phase === "source" ? <SourceInput onReady={(s) => { setSource(s); setPhase("configure"); }} /> : null}
-
-      {phase === "configure" && source ? (
-        <GenerateConfig
-          wordCount={wordCount(source.text)}
+      {phase === "source" ? (
+        <SourceInput
           generating={generating}
-          onBack={() => setPhase("source")}
           onGenerate={handleGenerate}
-          onCancel={handleCancelGenerate}
+          onCancelGenerate={handleCancelGenerate}
         />
       ) : null}
 
@@ -609,12 +616,12 @@ export function ToolWorkspace() {
           onRegenerateAll={handleRegenerateAll}
           onPlay={() => startPlay(quiz.questions)}
           onSave={handleSave}
-          onBack={() => setPhase(source ? "configure" : "source")}
+          onBack={() => setPhase("source")}
         />
       ) : null}
 
       {phase === "deck" && deck ? (
-        <section className="flex flex-col gap-5">
+        <section className="flex flex-col gap-5 animate-fade-in">
           <div className="flex items-center justify-between gap-3">
             <h2 className="font-display text-2xl text-ink">Your flashcard deck</h2>
             <QuickModeBadge />
@@ -635,8 +642,8 @@ export function ToolWorkspace() {
             <Button loading={deckSaving} onClick={handleSaveDeck}>
               <Layers size={16} strokeWidth={2} aria-hidden /> Save deck &amp; study
             </Button>
-            <Button variant="ghost" onClick={() => setPhase("configure")}>
-              Back to configure
+            <Button variant="ghost" onClick={() => setPhase("source")}>
+              Back to edit notes
             </Button>
           </div>
         </section>
@@ -666,12 +673,6 @@ export function ToolWorkspace() {
           }
           onDone={() => setPhase("review")}
         />
-      ) : null}
-
-      {generating && phase === "configure" ? (
-        <p className="inline-flex items-center gap-2 text-sm text-ink-secondary">
-          <Loader2 size={16} className="animate-spin" aria-hidden /> Generating…
-        </p>
       ) : null}
 
       <ConfirmDialog

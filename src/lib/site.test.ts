@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { CREATOR, FOOTER_SENTENCE, NAV_LINKS, SITE } from "./site";
+import { CREATOR, FOOTER_SENTENCE, PRIMARY_LINKS, SECONDARY_LINKS, SITE } from "./site";
 
 describe("site + creator identity (STANDARDS §3)", () => {
   test("uses the exact required footer sentence", () => {
@@ -22,12 +22,13 @@ describe("site + creator identity (STANDARDS §3)", () => {
     expect(SITE.url.startsWith("http")).toBe(true);
   });
 
-  test("provides the primary navigation links", () => {
+  test("provides the navigation links", () => {
     // Act
-    const hrefs = NAV_LINKS.map((l) => l.href);
+    const primaryHrefs = PRIMARY_LINKS.map((l) => l.href);
+    const secondaryHrefs = SECONDARY_LINKS.map((l) => l.href);
 
     // Assert
-    expect(hrefs).toContain("/tool");
-    expect(hrefs).toContain("/dashboard");
+    expect(primaryHrefs).toContain("/");
+    expect(secondaryHrefs).toContain("/dashboard");
   });
 });

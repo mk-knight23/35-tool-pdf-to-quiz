@@ -29,33 +29,34 @@ async function dismissConsent(page: Page): Promise<void> {
   }
 }
 
-async function pasteAndConfigure(page: Page): Promise<void> {
-  await page.goto("/tool");
+async function pasteAndStartBasic(page: Page): Promise<void> {
+  await page.goto("/");
   await dismissConsent(page);
 
-  // Source step: paste text and continue.
-  await page.getByLabel("Text or markdown").fill(SOURCE_TEXT);
-  await page.getByRole("button", { name: "Use this text" }).click();
-
-  // Configure step defaults to Quick mode (no AI); confirm the badge is shown.
-  await expect(page.getByText("Quick mode (no AI)").first()).toBeVisible();
+  // Source step: paste text
+  await page.getByLabel("Notes, text or markdown").fill(SOURCE_TEXT);
+  // Click "Create a quiz" directly (sensible defaults, quick mode)
+  await page.getByRole("button", { name: "Create a quiz" }).click();
 }
 
 test("generates and plays a Quick-mode quiz by pointer to a score", async ({ page }) => {
-  await pasteAndConfigure(page);
-
-  await page.getByRole("button", { name: "Generate quiz" }).click();
-
-  // Review step: the editor appears; start playing.
-  await page.getByRole("button", { name: "Play quiz" }).click();
+  await pasteAndStartBasic(page);
 
   // Player: answer each question until results appear.
   const results = page.locator('section[aria-label^="Results for"]');
   for (let i = 0; i < 30; i++) {
-    if (await results.isVisible().catch(() => false)) break;
-
     const option = page.getByRole("option").first();
     const textInput = page.getByLabel("Your answer");
+
+    // Wait for the active question UI to load
+    await Promise.any([
+      option.waitFor({ state: "visible", timeout: 5000 }).catch(() => {}),
+      textInput.waitFor({ state: "visible", timeout: 5000 }).catch(() => {}),
+      results.waitFor({ state: "visible", timeout: 5000 }).catch(() => {})
+    ]);
+
+    if (await results.isVisible().catch(() => false)) break;
+
     if (await option.isVisible().catch(() => false)) {
       await option.click();
     } else if (await textInput.isVisible().catch(() => false)) {
@@ -76,15 +77,30 @@ test("generates and plays a Quick-mode quiz by pointer to a score", async ({ pag
 test("plays an MCQ Quick-mode quiz with the keyboard only", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-chromium", "keyboard pass runs on desktop");
 
-  await pasteAndConfigure(page);
+  await page.goto("/");
+  await dismissConsent(page);
 
-  // Narrow to multiple-choice only so number-key selection applies throughout.
-  await page.getByText("Fill in the blank").click();
-  await page.getByRole("button", { name: "Generate quiz" }).click();
-  await page.getByRole("button", { name: "Play quiz" }).click();
+  // Paste text
+  await page.getByLabel("Notes, text or markdown").fill(SOURCE_TEXT);
+
+  // Expand advanced options to select MCQ only
+  await page.getByRole("button", { name: "Advanced customization options" }).click();
+  await page.getByRole("button", { name: "True / False", exact: true }).click();
+  await page.getByRole("button", { name: "Short Answer", exact: true }).click();
+  await page.getByRole("button", { name: "Fill in the blank", exact: true }).click();
+
+  // Create quiz
+  await page.getByRole("button", { name: "Create a quiz" }).click();
 
   const results = page.locator('section[aria-label^="Results for"]');
   for (let i = 0; i < 30; i++) {
+    // Wait for option or results
+    const option = page.getByRole("option").first();
+    await Promise.any([
+      option.waitFor({ state: "visible", timeout: 5000 }).catch(() => {}),
+      results.waitFor({ state: "visible", timeout: 5000 }).catch(() => {})
+    ]);
+
     if (await results.isVisible().catch(() => false)) break;
     // 1 selects the first option, Enter checks, Enter advances (spec F3).
     await page.keyboard.press("1");
@@ -96,13 +112,13 @@ test("plays an MCQ Quick-mode quiz with the keyboard only", async ({ page }, tes
   await expect(results.getByText(/%/).first()).toBeVisible();
 });
 
-test("mobile viewport reaches the configure step", async ({ page }, testInfo) => {
+test("mobile viewport generates and starts a quiz", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile-chrome", "mobile-only assertion");
 
-  await page.goto("/tool");
+  await page.goto("/");
   await dismissConsent(page);
-  await page.getByLabel("Text or markdown").fill(SOURCE_TEXT);
-  await page.getByRole("button", { name: "Use this text" }).click();
+  await page.getByLabel("Notes, text or markdown").fill(SOURCE_TEXT);
+  await page.getByRole("button", { name: "Create a quiz" }).click();
 
-  await expect(page.getByRole("heading", { name: "Configure" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Check answer" })).toBeVisible();
 });

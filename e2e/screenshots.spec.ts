@@ -45,12 +45,10 @@ test("captures homepage and quiz-player screenshots", async ({ page }, testInfo)
   await page.screenshot({ path: join(OUT_DIR, "home.png"), fullPage: true });
 
   // Quiz player mid-flow.
-  await page.goto("/tool");
+  await page.goto("/");
   await dismissConsent(page);
-  await page.getByLabel("Text or markdown").fill(SOURCE_TEXT);
-  await page.getByRole("button", { name: "Use this text" }).click();
-  await page.getByRole("button", { name: "Generate quiz" }).click();
-  await page.getByRole("button", { name: "Play quiz" }).click();
+  await page.getByLabel("Notes, text or markdown").fill(SOURCE_TEXT);
+  await page.getByRole("button", { name: "Create a quiz" }).click();
   await page.getByRole("option").first().waitFor();
   await page.screenshot({ path: join(OUT_DIR, "quiz-player.png") });
 });

@@ -7,6 +7,7 @@
 
 export const CAPABILITY_IDS = [
   "quiz",
+  "quiz-image",
   "flashcards",
   "summary",
   "explain",
@@ -41,6 +42,13 @@ export const CAPABILITIES: readonly CapabilityMeta[] = [
     id: "quiz",
     label: "Generate Quiz",
     description: "Generate MCQ, True/False, Fill-in-the-blanks, and Short Answer questions from notes or PDF.",
+    mode: "object",
+    tier: "quality",
+  },
+  {
+    id: "quiz-image",
+    label: "Image → Quiz",
+    description: "Generate quiz questions from a photo, screenshot, diagram, or scanned page using a vision model.",
     mode: "object",
     tier: "quality",
   },

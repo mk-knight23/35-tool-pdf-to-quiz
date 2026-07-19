@@ -3,6 +3,7 @@
 import {
   FileText,
   FileUp,
+  Image as ImageIcon,
   Loader2,
   RotateCcw,
   Type,
@@ -58,7 +59,45 @@ export interface GenerateRequest {
 export interface WorkspaceSource {
   text: string;
   name: string;
-  origin: "paste" | "pdf";
+  origin: "paste" | "pdf" | "image";
+  /** Base64 image data URL when origin === "image" (used by the Image → Quiz vision path). */
+  image?: string;
+}
+
+/** Max source image file accepted before compression (raw upload guard). */
+const MAX_IMAGE_FILE_BYTES = 20 * 1024 * 1024;
+/** Longest edge (px) the image is downscaled to before sending to the vision model. */
+const IMAGE_MAX_EDGE = 1600;
+
+/**
+ * Load an image file, downscale it to at most IMAGE_MAX_EDGE on its longest edge, and
+ * re-encode as JPEG so the base64 payload stays small. Runs entirely in the browser.
+ */
+async function readAndCompressImage(file: File): Promise<string> {
+  if (!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
+  if (file.size > MAX_IMAGE_FILE_BYTES) throw new Error("Image is too large (max 20MB).");
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("Couldn't read the image file."));
+    reader.readAsDataURL(file);
+  });
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const el = new Image();
+    el.onload = () => resolve(el);
+    el.onerror = () => reject(new Error("That image couldn't be decoded."));
+    el.src = dataUrl;
+  });
+  const scale = Math.min(1, IMAGE_MAX_EDGE / Math.max(img.width, img.height));
+  const w = Math.max(1, Math.round(img.width * scale));
+  const h = Math.max(1, Math.round(img.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return dataUrl; // canvas unavailable — fall back to the original
+  ctx.drawImage(img, 0, 0, w, h);
+  return canvas.toDataURL("image/jpeg", 0.85);
 }
 
 interface SourceInputProps {
@@ -67,7 +106,7 @@ interface SourceInputProps {
   onCancelGenerate?: () => void;
 }
 
-type Tab = "paste" | "pdf";
+type Tab = "paste" | "pdf" | "image";
 
 const ALL_TYPES: QuestionType[] = ["mcq", "tf", "short", "fill"];
 const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard", "mixed"];
@@ -85,6 +124,12 @@ export function SourceInput({ generating, onGenerate, onCancelGenerate }: Source
   const [pdfStatus, setPdfStatus] = useState<"idle" | "parsing" | "parsed" | "error">("idle");
   const [pdfProgress, setPdfProgress] = useState<{ page: number; total: number } | null>(null);
   const [pdfError, setPdfError] = useState<string | null>(null);
+
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
+  const [imageName, setImageName] = useState("");
+  const [imageStatus, setImageStatus] = useState<"idle" | "processing" | "ready" | "error">("idle");
+  const [imageError, setImageError] = useState<string | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   // Config states
   const [count, setCount] = useState(10);
@@ -150,6 +195,32 @@ export function SourceInput({ generating, onGenerate, onCancelGenerate }: Source
     }
   }, []);
 
+  const handleImageFile = useCallback(async (file: File) => {
+    track("file_selected", { origin: "image", size: sizeBucket(file.size) });
+    setImageStatus("processing");
+    setImageError(null);
+    setImageName(file.name.replace(/\.[^.]+$/, ""));
+    try {
+      const url = await readAndCompressImage(file);
+      setImageDataUrl(url);
+      setImageStatus("ready");
+      track("file_processed", { origin: "image" });
+    } catch (e) {
+      setImageStatus("error");
+      setImageError(e instanceof Error ? e.message : "Couldn't process that image.");
+      setImageDataUrl(null);
+      track("tool_failed", { stage: "image_process" });
+    }
+  }, []);
+
+  const resetImage = () => {
+    setImageStatus("idle");
+    setImageError(null);
+    setImageDataUrl(null);
+    setImageName("");
+    if (imageInputRef.current) imageInputRef.current.value = "";
+  };
+
   const resetPdf = () => {
     setPdfStatus("idle");
     setPdfError(null);
@@ -172,27 +243,40 @@ export function SourceInput({ generating, onGenerate, onCancelGenerate }: Source
   const canSubmit =
     tab === "paste"
       ? pasteWords >= 1
-      : pdfStatus === "parsed" && selectedChars >= 1;
+      : tab === "image"
+        ? imageStatus === "ready" && Boolean(imageDataUrl)
+        : pdfStatus === "parsed" && selectedChars >= 1;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
 
-    const source =
+    const source: WorkspaceSource =
       tab === "paste"
         ? {
             text: pasteText,
             name: pasteTitle.trim() || "Pasted notes",
-            origin: "paste" as const,
+            origin: "paste",
           }
-        : {
-            text: joinPages(pdfExtraction!, selectedPages),
-            name: pdfFileName.replace(/\.pdf$/i, ""),
-            origin: "pdf" as const,
-          };
+        : tab === "image"
+          ? {
+              text: "",
+              name: imageName.trim() || "Image quiz",
+              origin: "image",
+              image: imageDataUrl ?? undefined,
+            }
+          : {
+              text: joinPages(pdfExtraction!, selectedPages),
+              name: pdfFileName.replace(/\.pdf$/i, ""),
+              origin: "pdf",
+            };
+
+    // Image → Quiz is a vision (AI) capability and always produces a quiz.
+    const effectiveMode: GenMode = tab === "image" ? "ai" : mode;
+    const effectiveOutput: OutputType = tab === "image" ? "quiz" : output;
 
     const request: GenerateRequest = {
-      output,
-      mode,
+      output: effectiveOutput,
+      mode: effectiveMode,
       quiz: {
         count,
         types,
@@ -202,7 +286,7 @@ export function SourceInput({ generating, onGenerate, onCancelGenerate }: Source
         timeLimitSec: timeLimitMin * 60,
       },
       cardCount,
-      byok: mode === "ai" ? (byok.trim() || null) : null,
+      byok: effectiveMode === "ai" ? (byok.trim() || null) : null,
       previewBeforePlay,
     };
 
@@ -258,6 +342,21 @@ export function SourceInput({ generating, onGenerate, onCancelGenerate }: Source
           <FileUp size={16} strokeWidth={2} aria-hidden />
           Upload PDF
         </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "image"}
+          onClick={() => setTab("image")}
+          className={cn(
+            "inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 border border-transparent cursor-pointer",
+            tab === "image"
+              ? "bg-white/20 dark:bg-white/10 text-ink shadow-sm border-white/25 dark:border-white/10 font-bold"
+              : "text-ink-secondary hover:text-ink hover:bg-white/5"
+          )}
+        >
+          <ImageIcon size={16} strokeWidth={2} aria-hidden />
+          Image → Quiz
+        </button>
       </div>
 
       {/* Inputs panel */}
@@ -293,7 +392,7 @@ export function SourceInput({ generating, onGenerate, onCancelGenerate }: Source
               </p>
             </div>
           </div>
-        ) : (
+        ) : tab === "pdf" ? (
           <div className="flex flex-col gap-4">
             <input
               ref={pdfInputRef}
@@ -423,6 +522,61 @@ export function SourceInput({ generating, onGenerate, onCancelGenerate }: Source
                 </div>
               </div>
             ) : null}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) void handleImageFile(file);
+              }}
+            />
+            {imageStatus === "ready" && imageDataUrl ? (
+              <div className="flex flex-col gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={imageDataUrl}
+                  alt="Selected source"
+                  className="max-h-64 w-full rounded-xl border border-white/20 dark:border-white/5 object-contain bg-white/20 dark:bg-slate-900/30"
+                />
+                <div className="flex items-center justify-between gap-2">
+                  <p className="truncate text-xs text-ink-muted">{imageName || "Image"}</p>
+                  <Button variant="ghost" size="sm" onClick={resetImage}>
+                    <RotateCcw size={14} strokeWidth={2} aria-hidden /> Change image
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/25 dark:border-white/10 bg-white/10 dark:bg-slate-900/20 px-6 py-10 text-center transition-colors hover:border-accent hover:bg-white/20 cursor-pointer"
+              >
+                {imageStatus === "processing" ? (
+                  <Loader2 size={22} strokeWidth={2} className="animate-spin text-accent" aria-hidden />
+                ) : (
+                  <ImageIcon size={22} strokeWidth={2} className="text-ink-muted" aria-hidden />
+                )}
+                <span className="text-sm font-semibold text-ink">
+                  {imageStatus === "processing" ? "Processing image…" : "Choose an image"}
+                </span>
+                <span className="text-xs text-ink-muted">
+                  Photo, screenshot, diagram, slide, or scanned page · PNG/JPG/WebP
+                </span>
+              </button>
+            )}
+            {imageError ? (
+              <p className="text-xs font-medium text-red-500">{imageError}</p>
+            ) : (
+              <p className="text-xs text-ink-muted">
+                Uses a vision AI model (AI mode) to read the image and write questions. The image is
+                sent to the model for generation and is not stored.
+              </p>
+            )}
           </div>
         )}
       </div>

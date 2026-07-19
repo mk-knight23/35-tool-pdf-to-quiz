@@ -159,15 +159,24 @@ export function ToolWorkspace() {
           track("ai_started", { output: req.output });
           try {
             if (req.output === "quiz") {
+              const fromImage = src.origin === "image" && Boolean(src.image);
               const res = await runObjectCapability<{ questions: RawQuestion[] }>({
-                id: "quiz",
-                body: {
-                  text: src.text,
-                  count: req.quiz.count,
-                  types: req.quiz.types,
-                  difficulty: req.quiz.difficulty,
-                  audience: req.quiz.audience,
-                },
+                id: fromImage ? "quiz-image" : "quiz",
+                body: fromImage
+                  ? {
+                      image: src.image,
+                      count: req.quiz.count,
+                      types: req.quiz.types,
+                      difficulty: req.quiz.difficulty,
+                      audience: req.quiz.audience,
+                    }
+                  : {
+                      text: src.text,
+                      count: req.quiz.count,
+                      types: req.quiz.types,
+                      difficulty: req.quiz.difficulty,
+                      audience: req.quiz.audience,
+                    },
                 byok: req.byok,
                 signal: controller.signal,
               });

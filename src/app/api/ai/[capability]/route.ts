@@ -15,7 +15,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const MAX_BODY_BYTES = 1024 * 1024; // 1MB body limit
+const MAX_BODY_BYTES = 1024 * 1024; // 1MB body limit (text capabilities)
+const MAX_IMAGE_BODY_BYTES = 9 * 1024 * 1024; // vision capabilities carry a base64 image
 
 interface RouteContext {
   params: Promise<{ capability: string }>;
@@ -48,9 +49,10 @@ export async function POST(req: Request, context: RouteContext) {
       );
     }
 
-    // 2. Read and size guard the body
+    // 2. Read and size guard the body (vision capabilities carry a base64 image → larger cap)
     const raw = await req.text();
-    if (raw.length > MAX_BODY_BYTES) {
+    const bodyCap = capability === "quiz-image" ? MAX_IMAGE_BODY_BYTES : MAX_BODY_BYTES;
+    if (raw.length > bodyCap) {
       throw new AiError("payload_too_large", "The request is too large.");
     }
     let parsedBody: unknown;
@@ -98,11 +100,26 @@ export async function POST(req: Request, context: RouteContext) {
     const built = spec.build(input);
 
     try {
+      const hasImages = Array.isArray(built.images) && built.images.length > 0;
       const { object } = await generateObject({
         model,
         schema: spec.outputSchema,
         system: built.system,
-        prompt: built.prompt,
+        // Vision capabilities send the image(s) as user message content; text
+        // capabilities keep the simple prompt form.
+        ...(hasImages
+          ? {
+              messages: [
+                {
+                  role: "user" as const,
+                  content: [
+                    { type: "text" as const, text: built.prompt },
+                    ...built.images!.map((image) => ({ type: "image" as const, image })),
+                  ],
+                },
+              ],
+            }
+          : { prompt: built.prompt }),
         abortSignal: req.signal,
       });
 

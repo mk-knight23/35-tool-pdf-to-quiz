@@ -9,7 +9,21 @@ import { MAX_INPUT_CHARS, type CapabilityId } from "./catalog";
 export interface BuiltPrompt {
   system: string;
   prompt: string;
+  /** Optional image data URLs to send as vision message content (e.g. Image → Quiz). */
+  images?: string[];
 }
+
+/** Max base64 image data-URL length accepted by vision capabilities (~6MB encoded). */
+export const MAX_IMAGE_DATA_URL_CHARS = 8_000_000;
+
+const imageField = z
+  .string()
+  .min(1, "Image is required.")
+  .max(MAX_IMAGE_DATA_URL_CHARS, "Image is too large — please use a smaller image.")
+  .refine(
+    (v) => /^data:image\/(png|jpe?g|webp|gif);base64,/.test(v),
+    "Image must be a base64 PNG, JPEG, WebP, or GIF data URL."
+  );
 
 interface ObjectCapabilitySpec {
   mode: "object";
@@ -120,6 +134,28 @@ Allowed question types: ${input.types.join(", ")}.
 
 Honesty Rule: Do not invent facts, names, or statistics not mentioned in the source. If the source material lacks details for the requested question count, return only as many high-quality questions as possible. All MCQ questions must have exactly 4 plausible options, with exactly one correct option. True/False questions must have options ['True', 'False'] and correctIndex corresponding to the correct answer. Fill-in-the-blank questions must have '_____' in the prompt and correctIndex as -1, with acceptable answers in acceptableAnswers.`,
       prompt: input.text,
+    }),
+  },
+
+  "quiz-image": {
+    mode: "object",
+    inputSchema: z.object({
+      image: imageField,
+      count: z.number().int().min(1).max(30),
+      types: z.array(questionTypeSchema).min(1),
+      difficulty: difficultySchema,
+      audience: audienceSchema,
+    }),
+    outputSchema: quizOutputSchema,
+    build: (input) => ({
+      system: `You are an expert quiz generator working from an IMAGE (a photo, screenshot, diagram, chart, slide, or scanned page). Generate a set of ${input.count} questions based ONLY on what is actually visible in the image — its text, labels, figures, diagrams, and data.
+Difficulty target: ${input.difficulty}.
+Target audience level: ${input.audience}.
+Allowed question types: ${input.types.join(", ")}.
+
+Honesty Rule: Do not invent facts, names, or statistics that are not visible in the image. If the image lacks enough content for the requested count, return only as many high-quality questions as the image supports. If the image contains no readable educational content, return an empty questions array. All MCQ questions must have exactly 4 plausible options with exactly one correct option. True/False questions must have options ['True', 'False'] and correctIndex for the correct answer. Fill-in-the-blank questions must have '_____' in the prompt and correctIndex -1, with acceptable answers in acceptableAnswers.`,
+      prompt: "Generate the quiz from the attached image.",
+      images: [input.image],
     }),
   },
 

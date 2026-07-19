@@ -24,7 +24,11 @@ export type AnalyticsEvent =
   | "settings_changed"
   | "feedback_submitted"
   | "guide_opened"
-  | "quota_reached";
+  | "quota_reached"
+  | "quiz_cloud_shared"
+  | "shared_quiz_started"
+  | "shared_quiz_finished"
+  | "shared_quiz_cta_clicked";
 
 export type AnalyticsParams = Record<string, string | number | boolean>;
 

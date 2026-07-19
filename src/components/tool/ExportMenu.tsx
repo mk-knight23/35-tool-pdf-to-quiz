@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, FileJson, FileSpreadsheet, FileText, Link2, Printer } from "lucide-react";
+import { Check, Cloud, FileJson, FileSpreadsheet, FileText, Link2, Printer } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { track } from "@/lib/analytics";
@@ -20,7 +20,8 @@ interface ExportMenuProps {
 }
 
 export function ExportMenu({ quiz }: ExportMenuProps) {
-  const [copied, setCopied] = useState<"share" | null>(null);
+  const [copied, setCopied] = useState<"share" | "cloud" | null>(null);
+  const [sharing, setSharing] = useState(false);
   const slug = slugify(quiz.title);
 
   const openPrintable = () => {
@@ -50,6 +51,29 @@ export function ExportMenu({ quiz }: ExportMenuProps) {
       window.setTimeout(() => setCopied(null), 2500);
     } catch {
       /* clipboard blocked — non-fatal */
+    }
+  };
+
+  // Publish the quiz to the cloud and copy a short /q/<code> link (opt-in: only on click).
+  const copyCloudShare = async () => {
+    setSharing(true);
+    try {
+      const res = await fetch("/api/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(quiz),
+      });
+      if (!res.ok) throw new Error("share failed");
+      const { path } = (await res.json()) as { path: string };
+      const url = `${window.location.origin}${path}`;
+      await navigator.clipboard.writeText(url);
+      setCopied("cloud");
+      track("quiz_cloud_shared", { count: quiz.questions.length });
+      window.setTimeout(() => setCopied(null), 2500);
+    } catch {
+      /* network/clipboard blocked — non-fatal */
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -92,10 +116,22 @@ export function ExportMenu({ quiz }: ExportMenuProps) {
             </>
           )}
         </Button>
+        <Button variant="secondary" size="sm" onClick={copyCloudShare} disabled={sharing}>
+          {copied === "cloud" ? (
+            <>
+              <Check size={14} strokeWidth={2} aria-hidden /> Cloud link copied
+            </>
+          ) : (
+            <>
+              <Cloud size={14} strokeWidth={2} aria-hidden /> {sharing ? "Publishing…" : "Share via cloud"}
+            </>
+          )}
+        </Button>
       </div>
       <p className="text-xs text-ink-muted">
-        JSON re-imports into QuizFlow. The share link carries the quiz in the URL — long quizzes make
-        long links.
+        JSON re-imports into QuizFlow. “Copy share link” carries the quiz in the URL (long quizzes make
+        long links). “Share via cloud” publishes it and copies a short <code>/q/…</code> link anyone can
+        open — no sign-up.
       </p>
     </div>
   );
